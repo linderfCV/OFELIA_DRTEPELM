@@ -13,13 +13,15 @@ interface DiagnosticFlowProps {
 }
 
 const SECTORS = [
-  { id: "gastronomia", label: "Gastronomía y Restaurantes", icon: "🍳" },
-  { id: "comercio", label: "Comercio y Tiendas (Ropa, Abarrotes)", icon: "🛒" },
-  { id: "servicios", label: "Servicios Profesionales y Salud", icon: "💼" },
-  { id: "manufactura", label: "Manufactura y Confección", icon: "🧵" },
-  { id: "tecnologia", label: "Tecnología y Ecommerce", icon: "💻" },
+  { id: "gastronomia", label: "Gastronomía (Restaurantes, Cafés, Comida al paso)", icon: "🍳" },
+  { id: "comercio", label: "Comercio (Tiendas de ropa, Minimarkets, Abarrotes)", icon: "🛒" },
+  { id: "textil", label: "Manufactura y Textil (Gamarra, Confecciones)", icon: "🧵" },
+  { id: "servicios", label: "Servicios Profesionales y Técnicos", icon: "💼" },
+  { id: "belleza", label: "Belleza y Cuidado Personal (Peluquerías, Spas)", icon: "💅" },
+  { id: "transporte", label: "Transporte, Logística y Delivery", icon: "🛵" },
+  { id: "tecnologia", label: "Tecnología, Apps y E-commerce", icon: "💻" },
+  { id: "salud", label: "Salud y Bienestar (Boticas, Consultorios)", icon: "🏥" },
   { id: "construccion", label: "Construcción y Ferretería", icon: "🏗️" },
-  { id: "transporte", label: "Transporte y Delivery", icon: "🛵" },
   { id: "otros", label: "Otros Sectores", icon: "✨" },
 ];
 
@@ -58,8 +60,8 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
   // Global steps: 0 (Stage), 1 (Sector), 2 (District)
   // Route steps: 3 to N
   const totalGlobalSteps = 3;
-  const totalRouteSteps = routeType ? routeQuestions[routeType].length : 0;
-  const totalSteps = totalGlobalSteps + totalRouteSteps;
+  const routeSteps = routeType ? routeQuestions[routeType] : [];
+  const totalSteps = totalGlobalSteps + routeSteps.length;
   
   const currentProgress = ((step + 1) / totalSteps) * 100;
 
@@ -122,7 +124,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     );
   }
 
-  // STEP 1: Sector / Rubro
+  // STEP 1: Sector / Rubro (Lista de selección optimizada)
   if (step === 1) {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -135,21 +137,26 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
           <h2 className="text-2xl font-black text-[#1A1A1A] pt-4 leading-[1.2] tracking-tight">
             ¿Cuál es el rubro o sector de tu negocio?
           </h2>
+          <p className="text-sm text-muted-foreground font-medium">Selecciona el rubro principal para Lima Metropolitana.</p>
         </div>
 
-        <div className="grid grid-cols-1 gap-3">
-          {SECTORS.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => { setSector(s.label); handleNext({ sector: s.label }); }}
-              className="flex items-center gap-3 p-4 bg-white border border-gray-100 rounded-xl text-left hover:border-primary/30 transition-all hover:bg-gray-50 group"
-            >
-              <span className="text-2xl">{s.icon}</span>
-              <span className="text-sm font-bold text-gray-700 flex-1">{s.label}</span>
-              <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-primary" />
-            </button>
-          ))}
-        </div>
+        <ScrollArea className="h-[400px] pr-2">
+          <div className="grid gap-2 pb-4">
+            {SECTORS.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => { setSector(s.label); handleNext({ sector: s.label }); }}
+                className="flex items-center gap-4 p-4 bg-white border border-gray-100 rounded-xl text-left hover:border-primary/30 transition-all hover:bg-gray-50 group"
+              >
+                <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-xl grayscale group-hover:grayscale-0 transition-all">
+                  {s.icon}
+                </div>
+                <span className="text-sm font-bold text-gray-700 flex-1">{s.label}</span>
+                <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-primary" />
+              </button>
+            ))}
+          </div>
+        </ScrollArea>
       </div>
     );
   }

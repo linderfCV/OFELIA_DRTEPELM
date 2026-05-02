@@ -25,9 +25,13 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
   };
 
   const getGreeting = () => {
-    if (context === 'idea') return "¡Hola! Veo que tienes una idea de negocio. ¿Te ayudo con los trámites en SUNARP o a elegir tu constitución jurídica?";
-    if (context === 'active') return "¡Hola! Estoy aquí para ayudarte a regularizar tu negocio. ¿Tienes dudas sobre REMYPE o tu licencia municipal?";
-    return "¡Hola! Soy OFELIA, tu asistente virtual. Regístrate para darte una asesoría personalizada.";
+    if (context === 'idea') {
+      return "¡Hola! Soy OFELIA, tu asistente de formalización. ¡Qué chévere que quieras iniciar tu ruta de formalización con esa idea de negocio! ¿Te ayudo con los trámites en SUNARP o a proteger tu marca en INDECOPI?";
+    }
+    if (context === 'active') {
+      return "¡Hola! Soy OFELIA. ¡Qué bueno que estés dando el paso para formalizar tu negocio! Estoy aquí para ayudarte con el REMYPE o tus dudas municipales. ¡Vamos con todo!";
+    }
+    return "¡Hola! Soy OFELIA, tu asistente de formalización. ¡Qué chévere que estés por aquí! Regístrate rapidito para darte una asesoría personalizada y empezar tu ruta al éxito.";
   };
 
   return (

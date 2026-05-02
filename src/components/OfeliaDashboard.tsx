@@ -75,14 +75,14 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       title: "Elaborar Acto Constitutivo (Minuta)",
       icon: <FileText className="w-5 h-5 text-primary" />,
       description: "¿DE QUÉ SE TRATA?",
-      details: "Es el documento legal donde se definen los estatutos de la empresa, los socios y el capital social. Debe ser elevado a Escritura Pública por un notario.",
+      details: "Es el documento legal donde se definen los estatutos de la empresa, los socios y el capital social. Puede gestionarse a través de un CDE (PRODUCE) para reducir costos.",
       requirements: [
         "Constancia de Reserva de nombre en SUNARP.",
         "Copia de DNI de los socios.",
         "Detalle de aportes de capital (bienes o efectivo)."
       ],
       steps: [
-        "Acude a una Notaría o a un Centro de Desarrollo Empresarial (CDE).",
+        "Acude a una Notaría o a un Centro de Desarrollo Empresarial (CDE) de PRODUCE.",
         "Firma la minuta elaborada por el abogado o centro de asesoría.",
         "El notario enviará el parte electrónico a SUNARP para la inscripción."
       ]
@@ -129,7 +129,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     {
       id: "ruc-update",
       step: "PASO 1",
-      title: "Actualización de RUC y Datos",
+      title: "Actualización de RUC y Datos (SUNAT)",
       icon: <CreditCard className="w-5 h-5 text-primary" />,
       description: "¿POR QUÉ ACTUALIZAR?",
       details: "Asegura que tu actividad económica y domicilio fiscal estén al día para evitar multas innecesarias de SUNAT.",
@@ -206,7 +206,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         <h2 className="text-3xl font-black text-[#1A1A1A] tracking-tight">
           Tu Hoja de Ruta para tu Formalización
         </h2>
-        <p className="text-sm text-muted-foreground font-medium">Sigue estos pasos con información basada en el portal oficial GOV.PE.</p>
+        <p className="text-sm text-muted-foreground font-medium">Sigue estos pasos con información basada en portales oficiales.</p>
       </header>
 
       <div className="space-y-4">

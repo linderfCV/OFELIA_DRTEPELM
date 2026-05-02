@@ -10,7 +10,8 @@ import {
   MessageSquare,
   ChevronDown,
   ClipboardList,
-  AlertCircle
+  AlertCircle,
+  RefreshCcw
 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -25,9 +26,10 @@ interface OfeliaDashboardProps {
   routeType: 'idea' | 'active';
   results: Record<number, boolean>;
   onOpenChat?: () => void;
+  onRedoDiagnostic?: () => void;
 }
 
-export function OfeliaDashboard({ routeType, results, onOpenChat }: OfeliaDashboardProps) {
+export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnostic }: OfeliaDashboardProps) {
   const getIdeaTasks = () => [
     {
       id: "sunarp",
@@ -166,9 +168,22 @@ export function OfeliaDashboard({ routeType, results, onOpenChat }: OfeliaDashbo
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header className="space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full">
-          <ClipboardList className="w-3.5 h-3.5 text-primary" />
-          <p className="text-[10px] font-black text-primary uppercase tracking-wider">TUS TAREAS PRIORITARIAS</p>
+        <div className="flex justify-between items-start">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full">
+            <ClipboardList className="w-3.5 h-3.5 text-primary" />
+            <p className="text-[10px] font-black text-primary uppercase tracking-wider">TUS TAREAS PRIORITARIAS</p>
+          </div>
+          {onRedoDiagnostic && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onRedoDiagnostic}
+              className="h-7 text-[9px] font-bold text-muted-foreground hover:text-primary gap-1.5"
+            >
+              <RefreshCcw className="w-3 h-3" />
+              REHACER DIAGNÓSTICO
+            </Button>
+          )}
         </div>
         <h2 className="text-3xl font-black text-[#1A1A1A] tracking-tight">
           Tu Hoja de Ruta para tu Formalización
@@ -261,6 +276,16 @@ export function OfeliaDashboard({ routeType, results, onOpenChat }: OfeliaDashbo
         </div>
         <Button className="w-full bg-white text-primary hover:bg-gray-50 font-black h-12 rounded-xl text-xs uppercase tracking-widest">
           AGENDAR ASESORÍA GRATUITA
+        </Button>
+      </div>
+
+      <div className="text-center pt-2">
+        <Button 
+          variant="link" 
+          onClick={onRedoDiagnostic}
+          className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:text-primary transition-colors"
+        >
+          ¿Deseas cambiar tu perfil? Realizar nuevamente el diagnóstico
         </Button>
       </div>
     </div>

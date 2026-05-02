@@ -24,6 +24,12 @@ export default function Home() {
     setStep('dashboard');
   };
 
+  const handleRedoDiagnostic = () => {
+    setResults(null);
+    setRouteType(null);
+    setStep('diagnostic');
+  };
+
   const openChat = () => {
     setIsChatOpen(true);
   };
@@ -84,6 +90,7 @@ export default function Home() {
             routeType={routeType} 
             results={results} 
             onOpenChat={openChat}
+            onRedoDiagnostic={handleRedoDiagnostic}
           />
         )}
       </div>

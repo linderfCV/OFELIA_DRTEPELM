@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -8,10 +7,22 @@ import { Button } from "@/components/ui/button"
 interface OfeliaChatbotProps {
   context: 'idea' | 'active' | null;
   currentStep: string;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function OfeliaChatbot({ context, currentStep }: OfeliaChatbotProps) {
-  const [isOpen, setIsOpen] = React.useState(false);
+export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, onOpenChange }: OfeliaChatbotProps) {
+  const [internalIsOpen, setInternalIsOpen] = React.useState(false);
+
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  
+  const setIsOpen = (value: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(value);
+    } else {
+      setInternalIsOpen(value);
+    }
+  };
 
   const getGreeting = () => {
     if (context === 'idea') return "¡Hola! Veo que tienes una idea de negocio. ¿Te ayudo con los trámites en SUNARP o a elegir tu constitución jurídica?";

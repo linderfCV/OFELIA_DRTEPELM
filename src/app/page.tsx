@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from "react";
@@ -12,6 +11,7 @@ export default function Home() {
   const [userData, setUserData] = React.useState<any>(null);
   const [routeType, setRouteType] = React.useState<'idea' | 'active' | null>(null);
   const [results, setResults] = React.useState<any>(null);
+  const [isChatOpen, setIsChatOpen] = React.useState(false);
 
   const handleRegistrationComplete = (data: any) => {
     setUserData(data);
@@ -22,6 +22,10 @@ export default function Home() {
     setRouteType(type);
     setResults(diagnosticResults);
     setStep('dashboard');
+  };
+
+  const openChat = () => {
+    setIsChatOpen(true);
   };
 
   return (
@@ -76,7 +80,11 @@ export default function Home() {
         )}
 
         {step === 'dashboard' && routeType && (
-          <OfeliaDashboard routeType={routeType} results={results} />
+          <OfeliaDashboard 
+            routeType={routeType} 
+            results={results} 
+            onOpenChat={openChat}
+          />
         )}
       </div>
 
@@ -89,7 +97,12 @@ export default function Home() {
         </footer>
       )}
 
-      <OfeliaChatbot context={routeType} currentStep={step} />
+      <OfeliaChatbot 
+        context={routeType} 
+        currentStep={step} 
+        isOpen={isChatOpen}
+        onOpenChange={setIsChatOpen}
+      />
     </div>
   );
 }

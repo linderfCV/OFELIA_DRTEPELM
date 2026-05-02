@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -25,9 +24,10 @@ import {
 interface OfeliaDashboardProps {
   routeType: 'idea' | 'active';
   results: Record<number, boolean>;
+  onOpenChat?: () => void;
 }
 
-export function OfeliaDashboard({ routeType, results }: OfeliaDashboardProps) {
+export function OfeliaDashboard({ routeType, results, onOpenChat }: OfeliaDashboardProps) {
   const getIdeaTasks = () => [
     {
       id: "sunarp",
@@ -230,7 +230,10 @@ export function OfeliaDashboard({ routeType, results }: OfeliaDashboardProps) {
                     </div>
                   </section>
 
-                  <div className="bg-red-50/50 border border-dashed border-primary/20 rounded-xl p-4 mt-4 flex items-center justify-between group cursor-pointer hover:bg-red-50 transition-colors">
+                  <div 
+                    onClick={onOpenChat}
+                    className="bg-red-50/50 border border-dashed border-primary/20 rounded-xl p-4 mt-4 flex items-center justify-between group cursor-pointer hover:bg-red-50 transition-colors"
+                  >
                     <div className="flex items-center gap-3">
                       <MessageSquare className="w-4 h-4 text-primary" />
                       <p className="text-[10px] font-bold text-primary text-center">
@@ -263,4 +266,3 @@ export function OfeliaDashboard({ routeType, results }: OfeliaDashboardProps) {
     </div>
   );
 }
-

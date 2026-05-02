@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -26,7 +27,11 @@ const formSchema = z.object({
   phone: z.string().min(9, "9 dígitos requeridos"),
 })
 
-export function OfeliaForm() {
+interface OfeliaFormProps {
+  onComplete: (data: z.infer<typeof formSchema>) => void;
+}
+
+export function OfeliaForm({ onComplete }: OfeliaFormProps) {
   const [docType, setDocType] = React.useState<"DNI" | "RUC">("DNI")
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -41,7 +46,7 @@ export function OfeliaForm() {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+    onComplete(values);
   }
 
   const handleDocTypeChange = (type: "DNI" | "RUC") => {

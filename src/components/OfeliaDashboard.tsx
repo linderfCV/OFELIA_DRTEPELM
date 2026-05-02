@@ -12,7 +12,8 @@ import {
   ChevronDown,
   ClipboardList,
   AlertCircle,
-  RefreshCcw
+  RefreshCcw,
+  ShieldCheck
 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -35,75 +36,91 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     {
       id: "sunarp",
       step: "PASO 1",
-      title: "Búsqueda y Reserva de Nombre (SUNARP)",
+      title: "Reserva de Nombre Legal (SUNARP)",
       icon: <Search className="w-5 h-5 text-primary" />,
       description: "¿POR QUÉ ES EL PRIMER PASO?",
-      details: "La reserva de nombre es un paso previo a la constitución. No es obligatorio pero facilita la inscripción en el Registro de Personas Jurídicas. Protege tu nombre por 30 días para que nadie más lo use.",
+      details: "La reserva de nombre es el paso previo a la constitución de tu empresa (Persona Jurídica). Protege el nombre elegido por 30 días para que nadie más lo use mientras terminas los trámites.",
       requirements: [
-        "DNI o Pasaporte vigente",
-        "Formulario de solicitud de reserva de nombre (proporcionado por SUNARP)",
-        "Pago de derechos registrales (Búsqueda S/ 5.00 | Reserva S/ 24.00)"
+        "DNI o Pasaporte vigente.",
+        "Mínimo 3 opciones de nombres para tu empresa.",
+        "Formulario de solicitud de reserva (puedes hacerlo vía SPRL)."
       ],
       steps: [
-        "Realiza la búsqueda de índices en SUNARP para verificar que el nombre no esté registrado.",
-        "Solicita la reserva de nombre indicando el tipo de persona jurídica (SAC, EIRL, etc.).",
-        "Obtén tu constancia de Reserva de Nombre, útil para la elaboración de la minuta."
+        "Realiza una 'Búsqueda de Índices' en SUNARP para verificar que el nombre no exista (Costo: S/ 5.00).",
+        "Solicita la Reserva de Nombre indicando el tipo de sociedad (SAC, EIRL, SRL, etc.).",
+        "Paga la tasa registral (Costo: S/ 24.00) y obtén tu constancia de reserva."
+      ]
+    },
+    {
+      id: "indecopi",
+      step: "PASO 2",
+      title: "Protección de Marca (INDECOPI)",
+      icon: <ShieldCheck className="w-5 h-5 text-primary" />,
+      description: "¿PARA QUÉ SIRVE?",
+      details: "A diferencia de SUNARP (que registra el nombre de la empresa), INDECOPI protege el nombre de tu producto o servicio (la marca) para evitar que otros se beneficien de tu prestigio.",
+      requirements: [
+        "Definir en qué clase vas a registrar tu marca (Clasificación de Niza).",
+        "Tener el logo de tu marca en formato digital (si es marca mixta).",
+        "Pago de tasa administrativa (Costo aproximado: S/ 534.99)."
+      ],
+      steps: [
+        "Realiza una 'Búsqueda Fonética' gratuita en el portal de INDECOPI para ver si el nombre ya está registrado.",
+        "Solicita una asesoría virtual gratuita en la 'Plataforma de Marcas' de INDECOPI.",
+        "Presenta tu solicitud de registro de marca vía web en la Gaceta Electrónica."
       ]
     },
     {
       id: "acto",
-      step: "PASO 2",
+      step: "PASO 3",
       title: "Elaborar Acto Constitutivo (Minuta)",
       icon: <FileText className="w-5 h-5 text-primary" />,
       description: "¿DE QUÉ SE TRATA?",
-      details: "Es el documento donde los socios manifiestan su voluntad de constituir la empresa. Define el tipo de sociedad, los estatutos y el objeto social.",
+      details: "Es el documento donde manifiestas tu voluntad de constituir la empresa. Aquí se definen los estatutos, aportes de capital y gerentes.",
       requirements: [
-        "Reserva de nombre en SUNARP",
-        "Copia de DNI de los socios y cónyuges",
-        "Archivo con el objeto social (actividades de la empresa)",
-        "Capital social (dinero o bienes detallados)"
+        "Reserva de nombre en SUNARP.",
+        "Copia de DNI de los socios y cónyuges.",
+        "Archivo con el objeto social y detalle de bienes/capital."
       ],
       steps: [
-        "Acude a una notaría o al Centro de Desarrollo Empresarial (CDE) del Produce.",
-        "Firma la minuta y el notario la elevará a Escritura Pública.",
-        "El notario enviará el parte a SUNARP para su inscripción final."
+        "Acude a una Notaría o a un Centro de Desarrollo Empresarial (CDE) del Produce.",
+        "Firma la minuta; el notario la elevará a Escritura Pública.",
+        "El notario enviará el parte electrónico a SUNARP para la inscripción final."
       ]
     },
     {
       id: "sunat",
-      step: "PASO 3",
-      title: "Inscripción en el RUC y Clave SOL",
+      step: "PASO 4",
+      title: "RUC y Régimen Tributario (SUNAT)",
       icon: <CreditCard className="w-5 h-5 text-primary" />,
       description: "¿DE QUÉ SE TRATA?",
-      details: "El RUC es el número que identifica a tu empresa ante la SUNAT para fines tributarios. Es gratuito e indispensable para emitir facturas.",
+      details: "El RUC es el número que identifica a tu empresa ante la SUNAT. Es gratuito e indispensable para emitir facturas y boletas.",
       requirements: [
-        "Escritura pública inscrita en Registros Públicos",
-        "Recibo de servicios (luz/agua) del domicilio fiscal",
-        "DNI del representante legal"
+        "Escritura pública inscrita en SUNARP.",
+        "Recibo de servicios (luz/agua) del domicilio fiscal.",
+        "DNI del representante legal."
       ],
       steps: [
         "Realiza el trámite virtual vía 'App Personas' o presencial en SUNAT.",
-        "Elige tu régimen tributario (NRUS, RER, MYPE Tributario o General).",
-        "Activa tu Clave SOL para realizar declaraciones y pagos electrónicos."
+        "Elige tu régimen (MYPE Tributario, Especial o General) según tu proyección de ventas.",
+        "Activa tu Clave SOL y autoriza la impresión o emisión electrónica de comprobantes."
       ]
     },
     {
       id: "municipal",
-      step: "PASO 4",
-      title: "Licencia de Funcionamiento Municipal",
+      step: "PASO 5",
+      title: "Licencia de Funcionamiento",
       icon: <MapPin className="w-5 h-5 text-primary" />,
-      description: "¿DE QUÉ SE TRATA?",
-      details: "Es la autorización que otorga tu municipalidad para que puedas operar en un local físico. Certifica que el establecimiento es apto según zonificación.",
+      description: "¿AUTORIZACIÓN MUNICIPAL?",
+      details: "Es la autorización que otorga la municipalidad para que tu negocio pueda operar en un local específico, garantizando que es seguro para el público.",
       requirements: [
-        "RUC activo y habido",
-        "DNI del titular o representante",
-        "Croquis de ubicación y declaración jurada de seguridad",
-        "Pago de tasa municipal según TUPA distrital"
+        "RUC activo y habido.",
+        "Declaración Jurada de Observancia de Condiciones de Seguridad.",
+        "Pago de tasa municipal (varía según el distrito)."
       ],
       steps: [
-        "Consulta la zonificación y compatibilidad de uso en el municipio.",
-        "Presenta la solicitud de licencia junto con la declaración jurada.",
-        "Recibe la inspección técnica de seguridad (ITSE) posterior o previa."
+        "Consulta la zonificación y compatibilidad de uso en el municipio del local.",
+        "Presenta la solicitud de licencia junto con los planos de ubicación si es necesario.",
+        "Recibe la inspección técnica de seguridad (ITSE) posterior a la entrega de la licencia."
       ]
     }
   ];
@@ -114,15 +131,15 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       step: "PASO 1",
       title: "Actualización de RUC y Datos",
       icon: <CreditCard className="w-5 h-5 text-primary" />,
-      description: "¿DE QUÉ SE TRATA?",
-      details: "Asegura que tu actividad económica (CIIU) y domicilio fiscal coincidan con tu operación real actual para evitar multas.",
+      description: "¿POR QUÉ ACTUALIZAR?",
+      details: "Asegura que tu actividad económica (CIIU) y domicilio fiscal coincidan con tu operación real para evitar multas de SUNAT.",
       requirements: [
-        "Clave SOL activa",
-        "Documento que sustente el domicilio (si hubo cambio)"
+        "Clave SOL activa.",
+        "DNI del representante legal."
       ],
       steps: [
         "Ingresa a SUNAT Operaciones en Línea.",
-        "Verifica y actualiza tu actividad principal y secundaria.",
+        "Verifica que tu actividad principal y secundaria sean las correctas.",
         "Confirma que tu estado sea 'ACTIVO' y condición 'HABIDO'."
       ]
     },
@@ -132,16 +149,16 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       title: "Registro en REMYPE (MTPE)",
       icon: <ClipboardList className="w-5 h-5 text-primary" />,
       description: "¿BENEFICIOS LABORALES?",
-      details: "Permite acceder a un régimen laboral especial con menores costos laborales para micro y pequeñas empresas.",
+      details: "El REMYPE permite a las micro y pequeñas empresas acceder a un régimen laboral especial con menores costos en beneficios sociales.",
       requirements: [
-        "RUC con Clave SOL",
-        "Tener al menos 1 trabajador (en T-Registro)",
-        "Ventas anuales hasta 1,700 UIT"
+        "RUC con Clave SOL.",
+        "Tener al menos 1 trabajador registrado en T-Registro.",
+        "Ventas anuales que no superen las 1,700 UIT."
       ],
       steps: [
         "Ingresa al portal del MTPE con tu clave SOL.",
-        "Completa la ficha de registro de la micro o pequeña empresa.",
-        "Descarga tu constancia de acreditación en el REMYPE."
+        "Completa la declaración jurada de registro de la micro o pequeña empresa.",
+        "Descarga tu constancia de acreditación en el REMYPE para gozar de los beneficios."
       ]
     },
     {
@@ -149,17 +166,17 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       step: "PASO 3",
       title: "Regularización de Licencia Municipal",
       icon: <MapPin className="w-5 h-5 text-primary" />,
-      description: "¿DE QUÉ SE TRATA?",
-      details: "Actualiza tu autorización municipal si has cambiado de giro, ampliado tu local o si tu licencia es antigua.",
+      description: "¿GESTIÓN MUNICIPAL?",
+      details: "Si has cambiado de giro o ampliado tu local, debes actualizar tu licencia municipal para evitar clausuras.",
       requirements: [
-        "Copia de RUC",
-        "DNI vigente",
-        "Vigencia de poder (si es persona jurídica)"
+        "Copia de RUC actualizado.",
+        "DNI vigente.",
+        "Pago de la tasa de actualización municipal."
       ],
       steps: [
-        "Verifica si tu giro actual requiere una nueva licencia.",
-        "Solicita la actualización en la ventanilla de desarrollo económico municipal.",
-        "Pasa la inspección técnica de seguridad correspondiente."
+        "Acude a la ventanilla de Desarrollo Económico de tu municipalidad.",
+        "Solicita la actualización de tu licencia por cambio de datos o ampliación.",
+        "Programa la nueva inspección de seguridad (ITSE) si el riesgo ha cambiado."
       ]
     }
   ];
@@ -252,10 +269,12 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                   >
                     <div className="flex items-center gap-3">
                       <MessageSquare className="w-4 h-4 text-primary" />
-                      <p className="text-[10px] font-bold text-primary text-center">
-                        ¿Tienes una duda específica sobre este paso? <br/>
-                        <span className="font-black underline">Pregunta aquí</span>
-                      </p>
+                      <div className="text-left">
+                        <p className="text-[10px] font-bold text-primary leading-tight">
+                          ¿Tienes una duda específica sobre este paso?
+                        </p>
+                        <p className="text-[10px] font-black text-primary underline">Pregunta aquí</p>
+                      </div>
                     </div>
                   </div>
                 </div>

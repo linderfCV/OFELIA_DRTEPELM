@@ -16,7 +16,7 @@ export function OfeliaDashboard({ routeType, results }: OfeliaDashboardProps) {
     ? [
         { title: "Reserva de Nombre en SUNARP", desc: "Asegura la identidad de tu marca antes de constituirte.", status: results[1] },
         { title: "Elaboración del Acto Constitutivo", desc: "Define socios y capital (S.A.C., E.I.R.L., etc.).", status: results[2] },
-        { title: "Orientación Tributaria", desc: "Elige el régimen SUNAT adecuado para tu nivel de ingresos.", status: !results[3] }, // Si pidió asesoría (false en la pregunta), la tarea está pendiente
+        { title: "Orientación Tributaria", desc: "Elige el régimen SUNAT adecuado para tu nivel de ingresos.", status: !results[3] },
         { title: "Licencia de Funcionamiento", desc: "Trámite ante tu municipalidad distrital.", status: results[4] }
       ]
     : [
@@ -33,7 +33,7 @@ export function OfeliaDashboard({ routeType, results }: OfeliaDashboardProps) {
           <p className="text-[10px] font-black text-primary uppercase tracking-wider">Resultado del Diagnóstico</p>
         </div>
         <h2 className="text-3xl font-black text-[#1A1A1A] tracking-tight">
-          {routeType === 'idea' ? "Tu Hoja de Ruta para Nacer Formal" : "Tu Plan de Regularización"}
+          {routeType === 'idea' ? "Tu Hoja de Ruta para tu Formalización" : "Tu Plan de Regularización"}
         </h2>
         <p className="text-sm text-muted-foreground font-medium">Hemos diseñado estas tareas prioritarias basadas en tu situación actual.</p>
       </header>
@@ -59,7 +59,6 @@ export function OfeliaDashboard({ routeType, results }: OfeliaDashboardProps) {
         ))}
       </div>
 
-      {/* Sección Especial de Licencia de Funcionamiento si no la tiene (pregunta 4) */}
       {!results[4] && (
         <Card className="border-2 border-dashed border-amber-200 bg-amber-50/30 overflow-hidden">
           <CardContent className="p-5">

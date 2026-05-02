@@ -2,11 +2,12 @@
 "use client"
 
 import * as React from "react"
-import { Lightbulb, Briefcase, ChevronRight, Check, MapPin, Store, Search } from "lucide-react"
+import { Lightbulb, Briefcase, ChevronRight, Check, MapPin, Store, Search, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
 
 interface DiagnosticFlowProps {
   onComplete: (type: 'idea' | 'active', answers: any) => void;
@@ -40,6 +41,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
   const [routeType, setRouteType] = React.useState<'idea' | 'active' | null>(null);
   const [sector, setSector] = React.useState<string | null>(null);
   const [district, setDistrict] = React.useState<string | null>(null);
+  const [zone, setZone] = React.useState("");
   const [answers, setAnswers] = React.useState<Record<string, any>>({});
   const [districtSearch, setDistrictSearch] = React.useState("");
 
@@ -57,8 +59,6 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     ]
   };
 
-  // Global steps: 0 (Stage), 1 (Sector), 2 (District)
-  // Route steps: 3 to N
   const totalGlobalSteps = 3;
   const routeSteps = routeType ? routeQuestions[routeType] : [];
   const totalSteps = totalGlobalSteps + routeSteps.length;
@@ -124,7 +124,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     );
   }
 
-  // STEP 1: Sector / Rubro (Lista de selección optimizada)
+  // STEP 1: Sector
   if (step === 1) {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -161,7 +161,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     );
   }
 
-  // STEP 2: District
+  // STEP 2: District & Zone
   if (step === 2) {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -172,34 +172,64 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
           </div>
           <Progress value={currentProgress} className="h-1.5 bg-gray-100" />
           <h2 className="text-2xl font-black text-[#1A1A1A] pt-4 leading-[1.2] tracking-tight">
-            ¿En qué distrito se ubica (o se ubicará) tu negocio?
+            ¿En qué distrito se ubica tu negocio?
           </h2>
         </div>
 
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input 
-            placeholder="Busca tu distrito..." 
-            className="pl-10 h-12 rounded-xl"
-            value={districtSearch}
-            onChange={(e) => setDistrictSearch(e.target.value)}
-          />
-        </div>
-
-        <ScrollArea className="h-[300px] border border-gray-100 rounded-2xl bg-white p-2">
-          <div className="grid gap-1">
-            {filteredDistricts.map((d) => (
-              <button
-                key={d}
-                onClick={() => { setDistrict(d); handleNext({ district: d }); }}
-                className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-primary/5 hover:text-primary rounded-lg transition-colors flex items-center justify-between"
-              >
-                {d}
-                <MapPin className="w-3.5 h-3.5 opacity-30" />
-              </button>
-            ))}
+        <div className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input 
+              placeholder="Busca tu distrito..." 
+              className="pl-10 h-12 rounded-xl border-gray-200"
+              value={districtSearch}
+              onChange={(e) => setDistrictSearch(e.target.value)}
+            />
           </div>
-        </ScrollArea>
+
+          <ScrollArea className="h-[250px] border border-gray-100 rounded-2xl bg-white p-2">
+            <div className="grid gap-1">
+              {filteredDistricts.map((d) => (
+                <button
+                  key={d}
+                  onClick={() => setDistrict(d)}
+                  className={cn(
+                    "w-full text-left px-4 py-3 text-sm font-medium rounded-lg transition-all flex items-center justify-between",
+                    district === d 
+                      ? "bg-primary text-white shadow-md shadow-primary/20" 
+                      : "hover:bg-primary/5 hover:text-primary"
+                  )}
+                >
+                  {d}
+                  <MapPin className={cn("w-3.5 h-3.5", district === d ? "opacity-100" : "opacity-30")} />
+                </button>
+              ))}
+            </div>
+          </ScrollArea>
+
+          {district && (
+            <div className="animate-in fade-in slide-in-from-top-2 space-y-3 pt-2">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest px-1">
+                  Zona o lugar de referencia (Opcional)
+                </label>
+                <Input 
+                  placeholder="Ej: Mercado Central, Galería El Rey, Óvalo..." 
+                  className="h-12 rounded-xl bg-gray-50 border-none focus:ring-1 focus:ring-primary/30"
+                  value={zone}
+                  onChange={(e) => setZone(e.target.value)}
+                />
+              </div>
+              <Button 
+                className="w-full h-12 rounded-xl font-bold bg-primary hover:bg-primary/90 flex items-center justify-center gap-2"
+                onClick={() => handleNext({ district, zone })}
+              >
+                Continuar
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     );
   }

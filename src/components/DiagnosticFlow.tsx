@@ -17,17 +17,17 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
 
   const questions = {
     idea: [
-      "¿En qué etapa se encuentra tu emprendimiento?", // Step 0
+      "¿En qué etapa se encuentra tu emprendimiento?", // Step 0: Choice
       "¿Ya tienes definido el nombre o marca de tu proyecto?", // Step 1
       "¿Conoces qué trámites necesitas para constituirte como empresa (Persona Jurídica)?", // Step 2
       "¿Necesitas asesoría para elegir tu régimen tributario inicial?", // Step 3
       "¿Tienes licencia de funcionamiento?" // Step 4
     ],
     active: [
-      "¿En qué etapa se encuentra tu emprendimiento?", // Step 0
+      "¿En qué etapa se encuentra tu emprendimiento?", // Step 0: Choice
       "¿Tu negocio cuenta con RUC activo y domicilio fiscal actualizado?", // Step 1
       "¿Cuentas con trabajadores en planilla o registrados en REMYPE?", // Step 2
-      "¿Tienes licencia de funcionamiento?" // Step 3 (ITSE eliminado)
+      "¿Tienes licencia de funcionamiento?" // Step 3
     ]
   };
 

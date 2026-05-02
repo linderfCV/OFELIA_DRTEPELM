@@ -35,74 +35,75 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     {
       id: "sunarp",
       step: "PASO 1",
-      title: "Búsqueda de nombre en SUNARP",
+      title: "Búsqueda y Reserva de Nombre (SUNARP)",
       icon: <Search className="w-5 h-5 text-primary" />,
-      description: "¿DE QUÉ SE TRATA?",
-      details: "Antes de constituir tu empresa, debes verificar que el nombre o razón social esté disponible en los Registros Públicos. Este paso evita que rechacen tu inscripción más adelante.",
+      description: "¿POR QUÉ ES EL PRIMER PASO?",
+      details: "La reserva de nombre es un paso previo a la constitución. No es obligatorio pero facilita la inscripción en el Registro de Personas Jurídicas. Protege tu nombre por 30 días para que nadie más lo use.",
       requirements: [
-        "DNI vigente del titular o representante",
-        "Pago de tasa registral (S/ 5.00 aprox.)",
-        "Propuesta de 1 a 3 nombres alternativos"
+        "DNI o Pasaporte vigente",
+        "Formulario de solicitud de reserva de nombre (proporcionado por SUNARP)",
+        "Pago de derechos registrales (Búsqueda S/ 5.00 | Reserva S/ 24.00)"
       ],
       steps: [
-        "Ingresa al portal SUNARP en línea o acércate a una oficina registral.",
-        "Realiza la búsqueda y reserva del nombre por 30 días hábiles.",
-        "Guarda la constancia de reserva para el acto constitutivo."
+        "Realiza la búsqueda de índices en SUNARP para verificar que el nombre no esté registrado.",
+        "Solicita la reserva de nombre indicando el tipo de persona jurídica (SAC, EIRL, etc.).",
+        "Obtén tu constancia de Reserva de Nombre, útil para la elaboración de la minuta."
       ]
     },
     {
       id: "acto",
       step: "PASO 2",
-      title: "Elaborar Acto Constitutivo (Notaría)",
+      title: "Elaborar Acto Constitutivo (Minuta)",
       icon: <FileText className="w-5 h-5 text-primary" />,
       description: "¿DE QUÉ SE TRATA?",
-      details: "Es el documento donde los socios manifiestan su voluntad de constituir la empresa. Define el tipo de sociedad (SAC, EIRL, etc.) y los estatutos.",
+      details: "Es el documento donde los socios manifiestan su voluntad de constituir la empresa. Define el tipo de sociedad, los estatutos y el objeto social.",
       requirements: [
         "Reserva de nombre en SUNARP",
-        "DNI original de los socios y cónyuges",
-        "Archivo (PDF/Word) con el objeto social y capital",
-        "Aporte de capital (dinero o bienes)"
+        "Copia de DNI de los socios y cónyuges",
+        "Archivo con el objeto social (actividades de la empresa)",
+        "Capital social (dinero o bienes detallados)"
       ],
       steps: [
-        "Acude a una notaría o al Centro de Desarrollo Empresarial (Produce).",
-        "Firma la minuta y el notario elevará el documento a Escritura Pública.",
-        "El notario enviará el parte a SUNARP para su inscripción."
+        "Acude a una notaría o al Centro de Desarrollo Empresarial (CDE) del Produce.",
+        "Firma la minuta y el notario la elevará a Escritura Pública.",
+        "El notario enviará el parte a SUNARP para su inscripción final."
       ]
     },
     {
       id: "sunat",
       step: "PASO 3",
-      title: "Inscripción en el RUC (SUNAT)",
+      title: "Inscripción en el RUC y Clave SOL",
       icon: <CreditCard className="w-5 h-5 text-primary" />,
       description: "¿DE QUÉ SE TRATA?",
-      details: "El RUC identifica a tu empresa ante el estado para fines tributarios. Debes elegir un régimen que se ajuste a tu nivel de proyección.",
+      details: "El RUC es el número que identifica a tu empresa ante la SUNAT para fines tributarios. Es gratuito e indispensable para emitir facturas.",
       requirements: [
         "Escritura pública inscrita en Registros Públicos",
         "Recibo de servicios (luz/agua) del domicilio fiscal",
         "DNI del representante legal"
       ],
       steps: [
-        "Realiza el trámite vía web (App Personas) o presencial.",
-        "Elige tu régimen tributario (MYPE Tributario o Régimen Especial).",
-        "Genera tu Clave SOL para emitir comprobantes electrónicos."
+        "Realiza el trámite virtual vía 'App Personas' o presencial en SUNAT.",
+        "Elige tu régimen tributario (NRUS, RER, MYPE Tributario o General).",
+        "Activa tu Clave SOL para realizar declaraciones y pagos electrónicos."
       ]
     },
     {
       id: "municipal",
       step: "PASO 4",
-      title: "Licencia de Funcionamiento",
+      title: "Licencia de Funcionamiento Municipal",
       icon: <MapPin className="w-5 h-5 text-primary" />,
       description: "¿DE QUÉ SE TRATA?",
-      details: "Es la autorización municipal para que tu local pueda operar legalmente. Certifica que el lugar es seguro y apto para la actividad.",
+      details: "Es la autorización que otorga tu municipalidad para que puedas operar en un local físico. Certifica que el establecimiento es apto según zonificación.",
       requirements: [
         "RUC activo y habido",
-        "Croquis de ubicación",
-        "Declaración Jurada de vigencia de poder"
+        "DNI del titular o representante",
+        "Croquis de ubicación y declaración jurada de seguridad",
+        "Pago de tasa municipal según TUPA distrital"
       ],
       steps: [
-        "Consulta la compatibilidad de uso en tu municipio distrital.",
-        "Presenta la solicitud y paga la tasa municipal (TUPA).",
-        "Recibe la inspección técnica de seguridad."
+        "Consulta la zonificación y compatibilidad de uso en el municipio.",
+        "Presenta la solicitud de licencia junto con la declaración jurada.",
+        "Recibe la inspección técnica de seguridad (ITSE) posterior o previa."
       ]
     }
   ];
@@ -111,19 +112,18 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     {
       id: "ruc-update",
       step: "PASO 1",
-      title: "Regularización de RUC (Actividad)",
+      title: "Actualización de RUC y Datos",
       icon: <CreditCard className="w-5 h-5 text-primary" />,
       description: "¿DE QUÉ SE TRATA?",
-      details: "Asegura que tu Código CIIU (actividad económica) y domicilio fiscal coincidan con tu operación real actual.",
+      details: "Asegura que tu actividad económica (CIIU) y domicilio fiscal coincidan con tu operación real actual para evitar multas.",
       requirements: [
         "Clave SOL activa",
-        "DNI del representante legal",
-        "Documento que sustente el nuevo domicilio fiscal"
+        "Documento que sustente el domicilio (si hubo cambio)"
       ],
       steps: [
         "Ingresa a SUNAT Operaciones en Línea.",
-        "Actualiza tus datos de contacto y actividad principal.",
-        "Verifica que tu estado sea 'Activo' y tu condición 'Habido'."
+        "Verifica y actualiza tu actividad principal y secundaria.",
+        "Confirma que tu estado sea 'ACTIVO' y condición 'HABIDO'."
       ]
     },
     {
@@ -131,35 +131,35 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       step: "PASO 2",
       title: "Registro en REMYPE (MTPE)",
       icon: <ClipboardList className="w-5 h-5 text-primary" />,
-      description: "¿DE QUÉ SE TRATA?",
-      details: "Permite que tu empresa acceda a beneficios laborales especiales de la Ley MYPE, reduciendo costos no salariales.",
+      description: "¿BENEFICIOS LABORALES?",
+      details: "Permite acceder a un régimen laboral especial con menores costos laborales para micro y pequeñas empresas.",
       requirements: [
-        "RUC vigente y Clave SOL",
-        "Tener al menos 1 trabajador registrado en T-Registro",
-        "No superar las 1,700 UIT de ventas anuales"
+        "RUC con Clave SOL",
+        "Tener al menos 1 trabajador (en T-Registro)",
+        "Ventas anuales hasta 1,700 UIT"
       ],
       steps: [
-        "Ingresa al portal del MTPE con tu RUC y Clave SOL.",
-        "Completa la declaración jurada de datos de la empresa.",
-        "Imprime tu constancia de acreditación REMYPE."
+        "Ingresa al portal del MTPE con tu clave SOL.",
+        "Completa la ficha de registro de la micro o pequeña empresa.",
+        "Descarga tu constancia de acreditación en el REMYPE."
       ]
     },
     {
       id: "municipal-active",
       step: "PASO 3",
-      title: "Licencia de Funcionamiento",
+      title: "Regularización de Licencia Municipal",
       icon: <MapPin className="w-5 h-5 text-primary" />,
       description: "¿DE QUÉ SE TRATA?",
-      details: "Regularización de la autorización municipal para locales que ya operan.",
+      details: "Actualiza tu autorización municipal si has cambiado de giro, ampliado tu local o si tu licencia es antigua.",
       requirements: [
-        "RUC activo y habido",
-        "Copia de DNI",
-        "Pago por derecho de trámite"
+        "Copia de RUC",
+        "DNI vigente",
+        "Vigencia de poder (si es persona jurídica)"
       ],
       steps: [
-        "Verifica zonificación en la municipalidad.",
-        "Inicia el proceso de solicitud de licencia.",
-        "Pasa la inspección técnica municipal."
+        "Verifica si tu giro actual requiere una nueva licencia.",
+        "Solicita la actualización en la ventanilla de desarrollo económico municipal.",
+        "Pasa la inspección técnica de seguridad correspondiente."
       ]
     }
   ];
@@ -189,7 +189,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         <h2 className="text-3xl font-black text-[#1A1A1A] tracking-tight">
           Tu Hoja de Ruta para tu Formalización
         </h2>
-        <p className="text-sm text-muted-foreground font-medium">Sigue estos pasos para operar legalmente y acceder a beneficios del Estado.</p>
+        <p className="text-sm text-muted-foreground font-medium">Sigue estos pasos con información basada en el portal oficial GOV.PE.</p>
       </header>
 
       <div className="space-y-4">
@@ -271,7 +271,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           <div className="space-y-1">
             <h3 className="font-black text-xl italic tracking-tight uppercase leading-none">Próxima Acción</h3>
             <p className="text-xs font-medium opacity-90 leading-tight">
-              Recibirás un correo de la DRTPELM con la guía detallada de trámites municipales y laborales.
+              Un asesor de la DRTPELM revisará tu perfil y podría contactarte para una asesoría personalizada.
             </p>
           </div>
         </div>

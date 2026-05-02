@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -95,13 +96,13 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       details: "Es la autorización municipal para que tu local pueda operar legalmente. Certifica que el lugar es seguro y apto para la actividad.",
       requirements: [
         "RUC activo y habido",
-        "Certificado ITSE (Inspección Técnica de Seguridad)",
+        "Croquis de ubicación",
         "Declaración Jurada de vigencia de poder"
       ],
       steps: [
         "Consulta la compatibilidad de uso en tu municipio distrital.",
         "Presenta la solicitud y paga la tasa municipal (TUPA).",
-        "Recibe la inspección técnica de seguridad de Defensa Civil."
+        "Recibe la inspección técnica de seguridad."
       ]
     }
   ];
@@ -144,21 +145,21 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       ]
     },
     {
-      id: "itse",
+      id: "municipal-active",
       step: "PASO 3",
-      title: "Certificado ITSE (Defensa Civil)",
-      icon: <CheckCircle2 className="w-5 h-5 text-primary" />,
+      title: "Licencia de Funcionamiento",
+      icon: <MapPin className="w-5 h-5 text-primary" />,
       description: "¿DE QUÉ SE TRATA?",
-      details: "Inspección que garantiza que el local cumple con las normas de seguridad estructural, eléctrica y de evacuación.",
+      details: "Regularización de la autorización municipal para locales que ya operan.",
       requirements: [
-        "Plano de arquitectura y distribución",
-        "Certificado de pozo a tierra vigente",
-        "Plan de seguridad y cronograma de mantenimiento"
+        "RUC activo y habido",
+        "Copia de DNI",
+        "Pago por derecho de trámite"
       ],
       steps: [
-        "Solicita la inspección ante la Gerencia de Gestión del Riesgo.",
-        "Levanta las observaciones señaladas por el inspector.",
-        "Recibe el certificado vigente por 2 años."
+        "Verifica zonificación en la municipalidad.",
+        "Inicia el proceso de solicitud de licencia.",
+        "Pasa la inspección técnica municipal."
       ]
     }
   ];
@@ -178,10 +179,10 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
               variant="ghost" 
               size="sm" 
               onClick={onRedoDiagnostic}
-              className="h-7 text-[9px] font-bold text-muted-foreground hover:text-primary gap-1.5"
+              className="h-7 text-[9px] font-bold text-muted-foreground hover:text-primary gap-1.5 uppercase"
             >
               <RefreshCcw className="w-3 h-3" />
-              REHACER DIAGNÓSTICO
+              Realizar el diagnóstico nuevamente
             </Button>
           )}
         </div>
@@ -285,7 +286,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           onClick={onRedoDiagnostic}
           className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:text-primary transition-colors"
         >
-          ¿Deseas cambiar tu perfil? Realizar nuevamente el diagnóstico
+          realizar el diagnostico nuevamente
         </Button>
       </div>
     </div>

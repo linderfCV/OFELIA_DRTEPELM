@@ -15,25 +15,6 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
   const [routeType, setRouteType] = React.useState<'idea' | 'active' | null>(null);
   const [answers, setAnswers] = React.useState<Record<number, boolean>>({});
 
-  const totalSteps = 5;
-  const currentProgress = ((step + 1) / totalSteps) * 100;
-
-  const handleInitialChoice = (type: 'idea' | 'active') => {
-    setRouteType(type);
-    setStep(1);
-  };
-
-  const handleAnswer = (answer: boolean) => {
-    const nextAnswers = { ...answers, [step]: answer };
-    setAnswers(nextAnswers);
-    if (step < 4) {
-      setStep(step + 1);
-    } else {
-      onComplete(routeType!, nextAnswers);
-    }
-  };
-
-  // Preguntas actualizadas según el requerimiento (5 pasos en total)
   const questions = {
     idea: [
       "¿En qué etapa se encuentra tu emprendimiento?", // Step 0
@@ -46,16 +27,33 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
       "¿En qué etapa se encuentra tu emprendimiento?", // Step 0
       "¿Tu negocio cuenta con RUC activo y domicilio fiscal actualizado?", // Step 1
       "¿Cuentas con trabajadores en planilla o registrados en REMYPE?", // Step 2
-      "¿Tienes Certificado ITSE (Defensa Civil) vigente?", // Step 3
-      "¿Tienes licencia de funcionamiento?" // Step 4
+      "¿Tienes licencia de funcionamiento?" // Step 3 (ITSE eliminado)
     ]
+  };
+
+  const totalSteps = routeType ? questions[routeType].length : 1;
+  const currentProgress = ((step + 1) / totalSteps) * 100;
+
+  const handleInitialChoice = (type: 'idea' | 'active') => {
+    setRouteType(type);
+    setStep(1);
+  };
+
+  const handleAnswer = (answer: boolean) => {
+    const nextAnswers = { ...answers, [step]: answer };
+    setAnswers(nextAnswers);
+    if (step < totalSteps - 1) {
+      setStep(step + 1);
+    } else {
+      onComplete(routeType!, nextAnswers);
+    }
   };
 
   if (step === 0) {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="space-y-4">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">PASO 1 DE 5</p>
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">PASO 1 DE {totalSteps}</p>
           <h2 className="text-3xl font-black text-[#1A1A1A] leading-[1.1] tracking-tight">
             {questions.idea[0]}
           </h2>
@@ -99,7 +97,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
       <div className="space-y-4">
         <div className="flex justify-between items-end">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">PASO {step + 1} DE 5</p>
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">PASO {step + 1} DE {totalSteps}</p>
           <p className="text-[10px] font-black text-primary uppercase">{Math.round(currentProgress)}% COMPLETADO</p>
         </div>
         <Progress value={currentProgress} className="h-1.5 bg-gray-100" />

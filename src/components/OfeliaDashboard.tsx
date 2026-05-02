@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { CheckCircle2, Circle, ArrowRight, Download, Share2, MapPin, AlertCircle } from "lucide-react"
+import { CheckCircle2, Circle, ArrowRight, MapPin, AlertCircle } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
@@ -90,15 +90,6 @@ export function OfeliaDashboard({ routeType, results }: OfeliaDashboardProps) {
         </div>
         <Button className="w-full bg-white text-primary hover:bg-gray-50 font-black h-12 rounded-xl text-xs uppercase tracking-widest">
           AGENDAR ASESORÍA GRATUITA
-        </Button>
-      </div>
-
-      <div className="flex gap-3">
-        <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold gap-2 text-xs">
-          <Download className="w-4 h-4" /> DESCARGAR RUTA
-        </Button>
-        <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold gap-2 text-xs">
-          <Share2 className="w-4 h-4" /> COMPARTIR
         </Button>
       </div>
     </div>

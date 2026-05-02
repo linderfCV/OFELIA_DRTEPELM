@@ -16,13 +16,14 @@ export function OfeliaDashboard({ routeType, results }: OfeliaDashboardProps) {
     ? [
         { title: "Reserva de Nombre en SUNARP", desc: "Asegura la identidad de tu marca antes de constituirte.", status: results[1] },
         { title: "Elaboración del Acto Constitutivo", desc: "Define socios y capital (S.A.C., E.I.R.L., etc.).", status: results[2] },
-        { title: "Inscripción en RUC", desc: "Obtén tu número de identidad tributaria ante SUNAT.", status: results[3] },
-        { title: "Trámite de Licencia Municipal", desc: "Inicia la zonificación en tu municipalidad.", status: false }
+        { title: "Orientación Tributaria", desc: "Elige el régimen SUNAT adecuado para tu nivel de ingresos.", status: !results[3] }, // Si pidió asesoría (false en la pregunta), la tarea está pendiente
+        { title: "Licencia de Funcionamiento", desc: "Trámite ante tu municipalidad distrital.", status: results[4] }
       ]
     : [
         { title: "Regularización de RUC", desc: "Asegura que tu actividad económica esté actualizada.", status: results[1] },
         { title: "Registro en REMYPE", desc: "Accede a beneficios de la Ley MYPE (MTPE).", status: results[2] },
-        { title: "Licencia de Funcionamiento", desc: "Trámite de licencia e ITSE (Defensa Civil).", status: results[3] }
+        { title: "Certificado ITSE", desc: "Verifica las condiciones de seguridad de tu local.", status: results[3] },
+        { title: "Licencia Municipal", desc: "Regulariza tu licencia de funcionamiento vigente.", status: results[4] }
       ];
 
   return (
@@ -58,8 +59,8 @@ export function OfeliaDashboard({ routeType, results }: OfeliaDashboardProps) {
         ))}
       </div>
 
-      {/* Sección Especial de Licencia de Funcionamiento */}
-      {!results[3] && (
+      {/* Sección Especial de Licencia de Funcionamiento si no la tiene (pregunta 4) */}
+      {!results[4] && (
         <Card className="border-2 border-dashed border-amber-200 bg-amber-50/30 overflow-hidden">
           <CardContent className="p-5">
             <div className="flex gap-3">

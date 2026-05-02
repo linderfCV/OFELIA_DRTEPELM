@@ -15,7 +15,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
   const [routeType, setRouteType] = React.useState<'idea' | 'active' | null>(null);
   const [answers, setAnswers] = React.useState<Record<number, boolean>>({});
 
-  const totalSteps = 4;
+  const totalSteps = 5;
   const currentProgress = ((step + 1) / totalSteps) * 100;
 
   const handleInitialChoice = (type: 'idea' | 'active') => {
@@ -26,26 +26,28 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
   const handleAnswer = (answer: boolean) => {
     const nextAnswers = { ...answers, [step]: answer };
     setAnswers(nextAnswers);
-    if (step < 3) {
+    if (step < 4) {
       setStep(step + 1);
     } else {
       onComplete(routeType!, nextAnswers);
     }
   };
 
-  // Preguntas refinadas para incluir Licencia de Funcionamiento de forma clara
+  // Preguntas actualizadas según el requerimiento (5 pasos en total)
   const questions = {
     idea: [
-      "", 
-      "¿Has verificado si el nombre de tu marca está disponible en SUNARP?",
-      "¿Tienes definido si serás Persona Natural (RUC 10) o Jurídica (RUC 20)?",
-      "¿Conoces los requisitos municipales para tu local (Licencia de Funcionamiento)?"
+      "¿En qué etapa se encuentra tu emprendimiento?", // Step 0
+      "¿Ya tienes definido el nombre o marca de tu proyecto?", // Step 1
+      "¿Conoces qué trámites necesitas para constituirte como empresa (Persona Jurídica)?", // Step 2
+      "¿Necesitas asesoría para elegir tu régimen tributario inicial?", // Step 3
+      "¿Tienes licencia de funcionamiento?" // Step 4
     ],
     active: [
-      "", 
-      "¿Tu negocio cuenta con RUC activo y domicilio fiscal actualizado?",
-      "¿Cuentas con trabajadores en planilla o registrados en REMYPE?",
-      "¿Tienes Licencia de Funcionamiento y Certificado ITSE (Defensa Civil) vigentes?"
+      "¿En qué etapa se encuentra tu emprendimiento?", // Step 0
+      "¿Tu negocio cuenta con RUC activo y domicilio fiscal actualizado?", // Step 1
+      "¿Cuentas con trabajadores en planilla o registrados en REMYPE?", // Step 2
+      "¿Tienes Certificado ITSE (Defensa Civil) vigente?", // Step 3
+      "¿Tienes licencia de funcionamiento?" // Step 4
     ]
   };
 
@@ -53,9 +55,9 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="space-y-4">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">PASO 1 DE 4</p>
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">PASO 1 DE 5</p>
           <h2 className="text-3xl font-black text-[#1A1A1A] leading-[1.1] tracking-tight">
-            ¿En qué etapa se encuentra tu emprendimiento?
+            {questions.idea[0]}
           </h2>
           <p className="text-sm text-muted-foreground font-medium">Personalizaremos tu ruta de formalización municipal y laboral.</p>
         </div>
@@ -97,7 +99,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
       <div className="space-y-4">
         <div className="flex justify-between items-end">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">PASO {step + 1} DE 4</p>
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">PASO {step + 1} DE 5</p>
           <p className="text-[10px] font-black text-primary uppercase">{Math.round(currentProgress)}% COMPLETADO</p>
         </div>
         <Progress value={currentProgress} className="h-1.5 bg-gray-100" />

@@ -11,7 +11,8 @@ import {
   ClipboardList,
   AlertCircle,
   RefreshCcw,
-  ShieldCheck
+  ShieldCheck,
+  ExternalLink
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -58,13 +59,15 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       requirements: [
         "Acceso a internet para usar la herramienta 'Busca tu Marca'.",
         "Logo de la marca en formato digital (JPG/PNG).",
-        "Clasificación de Niza (categoría de tu producto/servicio)."
+        "Clasificación de Niza (categoría de tu producto/servicio).",
+        "Pago de tasa de registro (Costo: S/ 534.99 por la primera clase)."
       ],
       steps: [
-        "Ingresa a la página oficial 'Busca tu Marca' de INDECOPI vía internet.",
+        "Ingresa a la página oficial 'Busca tu Marca' (https://pi.indecopi.gob.pe/buscatumarca/#/inicio).",
         "Realiza la 'Búsqueda Fonética' gratuita para ver si el nombre ya está registrado.",
         "Presenta tu solicitud de registro de forma virtual a través de la Gaceta Electrónica."
-      ]
+      ],
+      link: "https://pi.indecopi.gob.pe/buscatumarca/#/inicio"
     },
     {
       id: "acto",
@@ -232,6 +235,15 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                     <p className="text-xs font-medium leading-relaxed text-gray-700">
                       {task.details}
                     </p>
+                    {(task as any).link && (
+                      <Button 
+                        variant="link" 
+                        className="h-auto p-0 text-primary text-[10px] font-bold uppercase gap-1 mt-2"
+                        onClick={() => window.open((task as any).link, '_blank')}
+                      >
+                        Ir a la plataforma oficial <ExternalLink className="w-3 h-3" />
+                      </Button>
+                    )}
                   </section>
 
                   <section>

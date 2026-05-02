@@ -1,3 +1,10 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "mtpe-logo",
+      "description": "MTPE Perú Institutional Logo",
+      "imageUrl": "https://picsum.photos/seed/mtpe/300/100",
+      "imageHint": "government logo institutional"
+    }
+  ]
 }

@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { Lightbulb, Briefcase, ChevronRight, ArrowRight } from "lucide-react"
+import { Lightbulb, Briefcase, ChevronRight, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 
@@ -15,7 +15,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
   const [routeType, setRouteType] = React.useState<'idea' | 'active' | null>(null);
   const [answers, setAnswers] = React.useState<Record<number, boolean>>({});
 
-  const totalSteps = routeType ? 4 : 1;
+  const totalSteps = 4;
   const currentProgress = ((step + 1) / totalSteps) * 100;
 
   const handleInitialChoice = (type: 'idea' | 'active') => {
@@ -33,19 +33,19 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     }
   };
 
-  // Preguntas según ruta
+  // Preguntas refinadas para incluir Licencia de Funcionamiento de forma clara
   const questions = {
     idea: [
-      "", // Step 0 is initial choice
-      "¿Ya realizaste la reserva de nombre en SUNARP?",
-      "¿Conoces los tipos de constitución jurídica (SAC, EIRL, etc.)?",
-      "¿Sabes en qué régimen tributario estarás?"
+      "", 
+      "¿Has verificado si el nombre de tu marca está disponible en SUNARP?",
+      "¿Tienes definido si serás Persona Natural (RUC 10) o Jurídica (RUC 20)?",
+      "¿Conoces los requisitos municipales para tu local (Licencia de Funcionamiento)?"
     ],
     active: [
-      "", // Step 0 is initial choice
-      "¿Tu negocio cuenta con RUC activo?",
-      "¿Tienes trabajadores en planilla electrónica?",
-      "¿Cuentas con Licencia de Funcionamiento vigente?"
+      "", 
+      "¿Tu negocio cuenta con RUC activo y domicilio fiscal actualizado?",
+      "¿Cuentas con trabajadores en planilla o registrados en REMYPE?",
+      "¿Tienes Licencia de Funcionamiento y Certificado ITSE (Defensa Civil) vigentes?"
     ]
   };
 
@@ -57,7 +57,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
           <h2 className="text-3xl font-black text-[#1A1A1A] leading-[1.1] tracking-tight">
             ¿En qué etapa se encuentra tu emprendimiento?
           </h2>
-          <p className="text-sm text-muted-foreground">Esta respuesta nos ayudará a personalizar tu ruta de formalización.</p>
+          <p className="text-sm text-muted-foreground font-medium">Personalizaremos tu ruta de formalización municipal y laboral.</p>
         </div>
 
         <div className="grid gap-4">
@@ -70,7 +70,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-[#1A1A1A]">Tengo una idea de negocio</h3>
-              <p className="text-xs text-muted-foreground">Camino del Emprendedor</p>
+              <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-tight">Ruta del Emprendedor</p>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
           </button>
@@ -84,7 +84,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-[#1A1A1A]">Ya tengo un negocio en marcha</h3>
-              <p className="text-xs text-muted-foreground">Camino de la Regularización</p>
+              <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-tight">Ruta de la Regularización</p>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
           </button>
@@ -102,7 +102,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
         </div>
         <Progress value={currentProgress} className="h-1.5 bg-gray-100" />
         
-        <h2 className="text-2xl font-black text-[#1A1A1A] pt-4 leading-[1.2]">
+        <h2 className="text-2xl font-black text-[#1A1A1A] pt-4 leading-[1.2] tracking-tight">
           {routeType === 'idea' ? questions.idea[step] : questions.active[step]}
         </h2>
       </div>
@@ -110,14 +110,15 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
       <div className="grid gap-3 pt-4">
         <Button
           variant="outline"
-          className="h-16 text-lg font-bold border-2 rounded-2xl hover:border-primary hover:text-primary transition-all"
+          className="h-16 text-lg font-bold border-2 rounded-2xl hover:border-primary hover:text-primary transition-all flex justify-between px-6"
           onClick={() => handleAnswer(true)}
         >
           Sí, lo tengo claro
+          <Check className="w-5 h-5 opacity-40" />
         </Button>
         <Button
           variant="outline"
-          className="h-16 text-lg font-bold border-2 rounded-2xl hover:border-primary hover:text-primary transition-all"
+          className="h-16 text-lg font-bold border-2 rounded-2xl hover:border-primary hover:text-primary transition-all flex justify-start px-6"
           onClick={() => handleAnswer(false)}
         >
           No, necesito orientación
@@ -125,7 +126,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
       </div>
 
       <div className="pt-8 text-center">
-        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest">Tu información está segura con nosotros</p>
+        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Tu información es confidencial (DRTPELM)</p>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { CheckCircle2, Circle, ArrowRight, Download, Share2 } from "lucide-react"
+import { CheckCircle2, Circle, ArrowRight, Download, Share2, MapPin, AlertCircle } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
@@ -14,14 +14,15 @@ interface OfeliaDashboardProps {
 export function OfeliaDashboard({ routeType, results }: OfeliaDashboardProps) {
   const tasks = routeType === 'idea' 
     ? [
-        { title: "Elaboración del Acto Constitutivo", desc: "El primer paso para ser una empresa legal.", status: results[1] },
-        { title: "Reserva de Nombre en SUNARP", desc: "Asegura la identidad de tu marca.", status: results[1] },
-        { title: "Inscripción en RUC", desc: "Obtén tu número de identidad tributaria.", status: results[3] }
+        { title: "Reserva de Nombre en SUNARP", desc: "Asegura la identidad de tu marca antes de constituirte.", status: results[1] },
+        { title: "Elaboración del Acto Constitutivo", desc: "Define socios y capital (S.A.C., E.I.R.L., etc.).", status: results[2] },
+        { title: "Inscripción en RUC", desc: "Obtén tu número de identidad tributaria ante SUNAT.", status: results[3] },
+        { title: "Trámite de Licencia Municipal", desc: "Inicia la zonificación en tu municipalidad.", status: false }
       ]
     : [
-        { title: "Registro en REMYPE", desc: "Accede a beneficios laborales especiales.", status: results[2] },
-        { title: "Licencia de Funcionamiento", desc: "Trámite ante tu municipalidad.", status: results[3] },
-        { title: "Regularización de RUC", desc: "Asegura que tu actividad sea la correcta.", status: results[1] }
+        { title: "Regularización de RUC", desc: "Asegura que tu actividad económica esté actualizada.", status: results[1] },
+        { title: "Registro en REMYPE", desc: "Accede a beneficios de la Ley MYPE (MTPE).", status: results[2] },
+        { title: "Licencia de Funcionamiento", desc: "Trámite de licencia e ITSE (Defensa Civil).", status: results[3] }
       ];
 
   return (
@@ -33,7 +34,7 @@ export function OfeliaDashboard({ routeType, results }: OfeliaDashboardProps) {
         <h2 className="text-3xl font-black text-[#1A1A1A] tracking-tight">
           {routeType === 'idea' ? "Tu Hoja de Ruta para Nacer Formal" : "Tu Plan de Regularización"}
         </h2>
-        <p className="text-sm text-muted-foreground">Hemos diseñado estas tareas prioritarias basadas en tus respuestas.</p>
+        <p className="text-sm text-muted-foreground font-medium">Hemos diseñado estas tareas prioritarias basadas en tu situación actual.</p>
       </header>
 
       <div className="space-y-4">
@@ -57,22 +58,46 @@ export function OfeliaDashboard({ routeType, results }: OfeliaDashboardProps) {
         ))}
       </div>
 
+      {/* Sección Especial de Licencia de Funcionamiento */}
+      {!results[3] && (
+        <Card className="border-2 border-dashed border-amber-200 bg-amber-50/30 overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex gap-3">
+              <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center shrink-0">
+                <MapPin className="w-5 h-5 text-amber-600" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-bold text-sm text-amber-900 uppercase tracking-tight">Atención: Licencia Municipal</h4>
+                <p className="text-xs text-amber-800 leading-relaxed">
+                  Para obtener tu <strong>Licencia de Funcionamiento</strong>, debes verificar primero la compatibilidad de uso en tu distrito. Recuerda que la licencia definitiva suele requerir el certificado de ITSE (Defensa Civil).
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="bg-primary rounded-2xl p-6 text-white space-y-4 shadow-xl shadow-primary/20">
-        <div className="space-y-1">
-          <h3 className="font-black text-xl italic tracking-tight uppercase">Siguiente Paso</h3>
-          <p className="text-xs font-medium opacity-90 leading-tight">Agendar cita presencial en el Centro de Empleo para validación de documentos.</p>
+        <div className="flex items-start gap-3">
+          <AlertCircle className="w-6 h-6 shrink-0 mt-1" />
+          <div className="space-y-1">
+            <h3 className="font-black text-xl italic tracking-tight uppercase leading-none">Próxima Acción</h3>
+            <p className="text-xs font-medium opacity-90 leading-tight">
+              Recibirás un correo con la guía detallada de trámites municipales y laborales.
+            </p>
+          </div>
         </div>
-        <Button className="w-full bg-white text-primary hover:bg-gray-50 font-black h-12 rounded-xl">
+        <Button className="w-full bg-white text-primary hover:bg-gray-50 font-black h-12 rounded-xl text-xs uppercase tracking-widest">
           AGENDAR ASESORÍA GRATUITA
         </Button>
       </div>
 
       <div className="flex gap-3">
-        <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold gap-2">
-          <Download className="w-4 h-4" /> PDF
+        <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold gap-2 text-xs">
+          <Download className="w-4 h-4" /> DESCARGAR RUTA
         </Button>
-        <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold gap-2">
-          <Share2 className="w-4 h-4" /> Compartir
+        <Button variant="outline" className="flex-1 h-12 rounded-xl font-bold gap-2 text-xs">
+          <Share2 className="w-4 h-4" /> COMPARTIR
         </Button>
       </div>
     </div>

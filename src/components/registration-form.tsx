@@ -4,9 +4,11 @@ import * as React from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { User, Mail, Phone, CreditCard, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   Form,
   FormControl,
@@ -52,99 +54,134 @@ export function RegistrationForm() {
   const docNumberMaxLength = docType === "DNI" ? 8 : 11
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">Tipo de Documento</Label>
-            <div className="segmented-control">
-              <div
-                className="segmented-control-item"
-                data-active={docType === "DNI"}
-                onClick={() => handleDocTypeChange("DNI")}
-              >
-                DNI
-              </div>
-              <div
-                className="segmented-control-item"
-                data-active={docType === "RUC"}
-                onClick={() => handleDocTypeChange("RUC")}
-              >
-                RUC
+    <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.06)] overflow-hidden">
+      <CardContent className="p-6">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <div className="space-y-1.5">
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Tipo de Documento</Label>
+              <div className="segmented-control">
+                <div
+                  className="segmented-control-item"
+                  data-active={docType === "DNI"}
+                  onClick={() => handleDocTypeChange("DNI")}
+                >
+                  DNI
+                </div>
+                <div
+                  className="segmented-control-item"
+                  data-active={docType === "RUC"}
+                  onClick={() => handleDocTypeChange("RUC")}
+                >
+                  RUC
+                </div>
               </div>
             </div>
-          </div>
 
-          <FormField
-            control={form.control}
-            name="docNumber"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Número de Documento</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder={docNumberPlaceholder}
-                    maxLength={docNumberMaxLength}
-                    type="text"
-                    inputMode="numeric"
-                    className="h-12"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="docNumber"
+              render={({ field }) => (
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Número de {docType}</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        {...field}
+                        placeholder={docNumberPlaceholder}
+                        maxLength={docNumberMaxLength}
+                        type="text"
+                        inputMode="numeric"
+                        className="h-12 pl-11 rounded-xl bg-[#FAFAFA] border-border/60 placeholder:text-muted-foreground/50"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="fullName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  {docType === "DNI" ? "Nombres y Apellidos" : "Razón Social"}
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="Ingrese aquí..." {...field} className="h-12" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="fullName"
+              render={({ field }) => (
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    {docType === "DNI" ? "Nombres y Apellidos" : "Razón Social"}
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input 
+                        placeholder={docType === "DNI" ? "Ej. María Pérez Quispe" : "Nombre de la empresa"} 
+                        {...field} 
+                        className="h-12 pl-11 rounded-xl bg-[#FAFAFA] border-border/60 placeholder:text-muted-foreground/50" 
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Correo Electrónico</FormLabel>
-                <FormControl>
-                  <Input placeholder="usuario@ejemplo.com" type="email" {...field} className="h-12" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Correo Electrónico</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input 
+                        placeholder="tucorreo@ejemplo.com" 
+                        type="email" 
+                        {...field} 
+                        className="h-12 pl-11 rounded-xl bg-[#FAFAFA] border-border/60 placeholder:text-muted-foreground/50" 
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Número de Teléfono Celular</FormLabel>
-                <FormControl>
-                  <Input placeholder="999 999 999" type="tel" {...field} className="h-12" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Número de Teléfono Celular</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input 
+                        placeholder="9XX XXX XXX" 
+                        type="tel" 
+                        {...field} 
+                        className="h-12 pl-11 rounded-xl bg-[#FAFAFA] border-border/60 placeholder:text-muted-foreground/50" 
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <Button type="submit" className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90 rounded-lg">
-          Crear mi Perfil / Ingresar
-        </Button>
-      </form>
-    </Form>
+            <div className="pt-2">
+              <Button type="submit" className="w-full h-14 text-sm font-bold bg-primary hover:bg-primary/90 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 group">
+                Crear mi Perfil / Ingresar
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </div>
+            
+            <p className="text-[10px] text-center text-muted-foreground font-medium px-4 leading-normal">
+              Al continuar aceptas las políticas de tratamiento de datos del MTPE.
+            </p>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   )
 }

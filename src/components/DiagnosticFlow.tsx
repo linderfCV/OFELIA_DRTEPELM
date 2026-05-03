@@ -66,12 +66,11 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
 
   const isDomestic = profile === 'domestic';
   
-  // Logic to determine total steps and progress
   const getProgressInfo = () => {
     if (step === -1) return { total: 1, current: 1, percent: 0 };
     
     if (isDomestic) {
-      const total = 2 + routeQuestions.domestic.length; // District + Questions
+      const total = 2 + routeQuestions.domestic.length;
       return { total, current: step + 1, percent: ((step + 1) / total) * 100 };
     } else {
       const total = 3 + (routeType ? routeQuestions[routeType as 'idea' | 'active'].length : 0);
@@ -95,7 +94,6 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     }
   };
 
-  // STEP -1: Profile Selection
   if (step === -1) {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -130,7 +128,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
               <Home className="w-6 h-6" />
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-[#1A1A1A]">Empleador de Trabajadoras del Hogar</h3>
+              <h3 className="font-bold text-[#1A1A1A]">Soy Empleador de Trabajadoras del Hogar</h3>
               <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-tight">Régimen Especial</p>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
@@ -140,7 +138,6 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     );
   }
 
-  // STEP 0: Stage Choice (Only for Entrepreneur)
   if (step === 0 && profile === 'entrepreneur') {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -185,7 +182,6 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     );
   }
 
-  // STEP 1: Sector / Rubro (Only for Entrepreneur)
   if (step === 1 && profile === 'entrepreneur') {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -221,7 +217,6 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     );
   }
 
-  // STEP 2: District & Zone (For both, but step index differs)
   const isDistrictStep = (isDomestic && step === 1) || (!isDomestic && step === 2);
   if (isDistrictStep) {
     return (
@@ -295,7 +290,6 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     );
   }
 
-  // Route Specific Questions (Domestic or Entrepreneur routes)
   const routeStepIdx = isDomestic ? step - 2 : step - 3;
   const currentQuestion = routeType ? routeQuestions[routeType as keyof typeof routeQuestions][routeStepIdx] : "";
 

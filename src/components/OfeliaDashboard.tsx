@@ -79,7 +79,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     ],
     options: [
       { label: "Conoce los 6 beneficios de la formalización empresarial", url: "https://www.gob.pe/institucion/tuempresa/noticias/914295-conozca-los-6-beneficios-de-la-formalizacion-empresarial" },
-      { label: "Beneficios de ser formal (Portal Emprender SUNAT)", url: "https://emprender.sunat.gob.pe/acciones-contribuyente/formalizacion/benefits-ser-formal" }
+      { label: "Beneficios de ser formal (Portal Emprender SUNAT)", url: "https://emprender.sunat.gob.pe/acciones-contribuyente/formalizacion/beneficios-ser-formal" }
     ]
   });
 
@@ -217,7 +217,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         details: "Como empleador del hogar, necesitas un RUC para declarar la planilla y pagar los aportes de seguridad social (EsSalud/ONP).",
         requirements: ["DNI del empleador.", "Dirección del domicilio.", "Correo electrónico."],
         steps: ["Inscríbete en SUNAT virtual o presencial.", "Obtén tu Clave SOL.", "Activa tu RUC como Empleador de Trabajador(a) del Hogar."],
-        link: "https://www.gob.pe/es/i/11545"
+        link: "https://www.gob.pe/284-inscripcion-en-el-ruc"
       },
       {
         id: "t-registro",
@@ -243,7 +243,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           "Sube el contrato firmado al aplicativo virtual.",
           "Entrega copias y boletas mensuales."
         ],
-        link: "https://www.gob.pe/es/i/6570925",
+        link: "https://apps.trabajo.gob.pe/rcth/app/#/inicio",
         options: [
           { label: "Modelo referencial con residencia (Cama adentro)", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" },
           { label: "Modelo referencial sin residencia (Cama afuera)", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" },

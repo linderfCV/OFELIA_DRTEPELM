@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -63,7 +64,6 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     details: "Estar en el REMYPE te permite acceder a un régimen laboral especial diseñado para que tu empresa crezca con costos reducidos y mayor competitividad.",
     requirements: [
       "Microempresa: Ventas anuales hasta 150 UIT (S/ 772,500).",
-      "Pequeña Empresa: Ventas anuales hasta 1,700 UIT (S/ 8,755,000).",
       "Ahorro en CTS: En la Microempresa no estás obligado al pago de CTS.",
       "Ahorro en Gratificaciones: En la Microempresa no estás obligado al pago de gratificaciones.",
       "Vacaciones Reducidas: Solo 15 días calendario de descanso por año.",
@@ -73,7 +73,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     steps: [
       "Mantén tu registro REMYPE siempre vigente en el portal del MTPE.",
       "Accede a créditos con mejores tasas en el sistema financiero formal.",
-      "Participa en ferias y programas de capacitación del programa 'Tu Empresa'.",
+      "Participa en ferias y programas de capacitación de la DRTPELM.",
       "Protege tu patrimonio separando tus cuentas personales de las de la empresa."
     ],
     link: "https://www.gob.pe/285-registro-de-la-micro-y-pequena-empresa-remype"
@@ -138,20 +138,19 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       }
     ];
 
-    // Check if all entrepreneur "idea" questions were answered "YES"
-    // Steps for idea questions in DiagnosticFlow are 3, 4, 5, 6
     const isFormal = results[3] === true && results[4] === true && results[5] === true && results[6] === true;
-    
     if (isFormal) return [getMypeBenefitsTask()];
 
     const pendingTasks: Task[] = [];
-    if (!results[3]) pendingTasks.push(allTasks[0]);
-    if (!results[4]) pendingTasks.push(allTasks[1]);
-    if (!results[5]) pendingTasks.push(allTasks[2]);
-    if (!results[6]) pendingTasks.push(allTasks[3]);
-    pendingTasks.push(allTasks[4]); // Licencia is always a good final step
+    if (results[3] === false) pendingTasks.push(allTasks[0]); // Nombre/Marca -> SUNARP
+    if (results[4] === false) {
+      pendingTasks.push(allTasks[1]); // Trámites -> Indecopi
+      pendingTasks.push(allTasks[2]); // Constitución -> Acto
+    }
+    if (results[5] === false) pendingTasks.push(allTasks[3]); // Régimen -> SUNAT
+    if (results[6] === false) pendingTasks.push(allTasks[4]); // Licencia -> Municipal
+    
     pendingTasks.push(getMypeBenefitsTask());
-
     return pendingTasks;
   };
 
@@ -191,18 +190,15 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       }
     ];
 
-    // Check if all entrepreneur "active" questions were answered "YES"
-    // Steps for active questions in DiagnosticFlow are 3, 4, 5
     const isFormal = results[3] === true && results[4] === true && results[5] === true;
-    
     if (isFormal) return [getMypeBenefitsTask()];
 
     const pendingTasks: Task[] = [];
-    if (!results[3]) pendingTasks.push(allTasks[0]);
-    if (!results[4]) pendingTasks.push(allTasks[1]);
-    if (!results[5]) pendingTasks.push(allTasks[2]);
+    if (results[3] === false) pendingTasks.push(allTasks[0]);
+    if (results[4] === false) pendingTasks.push(allTasks[1]);
+    if (results[5] === false) pendingTasks.push(allTasks[2]);
+    
     pendingTasks.push(getMypeBenefitsTask());
-
     return pendingTasks;
   };
 
@@ -277,13 +273,12 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     ];
 
     const isFormal = results[2] === true && results[3] === true && results[4] === true;
-
     if (isFormal) return [allTasks[3]];
 
     const pendingTasks: Task[] = [];
-    if (!results[2]) pendingTasks.push(allTasks[0]);
-    if (!results[3]) pendingTasks.push(allTasks[1]);
-    if (!results[4]) pendingTasks.push(allTasks[2]);
+    if (results[2] === false) pendingTasks.push(allTasks[0]);
+    if (results[3] === false) pendingTasks.push(allTasks[1]);
+    if (results[4] === false) pendingTasks.push(allTasks[2]);
     pendingTasks.push(allTasks[3]);
 
     return pendingTasks;
@@ -330,7 +325,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
 
       <div className="space-y-4">
         <Accordion type="single" collapsible className="w-full space-y-3" defaultValue={tasks[0]?.id}>
-          {tasks.map((task, i) => (
+          {tasks.map((task) => (
             <AccordionItem 
               key={task.id} 
               value={task.id}
@@ -408,7 +403,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                     <div className="flex items-center gap-3">
                       <MessageSquare className="w-4 h-4 text-primary" />
                       <div className="text-left">
-                        <p className="text-[10px] font-bold text-primary leading-tight">¿Duda específica sobre este beneficio?</p>
+                        <p className="text-[10px] font-bold text-primary leading-tight">¿Duda específica sobre este punto?</p>
                         <p className="text-[10px] font-black text-primary underline">Pregunta aquí</p>
                       </div>
                     </div>

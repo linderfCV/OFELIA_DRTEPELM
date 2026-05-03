@@ -14,7 +14,10 @@ import {
   ExternalLink,
   UserCheck,
   Download,
-  Scale
+  Scale,
+  Zap,
+  Award,
+  TrendingUp
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -50,98 +53,158 @@ interface OfeliaDashboardProps {
 }
 
 export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnostic }: OfeliaDashboardProps) {
-  const getIdeaTasks = (): Task[] => [
-    {
-      id: "sunarp",
-      step: "PASO 1",
-      title: "Reserva de Nombre Legal (SUNARP)",
-      icon: <Search className="w-5 h-5 text-primary" />,
-      description: "¿POR QUÉ ES EL PRIMER PASO?",
-      details: "La reserva de nombre protege la denominación de tu empresa por 30 días en SUNARP mientras formalizas la escritura pública.",
-      requirements: ["DNI vigente.", "Mínimo 3 opciones de nombres.", "Pago de tasa registral (Costo: S/ 24.00)."],
-      steps: ["Realiza una 'Búsqueda de Índices' (S/ 5.00).", "Solicita la Reserva de Nombre indicando el tipo de sociedad.", "Obtén tu constancia de reserva."],
-      link: "https://www.gob.pe/706-reservar-el-nombre-de-una-empresa"
-    },
-    {
-      id: "indecopi",
-      step: "PASO 2",
-      title: "Protección de Marca (INDECOPI)",
-      icon: <ShieldCheck className="w-5 h-5 text-primary" />,
-      description: "¿SABÍAS QUE PUEDES HACERLO ONLINE?",
-      details: "INDECOPI protege el nombre comercial de tu marca. Puedes verificar si tu marca está libre de forma gratuita y online.",
-      requirements: ["Logo digital.", "Clasificación de Niza.", "Pago de tasa (S/ 534.99)."],
-      steps: ["Ingresa a 'Busca tu Marca' de INDECOPI.", "Realiza la 'Búsqueda Fonética' gratuita.", "Presenta tu solicitud virtual."],
-      link: "https://pi.indecopi.gob.pe/buscatumarca/#/inicio"
-    },
-    {
-      id: "acto",
-      step: "PASO 3",
-      title: "Elaborar Acto Constitutivo (Minuta)",
-      icon: <FileText className="w-5 h-5 text-primary" />,
-      description: "¿DE QUÉ SE TRATA?",
-      details: "Documento legal donde se definen estatutos y socios. Se puede gestionar en CDE (PRODUCE) para reducir costos.",
-      requirements: ["Reserva SUNARP.", "Copia de DNI de socios.", "Detalle de aportes."],
-      steps: ["Acude a una Notaría o CDE de PRODUCE.", "Firma la minuta.", "Inscripción en SUNARP."],
-      link: "https://www.gob.pe/269-elaborar-la-minuta-de-constitucion-de-la-empresa-o-acto-constitutivo"
-    },
-    {
-      id: "sunat",
-      step: "PASO 4",
-      title: "RUC y Régimen Tributario (SUNAT)",
-      icon: <CreditCard className="w-5 h-5 text-primary" />,
-      description: "¿POR QUÉ EL RUC?",
-      details: "Registro para emitir comprobantes legales ante SUNAT.",
-      requirements: ["Escritura inscrita.", "Recibo de luz local fiscal.", "DNI representante."],
-      steps: ["Activación de RUC virtual o presencial.", "Elección de Régimen (MYPE o Especial).", "Activa Clave SOL."],
-      link: "https://www.gob.pe/291-obtener-ruc-de-persona-juridica"
-    },
-    {
-      id: "municipal",
-      step: "PASO 5",
-      title: "Licencia de Funcionamiento",
-      icon: <MapPin className="w-5 h-5 text-primary" />,
-      description: "¿AUTORIZACIÓN MUNICIPAL?",
-      details: "Autorización para el desarrollo de actividades económicas.",
-      requirements: ["RUC activo.", "Declaración Jurada de Seguridad.", "Pago de tasa municipal."],
-      steps: ["Verifica compatibilidad de uso.", "Presenta solicitud.", "Inspección técnica (ITSE)."],
-      link: "https://www.gob.pe/443-obtener-licencia-de-funcionamiento"
-    }
-  ];
+  
+  const getMypeBenefitsTask = (): Task => ({
+    id: "mype-benefits",
+    step: "INFO CLAVE",
+    title: "Beneficios de tu Formalización MYPE",
+    icon: <Award className="w-5 h-5 text-primary" />,
+    description: "¿POR QUÉ SER FORMAL ES TU MEJOR NEGOCIO?",
+    details: "Estar en el REMYPE te permite acceder a un régimen laboral especial diseñado para que tu empresa crezca con costos reducidos y mayor competitividad.",
+    requirements: [
+      "Microempresa: Ventas anuales hasta 150 UIT (S/ 772,500).",
+      "Pequeña Empresa: Ventas anuales hasta 1,700 UIT (S/ 8,755,000).",
+      "Ahorro en CTS: En la Microempresa no estás obligado al pago de CTS.",
+      "Ahorro en Gratificaciones: En la Microempresa no estás obligado al pago de gratificaciones.",
+      "Vacaciones Reducidas: Solo 15 días calendario de descanso por año.",
+      "Seguridad Social: Acceso al SIS Emprendedor (Micro) o EsSalud con tasas preferenciales.",
+      "Contratación Pública: 10% de puntaje adicional en licitaciones con el Estado."
+    ],
+    steps: [
+      "Mantén tu registro REMYPE siempre vigente en el portal del MTPE.",
+      "Accede a créditos con mejores tasas en el sistema financiero formal.",
+      "Participa en ferias y programas de capacitación del programa 'Tu Empresa'.",
+      "Protege tu patrimonio separando tus cuentas personales de las de la empresa."
+    ],
+    link: "https://www.gob.pe/285-registro-de-la-micro-y-pequena-empresa-remype"
+  });
 
-  const getActiveTasks = (): Task[] => [
-    {
-      id: "ruc-update",
-      step: "PASO 1",
-      title: "Actualización de RUC (SUNAT)",
-      icon: <CreditCard className="w-5 h-5 text-primary" />,
-      description: "¿POR QUÉ ACTUALIZAR?",
-      details: "Asegura que tu actividad económica y domicilio fiscal estén al día.",
-      requirements: ["Clave SOL.", "DNI representante."],
-      steps: ["Ingresa a SUNAT SOL.", "Actualiza actividad (CIIU).", "Verifica estado de Habido."],
-      link: "https://www.sunat.gob.pe/sol.html"
-    },
-    {
-      id: "remype",
-      step: "PASO 2",
-      title: "Registro en REMYPE (MTPE)",
-      icon: <ClipboardList className="w-5 h-5 text-primary" />,
-      description: "¿BENEFICIOS LABORALES?",
-      details: "Acceso a régimen laboral especial con costos reducidos.",
-      requirements: ["RUC con Clave SOL.", "Mínimo 1 trabajador.", "Ventas < 1,700 UIT."],
-      steps: ["Accede al portal MTPE.", "Registro en sistema REMYPE.", "Obtén acreditación."],
-      link: "https://www.gob.pe/285-registro-de-la-micro-y-pequena-empresa-remype"
-    },
-    {
-      id: "municipal-active",
-      step: "PASO 3",
-      title: "Regularización Municipal",
-      icon: <MapPin className="w-5 h-5 text-primary" />,
-      description: "¿GESTIÓN MUNICIPAL?",
-      details: "Actualiza tu licencia si cambiaste de giro o local.",
-      requirements: ["RUC actualizado.", "Pago de tasa.", "DNI titular."],
-      steps: ["Solicita actualización en municipio.", "Declaración de seguridad.", "Nueva inspección ITSE."]
-    }
-  ];
+  const getIdeaTasks = (): Task[] => {
+    const allTasks: Task[] = [
+      {
+        id: "sunarp",
+        step: "PASO 1",
+        title: "Reserva de Nombre Legal (SUNARP)",
+        icon: <Search className="w-5 h-5 text-primary" />,
+        description: "¿POR QUÉ ES EL PRIMER PASO?",
+        details: "La reserva de nombre protege la denominación de tu empresa por 30 días en SUNARP mientras formalizas la escritura pública.",
+        requirements: ["DNI vigente.", "Mínimo 3 opciones de nombres.", "Pago de tasa registral (Costo: S/ 24.00)."],
+        steps: ["Realiza una 'Búsqueda de Índices' (S/ 5.00).", "Solicita la Reserva de Nombre indicando el tipo de sociedad.", "Obtén tu constancia de reserva."],
+        link: "https://www.gob.pe/706-reservar-el-nombre-de-una-empresa"
+      },
+      {
+        id: "indecopi",
+        step: "PASO 2",
+        title: "Protección de Marca (INDECOPI)",
+        icon: <ShieldCheck className="w-5 h-5 text-primary" />,
+        description: "¿SABÍAS QUE PUEDES HACERLO ONLINE?",
+        details: "INDECOPI protege el nombre comercial de tu marca. Puedes verificar si tu marca está libre de forma gratuita y online.",
+        requirements: ["Logo digital.", "Clasificación de Niza.", "Pago de tasa (S/ 534.99)."],
+        steps: ["Ingresa a 'Busca tu Marca' de INDECOPI.", "Realiza la 'Búsqueda Fonética' gratuita.", "Presenta tu solicitud virtual."],
+        link: "https://pi.indecopi.gob.pe/buscatumarca/#/inicio"
+      },
+      {
+        id: "acto",
+        step: "PASO 3",
+        title: "Elaborar Acto Constitutivo (Minuta)",
+        icon: <FileText className="w-5 h-5 text-primary" />,
+        description: "¿DE QUÉ SE TRATA?",
+        details: "Documento legal donde se definen estatutos y socios. Se puede gestionar en CDE (PRODUCE) para reducir costos.",
+        requirements: ["Reserva SUNARP.", "Copia de DNI de socios.", "Detalle de aportes."],
+        steps: ["Acude a una Notaría o CDE de PRODUCE.", "Firma la minuta.", "Inscripción en SUNARP."],
+        link: "https://www.gob.pe/269-elaborar-la-minuta-de-constitucion-de-la-empresa-o-acto-constitutivo"
+      },
+      {
+        id: "sunat",
+        step: "PASO 4",
+        title: "RUC y Régimen Tributario (SUNAT)",
+        icon: <CreditCard className="w-5 h-5 text-primary" />,
+        description: "¿POR QUÉ EL RUC?",
+        details: "Registro para emitir comprobantes legales ante SUNAT.",
+        requirements: ["Escritura inscrita.", "Recibo de luz local fiscal.", "DNI representante."],
+        steps: ["Activación de RUC virtual o presencial.", "Elección de Régimen (MYPE o Especial).", "Activa Clave SOL."],
+        link: "https://www.gob.pe/291-obtener-ruc-de-persona-juridica"
+      },
+      {
+        id: "municipal",
+        step: "PASO 5",
+        title: "Licencia de Funcionamiento",
+        icon: <MapPin className="w-5 h-5 text-primary" />,
+        description: "¿AUTORIZACIÓN MUNICIPAL?",
+        details: "Autorización para el desarrollo de actividades económicas.",
+        requirements: ["RUC activo.", "Declaración Jurada de Seguridad.", "Pago de tasa municipal."],
+        steps: ["Verifica compatibilidad de uso.", "Presenta solicitud.", "Inspección técnica (ITSE)."],
+        link: "https://www.gob.pe/443-obtener-licencia-de-funcionamiento"
+      }
+    ];
+
+    // Check if all entrepreneur "idea" questions were answered "YES"
+    // Steps for idea questions in DiagnosticFlow are 3, 4, 5, 6
+    const isFormal = results[3] === true && results[4] === true && results[5] === true && results[6] === true;
+    
+    if (isFormal) return [getMypeBenefitsTask()];
+
+    const pendingTasks: Task[] = [];
+    if (!results[3]) pendingTasks.push(allTasks[0]);
+    if (!results[4]) pendingTasks.push(allTasks[1]);
+    if (!results[5]) pendingTasks.push(allTasks[2]);
+    if (!results[6]) pendingTasks.push(allTasks[3]);
+    pendingTasks.push(allTasks[4]); // Licencia is always a good final step
+    pendingTasks.push(getMypeBenefitsTask());
+
+    return pendingTasks;
+  };
+
+  const getActiveTasks = (): Task[] => {
+    const allTasks: Task[] = [
+      {
+        id: "ruc-update",
+        step: "PASO 1",
+        title: "Actualización de RUC (SUNAT)",
+        icon: <CreditCard className="w-5 h-5 text-primary" />,
+        description: "¿POR QUÉ ACTUALIZAR?",
+        details: "Asegura que tu actividad económica y domicilio fiscal estén al día.",
+        requirements: ["Clave SOL.", "DNI representante."],
+        steps: ["Ingresa a SUNAT SOL.", "Actualiza actividad (CIIU).", "Verifica estado de Habido."],
+        link: "https://www.sunat.gob.pe/sol.html"
+      },
+      {
+        id: "remype",
+        step: "PASO 2",
+        title: "Registro en REMYPE (MTPE)",
+        icon: <ClipboardList className="w-5 h-5 text-primary" />,
+        description: "¿BENEFICIOS LABORALES?",
+        details: "Acceso a régimen laboral especial con costos reducidos.",
+        requirements: ["RUC con Clave SOL.", "Mínimo 1 trabajador.", "Ventas < 1,700 UIT."],
+        steps: ["Accede al portal MTPE.", "Registro en sistema REMYPE.", "Obtén acreditación."],
+        link: "https://www.gob.pe/285-registro-de-la-micro-y-pequena-empresa-remype"
+      },
+      {
+        id: "municipal-active",
+        step: "PASO 3",
+        title: "Regularización Municipal",
+        icon: <MapPin className="w-5 h-5 text-primary" />,
+        description: "¿GESTIÓN MUNICIPAL?",
+        details: "Actualiza tu licencia si cambiaste de giro o local.",
+        requirements: ["RUC actualizado.", "Pago de tasa.", "DNI titular."],
+        steps: ["Solicita actualización en municipio.", "Declaración de seguridad.", "Nueva inspección ITSE."]
+      }
+    ];
+
+    // Check if all entrepreneur "active" questions were answered "YES"
+    // Steps for active questions in DiagnosticFlow are 3, 4, 5
+    const isFormal = results[3] === true && results[4] === true && results[5] === true;
+    
+    if (isFormal) return [getMypeBenefitsTask()];
+
+    const pendingTasks: Task[] = [];
+    if (!results[3]) pendingTasks.push(allTasks[0]);
+    if (!results[4]) pendingTasks.push(allTasks[1]);
+    if (!results[5]) pendingTasks.push(allTasks[2]);
+    pendingTasks.push(getMypeBenefitsTask());
+
+    return pendingTasks;
+  };
 
   const getDomesticTasks = (): Task[] => {
     const allTasks: Task[] = [
@@ -213,25 +276,23 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       }
     ];
 
-    const isRucDone = results[2] === true;
-    const isTRegDone = results[3] === true;
-    const isContractDone = results[4] === true;
+    const isFormal = results[2] === true && results[3] === true && results[4] === true;
 
-    if (isRucDone && isTRegDone && isContractDone) {
-      return [allTasks[3]];
-    }
+    if (isFormal) return [allTasks[3]];
 
     const pendingTasks: Task[] = [];
-    if (!isRucDone) pendingTasks.push(allTasks[0]);
-    if (!isTRegDone) pendingTasks.push(allTasks[1]);
-    if (!isContractDone) pendingTasks.push(allTasks[2]);
+    if (!results[2]) pendingTasks.push(allTasks[0]);
+    if (!results[3]) pendingTasks.push(allTasks[1]);
+    if (!results[4]) pendingTasks.push(allTasks[2]);
     pendingTasks.push(allTasks[3]);
 
     return pendingTasks;
   };
 
   const tasks = routeType === 'idea' ? getIdeaTasks() : routeType === 'active' ? getActiveTasks() : getDomesticTasks();
-  const isFormalDomestic = routeType === 'domestic' && tasks.length === 1 && tasks[0].id === 'obligations-domestic';
+  
+  const isFormalUser = (routeType === 'domestic' && tasks.length === 1 && tasks[0].id === 'obligations-domestic') ||
+                       ((routeType === 'idea' || routeType === 'active') && tasks.length === 1 && tasks[0].id === 'mype-benefits');
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -240,7 +301,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full">
             <ClipboardList className="w-3.5 h-3.5 text-primary" />
             <p className="text-[10px] font-black text-primary uppercase tracking-wider">
-              {isFormalDomestic ? "ESTADO: FORMALIZADO" : "TUS TAREAS PRIORITARIAS"}
+              {isFormalUser ? "ESTADO: FORMALIZADO" : "TUS TAREAS PRIORITARIAS"}
             </p>
           </div>
           {onRedoDiagnostic && (
@@ -256,13 +317,13 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           )}
         </div>
         <h2 className="text-3xl font-black text-[#1A1A1A] tracking-tight">
-          {isFormalDomestic 
-            ? "¡Felicidades! Tu relación laboral está formalizada" 
+          {isFormalUser 
+            ? "¡Felicidades! Eres un actor clave en la economía formal" 
             : "Tu Hoja de Ruta para tu Formalización"}
         </h2>
         <p className="text-sm text-muted-foreground font-medium">
-          {isFormalDomestic 
-            ? "Ahora conoce tus obligaciones legales para mantener un entorno laboral justo."
+          {isFormalUser 
+            ? "Ahora conoce los beneficios exclusivos que el Estado peruano tiene para tu crecimiento."
             : "Información basada en portales oficiales como SUNAT, MTPE, SUNARP, INDECOPI y PRODUCE."}
         </p>
       </header>
@@ -317,7 +378,9 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                   )}
 
                   <section>
-                    <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">REQUISITOS / OBLIGACIONES</h4>
+                    <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">
+                      {task.id === 'mype-benefits' ? 'VENTAJAS COMPETITIVAS' : 'REQUISITOS / OBLIGACIONES'}
+                    </h4>
                     <ul className="space-y-1.5">
                       {task.requirements.map((req, idx) => (
                         <li key={idx} className="text-xs font-medium flex items-start gap-2">
@@ -328,7 +391,9 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                   </section>
 
                   <section>
-                    <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">PASOS A SEGUIR</h4>
+                    <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">
+                      {task.id === 'mype-benefits' ? 'RECOMENDACIONES' : 'PASOS A SEGUIR'}
+                    </h4>
                     <div className="space-y-3">
                       {task.steps.map((step, idx) => (
                         <div key={idx} className="flex gap-3 items-start">
@@ -343,7 +408,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                     <div className="flex items-center gap-3">
                       <MessageSquare className="w-4 h-4 text-primary" />
                       <div className="text-left">
-                        <p className="text-[10px] font-bold text-primary leading-tight">¿Duda específica sobre este paso?</p>
+                        <p className="text-[10px] font-bold text-primary leading-tight">¿Duda específica sobre este beneficio?</p>
                         <p className="text-[10px] font-black text-primary underline">Pregunta aquí</p>
                       </div>
                     </div>
@@ -355,7 +420,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         </Accordion>
       </div>
 
-      {!isFormalDomestic && (
+      {!isFormalUser && (
         <div className="bg-primary rounded-3xl p-6 text-white space-y-4 shadow-xl shadow-primary/20">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-6 h-6 shrink-0 mt-1" />
@@ -366,6 +431,21 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           </div>
           <Button className="w-full bg-white text-primary hover:bg-gray-50 font-black h-12 rounded-xl text-xs uppercase tracking-widest">
             AGENDAR ASESORÍA GRATUITA
+          </Button>
+        </div>
+      )}
+
+      {isFormalUser && (
+        <div className="bg-emerald-500 rounded-3xl p-6 text-white space-y-4 shadow-xl shadow-emerald-500/20">
+          <div className="flex items-start gap-3">
+            <TrendingUp className="w-6 h-6 shrink-0 mt-1" />
+            <div className="space-y-1">
+              <h3 className="font-black text-xl italic tracking-tight uppercase leading-none">Ruta de Crecimiento</h3>
+              <p className="text-xs font-medium opacity-90 leading-tight">Accede a capacitaciones exclusivas para MYPEs formales.</p>
+            </div>
+          </div>
+          <Button className="w-full bg-white text-emerald-600 hover:bg-gray-50 font-black h-12 rounded-xl text-xs uppercase tracking-widest">
+            EXPLORAR CAPACITACIONES
           </Button>
         </div>
       )}

@@ -481,7 +481,10 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
               <p className="text-xs font-medium opacity-90 leading-tight">Accede a capacitaciones exclusivas para emprendimientos formales.</p>
             </div>
           </div>
-          <Button className="w-full bg-white text-blue-700 hover:bg-gray-50 font-black h-12 rounded-xl text-xs uppercase tracking-widest">
+          <Button 
+            onClick={() => window.open('https://portal.trabajo.gob.pe/formalizateahora/capacitacion', '_blank')}
+            className="w-full bg-white text-blue-700 hover:bg-gray-50 font-black h-12 rounded-xl text-xs uppercase tracking-widest"
+          >
             EXPLORAR CAPACITACIONES
           </Button>
         </div>

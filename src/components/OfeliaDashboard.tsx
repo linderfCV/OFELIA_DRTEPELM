@@ -91,7 +91,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         details: "La reserva de nombre protege la denominación de tu empresa por 30 días en SUNARP mientras formalizas la escritura pública.",
         requirements: ["DNI vigente.", "Mínimo 3 opciones de nombres.", "Pago de tasa registral (Costo: S/ 24.00)."],
         steps: ["Realiza una 'Búsqueda de Índices' (S/ 5.00).", "Solicita la Reserva de Nombre indicando el tipo de sociedad.", "Obtén tu constancia de reserva."],
-        link: "https://www.gob.pe/706-reservar-el-nombre-de-una-empresa"
+        link: "https://www.gob.pe/271-buscar-y-reservar-el-nombre-de-una-empresa-en-la-sunarp"
       },
       {
         id: "indecopi",
@@ -124,7 +124,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         details: "Registro para emitir comprobantes legales ante SUNAT.",
         requirements: ["Escritura inscrita.", "Recibo de luz local fiscal.", "DNI representante."],
         steps: ["Activación de RUC virtual o presencial.", "Elección de Régimen (MYPE o Especial).", "Activa Clave SOL."],
-        link: "https://www.gob.pe/291-obtener-ruc-de-persona-juridica"
+        link: "https://emprender.sunat.gob.pe/ruc/regimenes-tributarios-mype/regimenes-tributarios"
       },
       {
         id: "municipal",
@@ -135,7 +135,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         details: "Autorización para el desarrollo de actividades económicas.",
         requirements: ["RUC activo.", "Declaración Jurada de Seguridad.", "Pago de tasa municipal."],
         steps: ["Verifica compatibilidad de uso.", "Presenta solicitud.", "Inspección técnica (ITSE)."],
-        link: "https://www.gob.pe/443-obtener-licencia-de-funcionamiento"
+        link: "https://www.gob.pe/20844-obtener-licencia-de-funcionamiento-para-negocios-de-riesgo-bajo-o-medio?child=25781"
       }
     ];
 

@@ -138,73 +138,96 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     }
   ];
 
-  const getDomesticTasks = (): Task[] => [
-    {
-      id: "ruc-domestic",
-      step: "PASO 1",
-      title: "Inscripción en el RUC (SUNAT)",
-      icon: <CreditCard className="w-5 h-5 text-primary" />,
-      description: "¿ES OBLIGATORIO?",
-      details: "Como empleador del hogar, necesitas un RUC para declarar la planilla y pagar los aportes de seguridad social (EsSalud/ONP).",
-      requirements: ["DNI del empleador.", "Dirección del domicilio.", "Correo electrónico."],
-      steps: ["Inscríbete en SUNAT virtual o presencial.", "Obtén tu Clave SOL.", "Activa tu RUC como Empleador de Trabajador(a) del Hogar."]
-    },
-    {
-      id: "t-registro",
-      step: "PASO 2",
-      title: "Alta en el T-Registro (SUNAT)",
-      icon: <UserCheck className="w-5 h-5 text-primary" />,
-      description: "¿QUÉ ES EL ALTA?",
-      details: "Es el registro formal del trabajador(a) ante la SUNAT para garantizar sus derechos sociales.",
-      requirements: ["DNI del trabajador(a).", "Datos de jornada y sueldo.", "Clave SOL del empleador."],
-      steps: ["Ingresa a SUNAT Operaciones en Línea.", "Registra a tu trabajador(a) en el T-Registro.", "Genera la constancia de alta."]
-    },
-    {
-      id: "mtpe-contract",
-      step: "PASO 3",
-      title: "Contrato y Aplicativo (MTPE)",
-      icon: <FileText className="w-5 h-5 text-primary" />,
-      description: "¿FORMALIDAD LABORAL?",
-      details: "El contrato debe ser por escrito y registrado en el portal del Ministerio de Trabajo.",
-      requirements: ["Contrato firmado.", "Registro en el aplicativo del MTPE.", "Boleta de pago mensual."],
-      steps: [
-        "Selecciona y descarga el modelo de contrato que necesites.",
-        "Sube el contrato firmado al aplicativo virtual.",
-        "Entrega copias y boletas mensuales."
-      ],
-      options: [
-        { label: "Modelo referencial con residencia (Cama adentro)", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" },
-        { label: "Modelo referencial sin residencia (Cama afuera)", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" },
-        { label: "Modelo referencial tiempo parcial (Sin residencia)", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" }
-      ]
-    },
-    {
-      id: "obligations-domestic",
-      step: "INFO CLAVE",
-      title: "Obligaciones del Empleador y Derechos",
-      icon: <Scale className="w-5 h-5 text-primary" />,
-      description: "¿QUÉ DEBO CUMPLIR SEGÚN LA LEY N° 31047?",
-      details: "Todo empleador del hogar tiene obligaciones legales para garantizar un trabajo digno. El incumplimiento genera sanciones.",
-      requirements: [
-        "Jornada Laboral: Máximo 8 horas diarias o 48 horas semanales.",
-        "Descanso Semanal: Mínimo 24 horas consecutivas de descanso.",
-        "Gratificaciones: Un sueldo completo en Julio (Fiestas Patrias) y Diciembre (Navidad).",
-        "Vacaciones: 30 días calendario de descanso remunerado por cada año de servicios.",
-        "CTS: Depósito de CTS equivalente a media remuneración por año.",
-        "Seguro Social (EsSalud): El empleador aporta el 9% de la remuneración mensual.",
-        "Pensiones: El trabajador elige entre ONP o AFP (el aporte se descuenta del sueldo)."
-      ],
-      steps: [
-        "Respeta los horarios de descanso y jornada máxima legal.",
-        "Realiza el pago de EsSalud mensualmente a través de SUNAT.",
-        "Entrega obligatoriamente la boleta de pago firmada cada mes.",
-        "Proporciona alimentación y alojamiento (si es cama adentro) sin descuento del sueldo."
-      ],
-      link: "https://www.gob.pe/institucion/mtpe/campa%C3%B1as/3305-conoce-tus-derechos-trabajadoras-y-trabajadores-del-hogar"
+  const getDomesticTasks = (): Task[] => {
+    const allTasks: Task[] = [
+      {
+        id: "ruc-domestic",
+        step: "PASO 1",
+        title: "Inscripción en el RUC (SUNAT)",
+        icon: <CreditCard className="w-5 h-5 text-primary" />,
+        description: "¿ES OBLIGATORIO?",
+        details: "Como empleador del hogar, necesitas un RUC para declarar la planilla y pagar los aportes de seguridad social (EsSalud/ONP).",
+        requirements: ["DNI del empleador.", "Dirección del domicilio.", "Correo electrónico."],
+        steps: ["Inscríbete en SUNAT virtual o presencial.", "Obtén tu Clave SOL.", "Activa tu RUC como Empleador de Trabajador(a) del Hogar."]
+      },
+      {
+        id: "t-registro",
+        step: "PASO 2",
+        title: "Alta en el T-Registro (SUNAT)",
+        icon: <UserCheck className="w-5 h-5 text-primary" />,
+        description: "¿QUÉ ES EL ALTA?",
+        details: "Es el registro formal del trabajador(a) ante la SUNAT para garantizar sus derechos sociales.",
+        requirements: ["DNI del trabajador(a).", "Datos de jornada y sueldo.", "Clave SOL del empleador."],
+        steps: ["Ingresa a SUNAT Operaciones en Línea.", "Registra a tu trabajador(a) en el T-Registro.", "Genera la constancia de alta."]
+      },
+      {
+        id: "mtpe-contract",
+        step: "PASO 3",
+        title: "Contrato y Aplicativo (MTPE)",
+        icon: <FileText className="w-5 h-5 text-primary" />,
+        description: "¿FORMALIDAD LABORAL?",
+        details: "El contrato debe ser por escrito y registrado en el portal del Ministerio de Trabajo.",
+        requirements: ["Contrato firmado.", "Registro en el aplicativo del MTPE.", "Boleta de pago mensual."],
+        steps: [
+          "Selecciona y descarga el modelo de contrato que necesites.",
+          "Sube el contrato firmado al aplicativo virtual.",
+          "Entrega copias y boletas mensuales."
+        ],
+        options: [
+          { label: "Modelo referencial con residencia (Cama adentro)", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" },
+          { label: "Modelo referencial sin residencia (Cama afuera)", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" },
+          { label: "Modelo referencial tiempo parcial (Sin residencia)", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" }
+        ]
+      },
+      {
+        id: "obligations-domestic",
+        step: "INFO CLAVE",
+        title: "Obligaciones del Empleador y Derechos",
+        icon: <Scale className="w-5 h-5 text-primary" />,
+        description: "¿QUÉ DEBO CUMPLIR SEGÚN LA LEY N° 31047?",
+        details: "Todo empleador del hogar tiene obligaciones legales para garantizar un trabajo digno. El incumplimiento genera sanciones.",
+        requirements: [
+          "Jornada Laboral: Máximo 8 horas diarias o 48 horas semanales.",
+          "Descanso Semanal: Mínimo 24 horas consecutivas de descanso.",
+          "Gratificaciones: Un sueldo completo en Julio (Fiestas Patrias) y Diciembre (Navidad).",
+          "Vacaciones: 30 días calendario de descanso remunerado por cada año de servicios.",
+          "CTS: Depósito de CTS equivalente a media remuneración por año.",
+          "Seguro Social (EsSalud): El empleador aporta el 9% de la remuneración mensual.",
+          "Pensiones: El trabajador elige entre ONP o AFP (el aporte se descuenta del sueldo)."
+        ],
+        steps: [
+          "Respeta los horarios de descanso y jornada máxima legal.",
+          "Realiza el pago de EsSalud mensualmente a través de SUNAT.",
+          "Entrega obligatoriamente la boleta de pago firmada cada mes.",
+          "Proporciona alimentación y alojamiento (si es cama adentro) sin descuento del sueldo."
+        ],
+        link: "https://www.gob.pe/institucion/mtpe/campa%C3%B1as/3305-conoce-tus-derechos-trabajadoras-y-trabajadores-del-hogar"
+      }
+    ];
+
+    // Lógica: Si respondió "SÍ" (true) a una tarea, no la mostramos como pendiente.
+    // results[2] es RUC, results[3] es T-Registro, results[4] es Contrato.
+    const isRucDone = results[2] === true;
+    const isTRegDone = results[3] === true;
+    const isContractDone = results[4] === true;
+
+    // Si todo está listo, solo devolvemos la última tarea (Obligaciones).
+    if (isRucDone && isTRegDone && isContractDone) {
+      return [allTasks[3]];
     }
-  ];
+
+    // Si no, filtramos para mostrar solo lo que falta + las obligaciones.
+    const pendingTasks: Task[] = [];
+    if (!isRucDone) pendingTasks.push(allTasks[0]);
+    if (!isTRegDone) pendingTasks.push(allTasks[1]);
+    if (!isContractDone) pendingTasks.push(allTasks[2]);
+    pendingTasks.push(allTasks[3]); // Siempre mostrar obligaciones si falta algo.
+
+    return pendingTasks;
+  };
 
   const tasks = routeType === 'idea' ? getIdeaTasks() : routeType === 'active' ? getActiveTasks() : getDomesticTasks();
+  const isFormalDomestic = routeType === 'domestic' && tasks.length === 1 && tasks[0].id === 'obligations-domestic';
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -212,7 +235,9 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         <div className="flex justify-between items-start">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full">
             <ClipboardList className="w-3.5 h-3.5 text-primary" />
-            <p className="text-[10px] font-black text-primary uppercase tracking-wider">TUS TAREAS PRIORITARIAS</p>
+            <p className="text-[10px] font-black text-primary uppercase tracking-wider">
+              {isFormalDomestic ? "ESTADO: FORMALIZADO" : "TUS TAREAS PRIORITARIAS"}
+            </p>
           </div>
           {onRedoDiagnostic && (
             <Button 
@@ -227,13 +252,19 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           )}
         </div>
         <h2 className="text-3xl font-black text-[#1A1A1A] tracking-tight">
-          Tu Hoja de Ruta para tu Formalización
+          {isFormalDomestic 
+            ? "¡Felicidades! Tu relación laboral está formalizada" 
+            : "Tu Hoja de Ruta para tu Formalización"}
         </h2>
-        <p className="text-sm text-muted-foreground font-medium">Información basada en portales oficiales como SUNAT, MTPE, SUNARP, INDECOPI y PRODUCE.</p>
+        <p className="text-sm text-muted-foreground font-medium">
+          {isFormalDomestic 
+            ? "Ahora conoce tus obligaciones legales para mantener un entorno laboral justo."
+            : "Información basada en portales oficiales como SUNAT, MTPE, SUNARP, INDECOPI y PRODUCE."}
+        </p>
       </header>
 
       <div className="space-y-4">
-        <Accordion type="single" collapsible className="w-full space-y-3">
+        <Accordion type="single" collapsible className="w-full space-y-3" defaultValue={tasks[0]?.id}>
           {tasks.map((task, i) => (
             <AccordionItem 
               key={task.id} 
@@ -320,18 +351,20 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         </Accordion>
       </div>
 
-      <div className="bg-primary rounded-3xl p-6 text-white space-y-4 shadow-xl shadow-primary/20">
-        <div className="flex items-start gap-3">
-          <AlertCircle className="w-6 h-6 shrink-0 mt-1" />
-          <div className="space-y-1">
-            <h3 className="font-black text-xl italic tracking-tight uppercase leading-none">Próxima Acción</h3>
-            <p className="text-xs font-medium opacity-90 leading-tight">Un asesor de la DRTPELM revisará tu perfil para contactarte.</p>
+      {!isFormalDomestic && (
+        <div className="bg-primary rounded-3xl p-6 text-white space-y-4 shadow-xl shadow-primary/20">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-6 h-6 shrink-0 mt-1" />
+            <div className="space-y-1">
+              <h3 className="font-black text-xl italic tracking-tight uppercase leading-none">Próxima Acción</h3>
+              <p className="text-xs font-medium opacity-90 leading-tight">Un asesor de la DRTPELM revisará tu perfil para contactarte.</p>
+            </div>
           </div>
+          <Button className="w-full bg-white text-primary hover:bg-gray-50 font-black h-12 rounded-xl text-xs uppercase tracking-widest">
+            AGENDAR ASESORÍA GRATUITA
+          </Button>
         </div>
-        <Button className="w-full bg-white text-primary hover:bg-gray-50 font-black h-12 rounded-xl text-xs uppercase tracking-widest">
-          AGENDAR ASESORÍA GRATUITA
-        </Button>
-      </div>
+      )}
 
       <div className="text-center pt-2">
         <Button variant="link" onClick={onRedoDiagnostic} className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:text-primary">

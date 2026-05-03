@@ -1,8 +1,7 @@
-
 "use client"
 
 import * as React from "react"
-import { Lightbulb, Briefcase, ChevronRight, Check, MapPin, Store, Search, ArrowRight } from "lucide-react"
+import { Lightbulb, Briefcase, ChevronRight, Check, MapPin, Store, Search, ArrowRight, Home, UserCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -10,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
 interface DiagnosticFlowProps {
-  onComplete: (type: 'idea' | 'active', answers: any) => void;
+  onComplete: (type: 'idea' | 'active' | 'domestic', answers: any) => void;
 }
 
 const SECTORS = [
@@ -37,8 +36,9 @@ const DISTRICTS = [
 ].sort();
 
 export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
-  const [step, setStep] = React.useState(0);
-  const [routeType, setRouteType] = React.useState<'idea' | 'active' | null>(null);
+  const [step, setStep] = React.useState(-1);
+  const [profile, setProfile] = React.useState<'entrepreneur' | 'domestic' | null>(null);
+  const [routeType, setRouteType] = React.useState<'idea' | 'active' | 'domestic' | null>(null);
   const [sector, setSector] = React.useState<string | null>(null);
   const [district, setDistrict] = React.useState<string | null>(null);
   const [zone, setZone] = React.useState("");
@@ -56,31 +56,92 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
       "¿Tu negocio cuenta con RUC activo y domicilio fiscal actualizado?",
       "¿Cuentas con trabajadores en planilla o registrados en REMYPE?",
       "¿Tienes licencia de funcionamiento?"
+    ],
+    domestic: [
+      "RUC Activo: ¿Tiene RUC para declarar la planilla de su trabajadora?",
+      "Alta en SUNAT: ¿Inscribió a su trabajadora en el Registro de Trabajadores del Hogar (T-Registro)?",
+      "Contrato Formal: ¿El contrato está firmado y subido al aplicativo del Ministerio de Trabajo?"
     ]
   };
 
-  const totalGlobalSteps = 3;
-  const routeSteps = routeType ? routeQuestions[routeType] : [];
-  const totalSteps = totalGlobalSteps + routeSteps.length;
+  const isDomestic = profile === 'domestic';
   
-  const currentProgress = ((step + 1) / totalSteps) * 100;
+  // Logic to determine total steps and progress
+  const getProgressInfo = () => {
+    if (step === -1) return { total: 1, current: 1, percent: 0 };
+    
+    if (isDomestic) {
+      const total = 2 + routeQuestions.domestic.length; // District + Questions
+      return { total, current: step + 1, percent: ((step + 1) / total) * 100 };
+    } else {
+      const total = 3 + (routeType ? routeQuestions[routeType as 'idea' | 'active'].length : 0);
+      return { total, current: step + 1, percent: ((step + 1) / total) * 100 };
+    }
+  };
+
+  const { total: totalSteps, percent: currentProgress } = getProgressInfo();
 
   const handleNext = (data: Partial<typeof answers>) => {
     const nextAnswers = { ...answers, ...data };
     setAnswers(nextAnswers);
-    if (step < totalSteps - 1) {
+    
+    const questionsCount = routeType ? routeQuestions[routeType as keyof typeof routeQuestions].length : 0;
+    const finalStep = isDomestic ? 1 + questionsCount : 2 + questionsCount;
+
+    if (step < finalStep) {
       setStep(step + 1);
     } else {
       onComplete(routeType!, nextAnswers);
     }
   };
 
-  const filteredDistricts = DISTRICTS.filter(d => 
-    d.toLowerCase().includes(districtSearch.toLowerCase())
-  );
+  // STEP -1: Profile Selection
+  if (step === -1) {
+    return (
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="space-y-4">
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">BIENVENIDO A OFELIA</p>
+          <h2 className="text-3xl font-black text-[#1A1A1A] leading-[1.1] tracking-tight">
+            ¿Cómo te identificas hoy?
+          </h2>
+          <p className="text-sm text-muted-foreground font-medium">Selecciona tu perfil para darte la asesoría correcta.</p>
+        </div>
 
-  // STEP 0: Stage Choice
-  if (step === 0) {
+        <div className="grid gap-4">
+          <button
+            onClick={() => { setProfile('entrepreneur'); setStep(0); }}
+            className="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-2xl text-left hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all group"
+          >
+            <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 shrink-0">
+              <Briefcase className="w-6 h-6" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-[#1A1A1A]">Soy Emprendedor</h3>
+              <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-tight">Negocios y Proyectos</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
+          </button>
+
+          <button
+            onClick={() => { setProfile('domestic'); setRouteType('domestic'); setSector('Trabajadoras del Hogar'); setStep(1); }}
+            className="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-2xl text-left hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all group"
+          >
+            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 shrink-0">
+              <Home className="w-6 h-6" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-[#1A1A1A]">Empleador de Trabajadoras del Hogar</h3>
+              <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-tight">Régimen Especial</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // STEP 0: Stage Choice (Only for Entrepreneur)
+  if (step === 0 && profile === 'entrepreneur') {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="space-y-4">
@@ -124,8 +185,8 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     );
   }
 
-  // STEP 1: Sector
-  if (step === 1) {
+  // STEP 1: Sector / Rubro (Only for Entrepreneur)
+  if (step === 1 && profile === 'entrepreneur') {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
         <div className="space-y-4">
@@ -137,7 +198,6 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
           <h2 className="text-2xl font-black text-[#1A1A1A] pt-4 leading-[1.2] tracking-tight">
             ¿Cuál es el rubro o sector de tu negocio?
           </h2>
-          <p className="text-sm text-muted-foreground font-medium">Selecciona el rubro principal para Lima Metropolitana.</p>
         </div>
 
         <ScrollArea className="h-[400px] pr-2">
@@ -161,18 +221,19 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     );
   }
 
-  // STEP 2: District & Zone
-  if (step === 2) {
+  // STEP 2: District & Zone (For both, but step index differs)
+  const isDistrictStep = (isDomestic && step === 1) || (!isDomestic && step === 2);
+  if (isDistrictStep) {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
         <div className="space-y-4">
           <div className="flex justify-between items-end">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">PASO 3 DE {totalSteps}</p>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">UBICACIÓN</p>
             <p className="text-[10px] font-black text-primary uppercase">{Math.round(currentProgress)}%</p>
           </div>
           <Progress value={currentProgress} className="h-1.5 bg-gray-100" />
           <h2 className="text-2xl font-black text-[#1A1A1A] pt-4 leading-[1.2] tracking-tight">
-            ¿En qué distrito se ubica tu negocio?
+            ¿En qué distrito se ubica el {isDomestic ? 'hogar' : 'negocio'}?
           </h2>
         </div>
 
@@ -189,7 +250,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
 
           <ScrollArea className="h-[250px] border border-gray-100 rounded-2xl bg-white p-2">
             <div className="grid gap-1">
-              {filteredDistricts.map((d) => (
+              {DISTRICTS.filter(d => d.toLowerCase().includes(districtSearch.toLowerCase())).map((d) => (
                 <button
                   key={d}
                   onClick={() => setDistrict(d)}
@@ -234,16 +295,16 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     );
   }
 
-  // STEP 3+: Route Specific Questions
-  const routeStepIdx = step - totalGlobalSteps;
-  const currentQuestion = routeType ? routeQuestions[routeType][routeStepIdx] : "";
+  // Route Specific Questions (Domestic or Entrepreneur routes)
+  const routeStepIdx = isDomestic ? step - 2 : step - 3;
+  const currentQuestion = routeType ? routeQuestions[routeType as keyof typeof routeQuestions][routeStepIdx] : "";
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
       <div className="space-y-4">
         <div className="flex justify-between items-end">
           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">PASO {step + 1} DE {totalSteps}</p>
-          <p className="text-[10px] font-black text-primary uppercase">{Math.round(currentProgress)}% COMPLETADO</p>
+          <p className="text-[10px] font-black text-primary uppercase">{Math.round(currentProgress)}%</p>
         </div>
         <Progress value={currentProgress} className="h-1.5 bg-gray-100" />
         
@@ -271,7 +332,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
       </div>
 
       <div className="pt-8 text-center">
-        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Tu información es confidencial (DRTPELM)</p>
+        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Información Confidencial (DRTPELM)</p>
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import { MessageCircle, X, Send, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface OfeliaChatbotProps {
-  context: 'idea' | 'active' | null;
+  context: 'idea' | 'active' | 'domestic' | null;
   currentStep: string;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -26,12 +26,15 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
 
   const getGreeting = () => {
     if (context === 'idea') {
-      return "¡Hola! Soy OFELIA, tu asistente de formalización. ¡Qué chévere que quieras iniciar tu ruta de formalización con esa idea de negocio! ¿Te ayudo con los trámites en SUNARP o a proteger tu marca en INDECOPI?";
+      return "¡Hola! Soy OFELIA. ¡Qué chévere que quieras iniciar tu ruta con esa idea de negocio! ¿Te ayudo con SUNARP o INDECOPI?";
     }
     if (context === 'active') {
-      return "¡Hola! Soy OFELIA. ¡Qué bueno que estés dando el paso para formalizar tu negocio! Estoy aquí para ayudarte con el REMYPE o tus dudas municipales. ¡Vamos con todo!";
+      return "¡Hola! Soy OFELIA. ¡Qué bueno que estés formalizando tu negocio! Estoy aquí para ayudarte con el REMYPE o dudas municipales.";
     }
-    return "¡Hola! Soy OFELIA, tu asistente de formalización. ¡Qué chévere que estés por aquí! Regístrate rapidito para darte una asesoría personalizada y empezar tu ruta al éxito.";
+    if (context === 'domestic') {
+      return "¡Hola! Soy OFELIA. Te ayudaré a formalizar la relación laboral en tu hogar. ¿Tienes dudas sobre el T-Registro o el contrato del MTPE?";
+    }
+    return "¡Hola! Soy OFELIA, tu asistente de formalización. ¡Qué chévere que estés aquí! Regístrate para empezar tu ruta al éxito.";
   };
 
   return (

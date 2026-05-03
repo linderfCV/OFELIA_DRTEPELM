@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -12,7 +11,9 @@ import {
   AlertCircle,
   RefreshCcw,
   ShieldCheck,
-  ExternalLink
+  ExternalLink,
+  UserCheck,
+  Home
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -23,7 +24,7 @@ import {
 } from "@/components/ui/accordion"
 
 interface OfeliaDashboardProps {
-  routeType: 'idea' | 'active';
+  routeType: 'idea' | 'active' | 'domestic';
   results: Record<number, boolean>;
   onOpenChat?: () => void;
   onRedoDiagnostic?: () => void;
@@ -37,17 +38,9 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       title: "Reserva de Nombre Legal (SUNARP)",
       icon: <Search className="w-5 h-5 text-primary" />,
       description: "¿POR QUÉ ES EL PRIMER PASO?",
-      details: "La reserva de nombre protege la denominación de tu empresa por 30 días en SUNARP mientras formalizas la escritura pública. Es el paso previo indispensable para constituirte como persona jurídica.",
-      requirements: [
-        "DNI o Pasaporte vigente.",
-        "Mínimo 3 opciones de nombres para tu empresa.",
-        "Pago de tasa registral (Costo: S/ 24.00)."
-      ],
-      steps: [
-        "Realiza una 'Búsqueda de Índices' en el portal SPRL de SUNARP (Costo: S/ 5.00).",
-        "Solicita la Reserva de Nombre indicando el tipo de sociedad (SAC, EIRL, etc.).",
-        "Obtén tu constancia de reserva para presentarla ante el notario."
-      ]
+      details: "La reserva de nombre protege la denominación de tu empresa por 30 días en SUNARP mientras formalizas la escritura pública.",
+      requirements: ["DNI vigente.", "Mínimo 3 opciones de nombres.", "Pago de tasa registral (Costo: S/ 24.00)."],
+      steps: ["Realiza una 'Búsqueda de Índices' (S/ 5.00).", "Solicita la Reserva de Nombre indicando el tipo de sociedad.", "Obtén tu constancia de reserva."]
     },
     {
       id: "indecopi",
@@ -55,18 +48,9 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       title: "Protección de Marca (INDECOPI)",
       icon: <ShieldCheck className="w-5 h-5 text-primary" />,
       description: "¿SABÍAS QUE PUEDES HACERLO ONLINE?",
-      details: "INDECOPI protege el nombre comercial de tu producto o servicio. Puedes verificar si tu marca está libre de forma gratuita y 100% online desde su portal oficial.",
-      requirements: [
-        "Acceso a internet para usar la herramienta 'Busca tu Marca'.",
-        "Logo de la marca en formato digital (JPG/PNG).",
-        "Clasificación de Niza (categoría de tu producto/servicio).",
-        "Pago de tasa de registro (Costo: S/ 534.99 por la primera clase)."
-      ],
-      steps: [
-        "Ingresa a la página oficial 'Busca tu Marca' (https://pi.indecopi.gob.pe/buscatumarca/#/inicio).",
-        "Realiza la 'Búsqueda Fonética' gratuita para ver si el nombre ya está registrado.",
-        "Presenta tu solicitud de registro de forma virtual a través de la Gaceta Electrónica."
-      ],
+      details: "INDECOPI protege el nombre comercial de tu marca. Puedes verificar si tu marca está libre de forma gratuita y online.",
+      requirements: ["Logo digital.", "Clasificación de Niza.", "Pago de tasa (S/ 534.99)."],
+      steps: ["Ingresa a 'Busca tu Marca' de INDECOPI.", "Realiza la 'Búsqueda Fonética' gratuita.", "Presenta tu solicitud virtual."],
       link: "https://pi.indecopi.gob.pe/buscatumarca/#/inicio"
     },
     {
@@ -75,35 +59,19 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       title: "Elaborar Acto Constitutivo (Minuta)",
       icon: <FileText className="w-5 h-5 text-primary" />,
       description: "¿DE QUÉ SE TRATA?",
-      details: "Es el documento legal donde se definen los estatutos de la empresa, los socios y el capital social. Puede gestionarse a través de un CDE (PRODUCE) para reducir costos.",
-      requirements: [
-        "Constancia de Reserva de nombre en SUNARP.",
-        "Copia de DNI de los socios.",
-        "Detalle de aportes de capital (bienes o efectivo)."
-      ],
-      steps: [
-        "Acude a una Notaría o a un Centro de Desarrollo Empresarial (CDE) de PRODUCE.",
-        "Firma la minuta elaborada por el abogado o centro de asesoría.",
-        "El notario enviará el parte electrónico a SUNARP para la inscripción."
-      ]
+      details: "Documento legal donde se definen estatutos y socios. Se puede gestionar en CDE (PRODUCE) para reducir costos.",
+      requirements: ["Reserva SUNARP.", "Copia de DNI de socios.", "Detalle de aportes."],
+      steps: ["Acude a una Notaría o CDE de PRODUCE.", "Firma la minuta.", "Inscripción en SUNARP."]
     },
     {
       id: "sunat",
       step: "PASO 4",
       title: "RUC y Régimen Tributario (SUNAT)",
       icon: <CreditCard className="w-5 h-5 text-primary" />,
-      description: "¿DE QUÉ SE TRATA?",
-      details: "El RUC es el registro informático donde constan los datos de identificación de tu empresa ante la SUNAT. Permite emitir comprobantes de pago legales.",
-      requirements: [
-        "Escritura pública inscrita en SUNARP.",
-        "Recibo de luz o agua del local fiscal.",
-        "DNI del representante legal."
-      ],
-      steps: [
-        "Realiza la activación del RUC de forma virtual o presencial.",
-        "Elige el régimen tributario que más te convenga (MYPE Tributario o Especial).",
-        "Activa tu Clave SOL para gestionar tus facturas electrónicas."
-      ]
+      description: "¿POR QUÉ EL RUC?",
+      details: "Registro para emitir comprobantes legales ante SUNAT.",
+      requirements: ["Escritura inscrita.", "Recibo de luz local fiscal.", "DNI representante."],
+      steps: ["Activación de RUC virtual o presencial.", "Elección de Régimen (MYPE o Especial).", "Activa Clave SOL."]
     },
     {
       id: "municipal",
@@ -111,17 +79,9 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       title: "Licencia de Funcionamiento",
       icon: <MapPin className="w-5 h-5 text-primary" />,
       description: "¿AUTORIZACIÓN MUNICIPAL?",
-      details: "Es la autorización que otorga la municipalidad para el desarrollo de actividades económicas en un establecimiento determinado.",
-      requirements: [
-        "RUC activo y habido.",
-        "Declaración Jurada de Condiciones de Seguridad.",
-        "Pago de tasa municipal según el distrito."
-      ],
-      steps: [
-        "Verifica la compatibilidad de uso de tu local en el municipio.",
-        "Presenta la solicitud de licencia de funcionamiento.",
-        "Recibe la inspección técnica de seguridad (ITSE) posterior."
-      ]
+      details: "Autorización para el desarrollo de actividades económicas.",
+      requirements: ["RUC activo.", "Declaración Jurada de Seguridad.", "Pago de tasa municipal."],
+      steps: ["Verifica compatibilidad de uso.", "Presenta solicitud.", "Inspección técnica (ITSE)."]
     }
   ];
 
@@ -129,19 +89,12 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     {
       id: "ruc-update",
       step: "PASO 1",
-      title: "Actualización de RUC y Datos (SUNAT)",
+      title: "Actualización de RUC (SUNAT)",
       icon: <CreditCard className="w-5 h-5 text-primary" />,
       description: "¿POR QUÉ ACTUALIZAR?",
-      details: "Asegura que tu actividad económica y domicilio fiscal estén al día para evitar multas innecesarias de SUNAT.",
-      requirements: [
-        "Clave SOL activa.",
-        "DNI del representante legal."
-      ],
-      steps: [
-        "Ingresa a SUNAT Operaciones en Línea.",
-        "Actualiza tu actividad principal (CIIU) si ha cambiado.",
-        "Verifica tu estado de Habido."
-      ]
+      details: "Asegura que tu actividad económica y domicilio fiscal estén al día.",
+      requirements: ["Clave SOL.", "DNI representante."],
+      steps: ["Ingresa a SUNAT SOL.", "Actualiza actividad (CIIU).", "Verifica estado de Habido."]
     },
     {
       id: "remype",
@@ -149,39 +102,56 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       title: "Registro en REMYPE (MTPE)",
       icon: <ClipboardList className="w-5 h-5 text-primary" />,
       description: "¿BENEFICIOS LABORALES?",
-      details: "El REMYPE permite a las Micro y Pequeñas empresas acceder a un régimen laboral especial con costos reducidos en beneficios sociales.",
-      requirements: [
-        "RUC con Clave SOL.",
-        "Tener al menos 1 trabajador en planilla.",
-        "Ventas anuales menores a 1,700 UIT."
-      ],
-      steps: [
-        "Accede al portal del MTPE con tu Clave SOL.",
-        "Completa el registro de tu empresa en el sistema REMYPE.",
-        "Obtén tu acreditación para aplicar los beneficios laborales."
-      ]
+      details: "Acceso a régimen laboral especial con costos reducidos.",
+      requirements: ["RUC con Clave SOL.", "Mínimo 1 trabajador.", "Ventas < 1,700 UIT."],
+      steps: ["Accede al portal MTPE.", "Registro en sistema REMYPE.", "Obtén acreditación."]
     },
     {
       id: "municipal-active",
       step: "PASO 3",
-      title: "Regularización de Licencia Municipal",
+      title: "Regularización Municipal",
       icon: <MapPin className="w-5 h-5 text-primary" />,
       description: "¿GESTIÓN MUNICIPAL?",
-      details: "Si has ampliado tu local o cambiado de giro, debes actualizar tu licencia municipal para operar legalmente.",
-      requirements: [
-        "Copia del RUC actualizado.",
-        "Pago de tasa de actualización municipal.",
-        "DNI del titular."
-      ],
-      steps: [
-        "Solicita la actualización por cambio de datos en tu municipalidad.",
-        "Presenta la declaración de condiciones de seguridad actualizada.",
-        "Programa la nueva inspección ITSE si es requerida."
-      ]
+      details: "Actualiza tu licencia si cambiaste de giro o local.",
+      requirements: ["RUC actualizado.", "Pago de tasa.", "DNI titular."],
+      steps: ["Solicita actualización en municipio.", "Declaración de seguridad.", "Nueva inspección ITSE."]
     }
   ];
 
-  const tasks = routeType === 'idea' ? getIdeaTasks() : getActiveTasks();
+  const getDomesticTasks = () => [
+    {
+      id: "ruc-domestic",
+      step: "PASO 1",
+      title: "Inscripción en el RUC (SUNAT)",
+      icon: <CreditCard className="w-5 h-5 text-primary" />,
+      description: "¿ES OBLIGATORIO?",
+      details: "Como empleador del hogar, necesitas un RUC para declarar la planilla y pagar los aportes de seguridad social (EsSalud/ONP).",
+      requirements: ["DNI del empleador.", "Dirección del domicilio.", "Correo electrónico."],
+      steps: ["Inscríbete en SUNAT virtual o presencial.", "Obtén tu Clave SOL.", "Activa tu RUC como Empleador de Trabajador del Hogar."]
+    },
+    {
+      id: "t-registro",
+      step: "PASO 2",
+      title: "Alta en el T-Registro (SUNAT)",
+      icon: <UserCheck className="w-5 h-5 text-primary" />,
+      description: "¿QUÉ ES EL ALTA?",
+      details: "Es el registro formal del trabajador ante la SUNAT para garantizar sus derechos sociales.",
+      requirements: ["DNI del trabajador.", "Datos de jornada y sueldo.", "Clave SOL del empleador."],
+      steps: ["Ingresa a SUNAT Operaciones en Línea.", "Registra a tu trabajadora en el T-Registro.", "Genera la constancia de alta."]
+    },
+    {
+      id: "mtpe-contract",
+      step: "PASO 3",
+      title: "Contrato y Aplicativo (MTPE)",
+      icon: <FileText className="w-5 h-5 text-primary" />,
+      description: "¿FORMALIDAD LABORAL?",
+      details: "El contrato debe ser por escrito y registrado en el portal del Ministerio de Trabajo.",
+      requirements: ["Contrato firmado.", "Registro en el aplicativo del MTPE.", "Boleta de pago mensual."],
+      steps: ["Descarga el modelo de contrato oficial del MTPE.", "Sube el contrato firmado al aplicativo virtual.", "Entrega copias y boletas mensuales."]
+    }
+  ];
+
+  const tasks = routeType === 'idea' ? getIdeaTasks() : routeType === 'active' ? getActiveTasks() : getDomesticTasks();
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -206,7 +176,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         <h2 className="text-3xl font-black text-[#1A1A1A] tracking-tight">
           Tu Hoja de Ruta para tu Formalización
         </h2>
-        <p className="text-sm text-muted-foreground font-medium">Sigue estos pasos con información basada en portales oficiales.</p>
+        <p className="text-sm text-muted-foreground font-medium">Información oficial de SUNAT, MTPE, SUNARP, INDECOPI y PRODUCE.</p>
       </header>
 
       <div className="space-y-4">
@@ -232,15 +202,9 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                 <div className="space-y-6 text-[#1A1A1A]">
                   <section>
                     <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">{task.description}</h4>
-                    <p className="text-xs font-medium leading-relaxed text-gray-700">
-                      {task.details}
-                    </p>
+                    <p className="text-xs font-medium leading-relaxed text-gray-700">{task.details}</p>
                     {(task as any).link && (
-                      <Button 
-                        variant="link" 
-                        className="h-auto p-0 text-primary text-[10px] font-bold uppercase gap-1 mt-2"
-                        onClick={() => window.open((task as any).link, '_blank')}
-                      >
+                      <Button variant="link" className="h-auto p-0 text-primary text-[10px] font-bold uppercase gap-1 mt-2" onClick={() => window.open((task as any).link, '_blank')}>
                         Ir a la plataforma oficial <ExternalLink className="w-3 h-3" />
                       </Button>
                     )}
@@ -251,8 +215,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                     <ul className="space-y-1.5">
                       {task.requirements.map((req, idx) => (
                         <li key={idx} className="text-xs font-medium flex items-start gap-2">
-                          <span className="text-primary mt-1">•</span>
-                          {req}
+                          <span className="text-primary mt-1">•</span> {req}
                         </li>
                       ))}
                     </ul>
@@ -263,25 +226,18 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                     <div className="space-y-3">
                       {task.steps.map((step, idx) => (
                         <div key={idx} className="flex gap-3 items-start">
-                          <div className="w-5 h-5 bg-primary text-white rounded-full flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">
-                            {idx + 1}
-                          </div>
+                          <div className="w-5 h-5 bg-primary text-white rounded-full flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">{idx + 1}</div>
                           <p className="text-xs font-medium leading-snug">{step}</p>
                         </div>
                       ))}
                     </div>
                   </section>
 
-                  <div 
-                    onClick={onOpenChat}
-                    className="bg-red-50/50 border border-dashed border-primary/20 rounded-xl p-4 mt-4 flex items-center justify-between group cursor-pointer hover:bg-red-50 transition-colors"
-                  >
+                  <div onClick={onOpenChat} className="bg-red-50/50 border border-dashed border-primary/20 rounded-xl p-4 mt-4 flex items-center justify-between group cursor-pointer hover:bg-red-50 transition-colors">
                     <div className="flex items-center gap-3">
                       <MessageSquare className="w-4 h-4 text-primary" />
                       <div className="text-left">
-                        <p className="text-[10px] font-bold text-primary leading-tight">
-                          ¿Tienes una duda específica sobre este paso?
-                        </p>
+                        <p className="text-[10px] font-bold text-primary leading-tight">¿Duda específica sobre este paso?</p>
                         <p className="text-[10px] font-black text-primary underline">Pregunta aquí</p>
                       </div>
                     </div>
@@ -298,9 +254,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           <AlertCircle className="w-6 h-6 shrink-0 mt-1" />
           <div className="space-y-1">
             <h3 className="font-black text-xl italic tracking-tight uppercase leading-none">Próxima Acción</h3>
-            <p className="text-xs font-medium opacity-90 leading-tight">
-              Un asesor de la DRTPELM revisará tu perfil y podría contactarte para una asesoría personalizada.
-            </p>
+            <p className="text-xs font-medium opacity-90 leading-tight">Un asesor de la DRTPELM revisará tu perfil para contactarte.</p>
           </div>
         </div>
         <Button className="w-full bg-white text-primary hover:bg-gray-50 font-black h-12 rounded-xl text-xs uppercase tracking-widest">
@@ -309,11 +263,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       </div>
 
       <div className="text-center pt-2">
-        <Button 
-          variant="link" 
-          onClick={onRedoDiagnostic}
-          className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:text-primary transition-colors"
-        >
+        <Button variant="link" onClick={onRedoDiagnostic} className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:text-primary">
           realizar el diagnostico nuevamente
         </Button>
       </div>

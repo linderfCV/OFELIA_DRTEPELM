@@ -9,7 +9,7 @@ import { OfeliaChatbot } from "@/components/OfeliaChatbot";
 export default function Home() {
   const [step, setStep] = React.useState<'registration' | 'diagnostic' | 'dashboard'>('registration');
   const [userData, setUserData] = React.useState<any>(null);
-  const [routeType, setRouteType] = React.useState<'idea' | 'active' | null>(null);
+  const [routeType, setRouteType] = React.useState<'idea' | 'active' | 'domestic' | null>(null);
   const [results, setResults] = React.useState<any>(null);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
 
@@ -18,7 +18,7 @@ export default function Home() {
     setStep('diagnostic');
   };
 
-  const handleDiagnosticComplete = (type: 'idea' | 'active', diagnosticResults: any) => {
+  const handleDiagnosticComplete = (type: 'idea' | 'active' | 'domestic', diagnosticResults: any) => {
     setRouteType(type);
     setResults(diagnosticResults);
     setStep('dashboard');
@@ -36,7 +36,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#FDFDFD] flex flex-col items-center">
-      {/* Header Institucional Superior (Solo visible después del registro) */}
+      {/* Header Institucional Superior */}
       {step !== 'registration' && (
         <header className="w-full bg-white border-b border-gray-100 py-3 px-6 flex justify-between items-center sticky top-0 z-50">
           <div className="flex items-center gap-4">

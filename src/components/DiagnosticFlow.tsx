@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -15,6 +14,7 @@ interface DiagnosticFlowProps {
 
 const SECTORS = [
   { id: "gastronomia", label: "Gastronomía (Restaurantes, Cafés, Comida al paso)", icon: "🍳" },
+  { id: "educacion", label: "Educación (Nidos, Colegios, Academias, Capacitación)", icon: "📚" },
   { id: "comercio", label: "Comercio (Tiendas de ropa, Minimarkets, Abarrotes)", icon: "🛒" },
   { id: "textil", label: "Manufactura y Textil (Gamarra, Confecciones)", icon: "🧵" },
   { id: "servicios", label: "Servicios Profesionales y Técnicos", icon: "💼" },

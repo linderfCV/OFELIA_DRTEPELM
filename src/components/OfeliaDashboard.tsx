@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -18,7 +17,11 @@ import {
   Scale,
   Zap,
   Award,
-  TrendingUp
+  TrendingUp,
+  Landmark,
+  HeartPulse,
+  Truck,
+  GraduationCap
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -49,13 +52,69 @@ interface Task {
 
 interface OfeliaDashboardProps {
   routeType: 'idea' | 'active' | 'domestic';
-  results: Record<number, boolean>;
+  results: Record<string, any>;
   onOpenChat?: () => void;
   onRedoDiagnostic?: () => void;
 }
 
 export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnostic }: OfeliaDashboardProps) {
   
+  const getSectoralTask = (sectorLabel: string): Task | null => {
+    if (sectorLabel.includes("Educación")) {
+      return {
+        id: "sectoral-edu",
+        step: "PASO SECTORIAL",
+        title: "Autorización Sectorial (MINEDU)",
+        icon: <GraduationCap className="w-5 h-5" />,
+        description: "¿RUBRO EDUCACIÓN?",
+        details: "Para instituciones educativas privadas (Nidos, Colegios, Institutos), necesitas la autorización de funcionamiento del Ministerio de Educación o la UGEL correspondiente.",
+        requirements: ["Proyecto Educativo Institucional (PEI).", "Plano de infraestructura aprobado.", "DNI del promotor."],
+        steps: ["Verifica requisitos en el portal del MINEDU.", "Presenta expediente en la UGEL de tu jurisdicción.", "Obtén la Resolución de Funcionamiento."],
+        link: "https://www.gob.pe/minedu"
+      };
+    }
+    if (sectorLabel.includes("Salud")) {
+      return {
+        id: "sectoral-salud",
+        step: "PASO SECTORIAL",
+        title: "Registro de IPRESS (SUSALUD)",
+        icon: <HeartPulse className="w-5 h-5" />,
+        description: "¿RUBRO SALUD?",
+        details: "Todo establecimiento de salud (Boticas, Clínicas, Consultorios) debe registrarse ante SUSALUD como Institución Prestadora de Servicios de Salud.",
+        requirements: ["RUC activo.", "Título profesional del Director Médico.", "Categorización vigente de la DIRIS/DIRESA."],
+        steps: ["Obtén categorización en la DIRIS local.", "Inscribe el establecimiento en el Registro Nacional de IPRESS.", "Mantén el registro actualizado en SUSALUD."],
+        link: "https://www.gob.pe/susalud"
+      };
+    }
+    if (sectorLabel.includes("Transporte")) {
+      return {
+        id: "sectoral-transporte",
+        step: "PASO SECTORIAL",
+        title: "Autorización de Operación (ATU/MTC)",
+        icon: <Truck className="w-5 h-5" />,
+        description: "¿RUBRO TRANSPORTE?",
+        details: "Para servicios de transporte de pasajeros o carga, requieres permisos específicos de la Autoridad de Transporte Urbano (ATU) o el MTC.",
+        requirements: ["Tarjeta de propiedad.", "SOAT vigente.", "Revisión técnica."],
+        steps: ["Solicita la habilitación vehicular.", "Obtén el Permiso de Operación.", "Registra a tus conductores."],
+        link: "https://www.gob.pe/atu"
+      };
+    }
+    if (sectorLabel.includes("Gastronomía")) {
+      return {
+        id: "sectoral-gastro",
+        step: "PASO SECTORIAL",
+        title: "Registro Sanitario (DIGESA)",
+        icon: <Landmark className="w-5 h-5" />,
+        description: "¿RUBRO ALIMENTOS?",
+        details: "Si fabricas o comercializas alimentos procesados, necesitas el Registro Sanitario de DIGESA para garantizar la inocuidad.",
+        requirements: ["Resultados de análisis físico-químico.", "Ficha técnica del producto.", "Pago de tasa."],
+        steps: ["Realiza análisis de laboratorio.", "Solicita el registro vía VUCE.", "Obtén el código de Registro Sanitario."],
+        link: "https://www.gob.pe/digesa"
+      };
+    }
+    return null;
+  };
+
   const getMypeBenefitsTask = (): Task => ({
     id: "mype-benefits",
     step: "INFO CLAVE",
@@ -154,6 +213,12 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     if (results[5] === false) pendingTasks.push(allTasks[3]);
     if (results[6] === false) pendingTasks.push(allTasks[4]);
     
+    // Agregar autorización sectorial si el rubro lo requiere
+    if (results.sector) {
+      const sectoralTask = getSectoralTask(results.sector);
+      if (sectoralTask) pendingTasks.push(sectoralTask);
+    }
+
     pendingTasks.push(getMypeBenefitsTask());
     return pendingTasks;
   };
@@ -202,6 +267,12 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     if (results[4] === false) pendingTasks.push(allTasks[1]);
     if (results[5] === false) pendingTasks.push(allTasks[2]);
     
+    // Agregar autorización sectorial si el rubro lo requiere
+    if (results.sector) {
+      const sectoralTask = getSectoralTask(results.sector);
+      if (sectoralTask) pendingTasks.push(sectoralTask);
+    }
+
     pendingTasks.push(getMypeBenefitsTask());
     return pendingTasks;
   };
@@ -331,35 +402,37 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         <Accordion type="single" collapsible className="w-full space-y-3" defaultValue={tasks[0]?.id}>
           {tasks.map((task) => {
             const isInfoClave = task.step === "INFO CLAVE";
+            const isSectoral = task.step === "PASO SECTORIAL";
+            
             return (
               <AccordionItem 
                 key={task.id} 
                 value={task.id}
                 className={cn(
                   "border rounded-2xl bg-white shadow-sm overflow-hidden px-4 transition-colors",
-                  isInfoClave ? "border-blue-200 bg-blue-50/20" : "border-gray-100"
+                  isInfoClave ? "border-blue-400 bg-blue-50/20" : isSectoral ? "border-emerald-200 bg-emerald-50/10" : "border-gray-100"
                 )}
               >
                 <AccordionTrigger className="hover:no-underline py-4">
                   <div className="flex items-center gap-4 text-left">
                     <div className={cn(
                       "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                      isInfoClave ? "bg-blue-600 shadow-lg shadow-blue-200" : "bg-red-50"
+                      isInfoClave ? "bg-blue-600 shadow-lg shadow-blue-200" : isSectoral ? "bg-emerald-600 shadow-lg shadow-emerald-200" : "bg-red-50"
                     )}>
                       {React.cloneElement(task.icon as React.ReactElement, { 
-                        className: cn("w-5 h-5", isInfoClave ? "text-white" : "text-primary") 
+                        className: cn("w-5 h-5", (isInfoClave || isSectoral) ? "text-white" : "text-primary") 
                       })}
                     </div>
                     <div className="space-y-0.5">
                       <p className={cn(
                         "text-[10px] font-black uppercase tracking-widest",
-                        isInfoClave ? "text-blue-600" : "text-muted-foreground"
+                        isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-muted-foreground"
                       )}>
                         {task.step}
                       </p>
                       <h3 className={cn(
                         "font-bold text-sm leading-tight",
-                        isInfoClave ? "text-blue-900" : "text-[#1A1A1A]"
+                        isInfoClave ? "text-blue-900" : isSectoral ? "text-emerald-900" : "text-[#1A1A1A]"
                       )}>
                         {task.title}
                       </h3>
@@ -371,7 +444,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                     <section>
                       <h4 className={cn(
                         "text-[10px] font-black uppercase tracking-widest mb-2",
-                        isInfoClave ? "text-blue-600" : "text-gray-500"
+                        isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-gray-500"
                       )}>
                         {task.description}
                       </h4>
@@ -379,7 +452,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                       {task.link && (
                         <Button variant="link" className={cn(
                           "h-auto p-0 text-[10px] font-bold uppercase gap-1 mt-2",
-                          isInfoClave ? "text-blue-600" : "text-primary"
+                          isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-primary"
                         )} onClick={() => window.open(task.link, '_blank')}>
                           Ir a la plataforma oficial <ExternalLink className="w-3 h-3" />
                         </Button>
@@ -409,14 +482,14 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                     <section>
                       <h4 className={cn(
                         "text-[10px] font-black uppercase tracking-widest mb-2",
-                        isInfoClave ? "text-blue-600" : "text-gray-500"
+                        isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-gray-500"
                       )}>
                         {task.id === 'mype-benefits' ? 'VENTAJAS COMPETITIVAS' : 'REQUISITOS / OBLIGACIONES'}
                       </h4>
                       <ul className="space-y-1.5">
                         {task.requirements.map((req, idx) => (
                           <li key={idx} className="text-xs font-medium flex items-start gap-2">
-                            <span className={cn("mt-1", isInfoClave ? "text-blue-600" : "text-primary")}>•</span> {req}
+                            <span className={cn("mt-1", isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-primary")}>•</span> {req}
                           </li>
                         ))}
                       </ul>
@@ -425,7 +498,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                     <section>
                       <h4 className={cn(
                         "text-[10px] font-black uppercase tracking-widest mb-2",
-                        isInfoClave ? "text-blue-600" : "text-gray-500"
+                        isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-gray-500"
                       )}>
                         {task.id === 'mype-benefits' ? 'RECOMENDACIONES' : 'PASOS A SEGUIR'}
                       </h4>
@@ -434,7 +507,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                           <div key={idx} className="flex gap-3 items-start">
                             <div className={cn(
                               "w-5 h-5 text-white rounded-full flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5",
-                              isInfoClave ? "bg-blue-600" : "bg-primary"
+                              isInfoClave ? "bg-blue-600" : isSectoral ? "bg-emerald-600" : "bg-primary"
                             )}>{idx + 1}</div>
                             <p className="text-xs font-medium leading-snug">{step}</p>
                           </div>
@@ -444,13 +517,13 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
 
                     <div onClick={onOpenChat} className={cn(
                       "border border-dashed rounded-xl p-4 mt-4 flex items-center justify-between group cursor-pointer transition-colors",
-                      isInfoClave ? "bg-blue-50 border-blue-200 hover:bg-blue-100" : "bg-red-50/50 border-primary/20 hover:bg-red-50"
+                      isInfoClave ? "bg-blue-50 border-blue-200 hover:bg-blue-100" : isSectoral ? "bg-emerald-50 border-emerald-200 hover:bg-emerald-100" : "bg-red-50/50 border-primary/20 hover:bg-red-50"
                     )}>
                       <div className="flex items-center gap-3">
-                        <MessageSquare className={cn("w-4 h-4", isInfoClave ? "text-blue-600" : "text-primary")} />
+                        <MessageSquare className={cn("w-4 h-4", isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-primary")} />
                         <div className="text-left">
-                          <p className={cn("text-[10px] font-bold leading-tight", isInfoClave ? "text-blue-600" : "text-primary")}>¿Duda específica sobre este punto?</p>
-                          <p className={cn("text-[10px] font-black underline", isInfoClave ? "text-blue-700" : "text-primary")}>Pregunta aquí</p>
+                          <p className={cn("text-[10px] font-bold leading-tight", isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-primary")}>¿Duda específica sobre este punto?</p>
+                          <p className={cn("text-[10px] font-black underline", isInfoClave ? "text-blue-700" : isSectoral ? "text-emerald-700" : "text-primary")}>Pregunta aquí</p>
                         </div>
                       </div>
                     </div>

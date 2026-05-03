@@ -37,13 +37,18 @@ export default function Home() {
 
   return (
     <div className={cn(
-      "min-h-screen flex flex-col items-center transition-all duration-700 w-full",
+      "min-h-screen flex flex-col items-center transition-all duration-700 w-full relative",
       step === 'registration' 
         ? "bg-[url('/Fondo3.png')] bg-cover bg-center bg-no-repeat overflow-x-hidden" 
         : "bg-[#FDFDFD]"
     )}>
+      {/* Overlay oscuro sutil para mejorar legibilidad en registro */}
+      {step === 'registration' && (
+        <div className="absolute inset-0 bg-black/10 pointer-events-none" />
+      )}
+
       {/* Header Institucional Superior */}
-      {step !== 'registration' && (
+      {step !== 'registration' ? (
         <header className="w-full bg-white border-b border-gray-100 py-3 px-6 flex justify-between items-center sticky top-0 z-50">
           <div className="flex items-center gap-4">
             <img src="/image_f1ee39.jfif" alt="Logo MTPE" className="h-8 w-auto" />
@@ -57,55 +62,71 @@ export default function Home() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           </button>
         </header>
+      ) : (
+        <div className="w-full flex justify-center pt-6 pb-2 z-20">
+          <img 
+            src="/image_f1ee39.jfif" 
+            alt="Logo MTPE" 
+            className="h-10 w-auto drop-shadow-md"
+          />
+        </div>
       )}
 
-      <div className="w-full max-w-[440px] px-4 pt-6 pb-20 relative z-10">
+      <div className="w-full max-w-[440px] px-4 pt-2 pb-20 relative z-10">
         {step === 'registration' && (
           <div className="flex flex-col gap-6 animate-slide-up">
             <header className="flex flex-col items-center text-center">
-              <img 
-                src="/image_f1ee39.jfif" 
-                alt="Logo MTPE" 
-                style={{ width: '160px', height: 'auto', display: 'block', margin: '0 auto 1rem auto' }} 
-              />
-              <div className="space-y-1 bg-white/40 backdrop-blur-md p-4 rounded-3xl border border-white/50 shadow-xl">
-                <h2 className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-[#1A1A1A]">
-                  Dirección Regional de Trabajo y Promoción del Empleo de Lima Metropolitana
+              <div className="w-full bg-white/30 backdrop-blur-md px-6 py-8 rounded-[40px] border border-white/40 shadow-2xl mb-4">
+                <h2 className="text-[11px] font-black uppercase tracking-[0.1em] text-[#1A1A1A] leading-tight mb-4">
+                  DIRECCIÓN REGIONAL DE TRABAJO Y PROMOCIÓN DEL EMPLEO DE LIMA METROPOLITANA
                 </h2>
-                <h1 className="text-5xl font-black text-primary tracking-tighter pt-2">
+                <h1 className="text-6xl font-black text-primary tracking-tighter mb-4 leading-none">
                   OFELIA
                 </h1>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#1A1A1A] max-w-[300px] mx-auto leading-tight">
+                <p className="text-[11px] font-black uppercase tracking-wider text-[#1A1A1A] max-w-[320px] mx-auto leading-tight opacity-90">
                   Oficina de Formalización Empresarial, Laboral Itinerante y Asistida
                 </p>
               </div>
-              <p className="text-sm text-foreground/90 font-bold mt-4 max-w-[280px] drop-shadow-md">
-                Comienza tu ruta de crecimiento. Accede a tu panel de formalización.
-              </p>
+              
+              <div className="space-y-1 py-2">
+                <p className="text-[15px] text-white font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                  Comienza tu ruta de crecimiento.
+                </p>
+                <p className="text-[15px] text-white font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                  Accede a tu panel de formalización.
+                </p>
+              </div>
             </header>
-            <OfeliaForm onComplete={handleRegistrationComplete} />
+            
+            <div className="mt-4">
+              <OfeliaForm onComplete={handleRegistrationComplete} />
+            </div>
           </div>
         )}
 
         {step === 'diagnostic' && (
-          <DiagnosticFlow onComplete={handleDiagnosticComplete} />
+          <div className="pt-6">
+            <DiagnosticFlow onComplete={handleDiagnosticComplete} />
+          </div>
         )}
 
         {step === 'dashboard' && routeType && (
-          <OfeliaDashboard 
-            routeType={routeType} 
-            results={results} 
-            onOpenChat={openChat}
-            onRedoDiagnostic={handleRedoDiagnostic}
-          />
+          <div className="pt-6">
+            <OfeliaDashboard 
+              routeType={routeType} 
+              results={results} 
+              onOpenChat={openChat}
+              onRedoDiagnostic={handleRedoDiagnostic}
+            />
+          </div>
         )}
       </div>
 
       {/* Footer solo en registro */}
       {step === 'registration' && (
         <footer className="mt-auto py-8 text-center relative z-10 w-full">
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider bg-white/30 backdrop-blur-md px-4 py-2 rounded-full border border-white/30 inline-block">
-            Iniciativa de la <span className="text-foreground font-extrabold">DRTPELM</span> · Innova Región 2026
+          <p className="text-[10px] text-white font-bold uppercase tracking-wider bg-black/20 backdrop-blur-sm px-6 py-2.5 rounded-full border border-white/20 inline-block">
+            Iniciativa de la <span className="text-white font-black underline underline-offset-2">DRTPELM</span> · Innova Región 2026
           </p>
         </footer>
       )}

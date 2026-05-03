@@ -53,11 +53,11 @@ export default function Home() {
           </button>
         </header>
       ) : (
-        <div className="w-full flex justify-center pt-6 pb-2 z-20">
+        <div className="w-full flex justify-center pt-8 pb-2 z-20">
           <img 
             src="/image_f1ee39.jfif" 
             alt="Logo MTPE" 
-            className="h-10 w-auto"
+            className="h-16 w-auto object-contain"
           />
         </div>
       )}

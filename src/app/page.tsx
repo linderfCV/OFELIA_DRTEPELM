@@ -37,9 +37,9 @@ export default function Home() {
 
   return (
     <div className={cn(
-      "min-h-screen flex flex-col items-center transition-all duration-700",
+      "min-h-screen flex flex-col items-center transition-all duration-700 w-full",
       step === 'registration' 
-        ? "bg-[url('/Fondo3.png')] bg-cover bg-center bg-no-repeat bg-fixed" 
+        ? "bg-[url('/Fondo3.png')] bg-cover bg-center bg-no-repeat overflow-x-hidden" 
         : "bg-[#FDFDFD]"
     )}>
       {/* Header Institucional Superior */}
@@ -61,7 +61,7 @@ export default function Home() {
 
       <div className="w-full max-w-[440px] px-4 pt-6 pb-20 relative z-10">
         {step === 'registration' && (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 animate-slide-up">
             <header className="flex flex-col items-center text-center">
               <img 
                 src="/image_f1ee39.jfif" 
@@ -103,8 +103,8 @@ export default function Home() {
 
       {/* Footer solo en registro */}
       {step === 'registration' && (
-        <footer className="mt-auto py-8 text-center relative z-10">
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider bg-white/30 backdrop-blur-md px-4 py-2 rounded-full border border-white/30">
+        <footer className="mt-auto py-8 text-center relative z-10 w-full">
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider bg-white/30 backdrop-blur-md px-4 py-2 rounded-full border border-white/30 inline-block">
             Iniciativa de la <span className="text-foreground font-extrabold">DRTPELM</span> · Innova Región 2026
           </p>
         </footer>

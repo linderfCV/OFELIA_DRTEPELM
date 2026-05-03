@@ -41,42 +41,42 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
   return (
     <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-4">
       {isOpen && (
-        <div className="w-[320px] h-[450px] bg-white rounded-3xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-8">
-          <header className="bg-primary px-4 py-2 text-white flex justify-between items-center relative overflow-hidden shrink-0 min-h-[64px]">
+        <div className="w-[320px] h-[450px] bg-white rounded-3xl shadow-2xl border border-gray-100 flex flex-col overflow-visible animate-in fade-in slide-in-from-bottom-8">
+          <header className="bg-primary px-4 py-2 text-white flex justify-between items-center relative rounded-t-3xl shrink-0 min-h-[64px]">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center shrink-0">
-                <Sparkles className="w-4 h-4 text-white" />
+              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center shrink-0">
+                <Sparkles className="w-5 h-5 text-white" />
               </div>
               <div className="z-10">
-                <h3 className="font-black text-xs tracking-tighter leading-none uppercase">ASISTENTE OFELIA</h3>
-                <p className="text-[8px] font-bold opacity-80 uppercase mt-0.5">En línea ahora</p>
+                <h3 className="font-black text-[15px] tracking-tight leading-none uppercase">ASISTENTE OFELIA</h3>
+                <p className="text-[10px] font-bold opacity-90 uppercase mt-0.5">En línea ahora</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-1.5 h-full">
-              <div className="h-12 w-12 flex items-center justify-center">
+            <div className="flex items-center gap-1 h-full">
+              <div className="relative w-20 h-20 -mt-8 mr-1 select-none">
                 <img 
                   src="/Ofelia_logo.png" 
-                  alt="Logo OFELIA" 
-                  className="h-full w-full object-contain"
+                  alt="Asistente OFELIA" 
+                  className="w-full h-full object-contain drop-shadow-md"
                 />
               </div>
               <button 
                 onClick={() => setIsOpen(false)} 
-                className="p-1.5 hover:bg-white/10 rounded-full transition-colors z-10"
+                className="p-1.5 hover:bg-white/10 rounded-full transition-colors z-20"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
           </header>
           
-          <div className="flex-1 p-4 bg-gray-50 overflow-y-auto space-y-4">
+          <div className="flex-1 p-4 bg-gray-50 overflow-y-auto space-y-4 rounded-b-3xl">
             <div className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-xs font-medium text-[#1A1A1A] leading-relaxed">
               {getGreeting()}
             </div>
           </div>
 
-          <div className="p-4 bg-white border-t border-gray-100 flex gap-2">
+          <div className="p-4 bg-white border-t border-gray-100 flex gap-2 rounded-b-3xl">
             <input 
               type="text" 
               placeholder="Escribe tu duda aquí..." 

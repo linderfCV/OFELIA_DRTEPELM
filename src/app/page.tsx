@@ -36,17 +36,7 @@ export default function Home() {
   };
 
   return (
-    <div className={cn(
-      "min-h-screen flex flex-col items-center transition-all duration-700 w-full relative",
-      step === 'registration' 
-        ? "bg-[url('/Fondo3.png')] bg-cover bg-center bg-no-repeat overflow-x-hidden" 
-        : "bg-[#FDFDFD]"
-    )}>
-      {/* Overlay oscuro sutil para mejorar legibilidad en registro */}
-      {step === 'registration' && (
-        <div className="absolute inset-0 bg-black/10 pointer-events-none" />
-      )}
-
+    <div className="min-h-screen flex flex-col items-center transition-all duration-700 w-full relative bg-[#FDFDFD]">
       {/* Header Institucional Superior */}
       {step !== 'registration' ? (
         <header className="w-full bg-white border-b border-gray-100 py-3 px-6 flex justify-between items-center sticky top-0 z-50">
@@ -67,7 +57,7 @@ export default function Home() {
           <img 
             src="/image_f1ee39.jfif" 
             alt="Logo MTPE" 
-            className="h-10 w-auto drop-shadow-md"
+            className="h-10 w-auto"
           />
         </div>
       )}
@@ -76,7 +66,7 @@ export default function Home() {
         {step === 'registration' && (
           <div className="flex flex-col gap-6 animate-slide-up">
             <header className="flex flex-col items-center text-center">
-              <div className="w-full bg-white/30 backdrop-blur-md px-6 py-8 rounded-[40px] border border-white/40 shadow-2xl mb-4">
+              <div className="w-full bg-white px-6 py-8 rounded-[40px] border border-gray-100 shadow-xl mb-4">
                 <h2 className="text-[11px] font-black uppercase tracking-[0.1em] text-[#1A1A1A] leading-tight mb-4">
                   DIRECCIÓN REGIONAL DE TRABAJO Y PROMOCIÓN DEL EMPLEO DE LIMA METROPOLITANA
                 </h2>
@@ -89,10 +79,10 @@ export default function Home() {
               </div>
               
               <div className="space-y-1 py-2">
-                <p className="text-[15px] text-white font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                <p className="text-[15px] text-[#1A1A1A] font-bold">
                   Comienza tu ruta de crecimiento.
                 </p>
-                <p className="text-[15px] text-white font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                <p className="text-[15px] text-[#1A1A1A] font-bold">
                   Accede a tu panel de formalización.
                 </p>
               </div>
@@ -125,8 +115,8 @@ export default function Home() {
       {/* Footer solo en registro */}
       {step === 'registration' && (
         <footer className="mt-auto py-8 text-center relative z-10 w-full">
-          <p className="text-[10px] text-white font-bold uppercase tracking-wider bg-black/20 backdrop-blur-sm px-6 py-2.5 rounded-full border border-white/20 inline-block">
-            Iniciativa de la <span className="text-white font-black underline underline-offset-2">DRTPELM</span> · Innova Región 2026
+          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider bg-gray-100 px-6 py-2.5 rounded-full border border-gray-200 inline-block">
+            Iniciativa de la <span className="text-primary font-black underline underline-offset-2">DRTPELM</span> · Innova Región 2026
           </p>
         </footer>
       )}

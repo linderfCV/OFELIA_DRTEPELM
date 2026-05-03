@@ -66,7 +66,7 @@ export default function Home() {
               <img 
                 src="/image_f1ee39.jfif" 
                 alt="Logo MTPE" 
-                style={{ width: '280px', height: 'auto', display: 'block', margin: '0 auto 1rem auto' }} 
+                style={{ width: '220px', height: 'auto', display: 'block', margin: '0 auto 1rem auto' }} 
               />
               <div className="space-y-1 bg-white/40 backdrop-blur-md p-4 rounded-3xl border border-white/50 shadow-xl">
                 <h2 className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-[#1A1A1A]">

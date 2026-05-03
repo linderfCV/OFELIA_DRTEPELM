@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -210,7 +209,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           "Entrega obligatoriamente la boleta de pago firmada cada mes.",
           "Proporciona alimentación y alojamiento (si es cama adentro) dignos."
         ],
-        link: "https://www.gob.pe/11181-conocer-los-derechos-de-las-y-los-trabajadores-del-hogar"
+        link: "https://www.gob.pe/institucion/mtpe/campa%C3%B1as/38712-conoce-tus-derechos-trabajador-ra-del-hogar"
       }
     ];
 

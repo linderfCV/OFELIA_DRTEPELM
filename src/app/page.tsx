@@ -5,6 +5,7 @@ import { OfeliaForm } from "@/components/OfeliaForm";
 import { DiagnosticFlow } from "@/components/DiagnosticFlow";
 import { OfeliaDashboard } from "@/components/OfeliaDashboard";
 import { OfeliaChatbot } from "@/components/OfeliaChatbot";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   const [step, setStep] = React.useState<'registration' | 'diagnostic' | 'dashboard'>('registration');
@@ -35,7 +36,12 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] flex flex-col items-center">
+    <div className={cn(
+      "min-h-screen flex flex-col items-center transition-all duration-700",
+      step === 'registration' 
+        ? "bg-[url('/fondo3.png')] bg-cover bg-center bg-no-repeat bg-fixed" 
+        : "bg-[#FDFDFD]"
+    )}>
       {/* Header Institucional Superior */}
       {step !== 'registration' && (
         <header className="w-full bg-white border-b border-gray-100 py-3 px-6 flex justify-between items-center sticky top-0 z-50">
@@ -62,7 +68,7 @@ export default function Home() {
                 alt="Logo MTPE" 
                 style={{ width: '280px', height: 'auto', display: 'block', margin: '0 auto 1rem auto' }} 
               />
-              <div className="space-y-1">
+              <div className="space-y-1 bg-white/40 backdrop-blur-sm p-4 rounded-3xl border border-white/50">
                 <h2 className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-[#1A1A1A]">
                   Dirección Regional de Trabajo y Promoción del Empleo de Lima Metropolitana
                 </h2>
@@ -73,7 +79,7 @@ export default function Home() {
                   Oficina de Formalización Empresarial, Laboral Itinerante y Asistida
                 </p>
               </div>
-              <p className="text-sm text-muted-foreground font-medium mt-4 max-w-[280px]">
+              <p className="text-sm text-foreground/80 font-bold mt-4 max-w-[280px] drop-shadow-sm">
                 Comienza tu ruta de crecimiento. Accede a tu panel de formalización.
               </p>
             </header>
@@ -98,7 +104,7 @@ export default function Home() {
       {/* Footer solo en registro */}
       {step === 'registration' && (
         <footer className="mt-auto py-8 text-center">
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30">
             Iniciativa de la <span className="text-foreground font-extrabold">DRTPELM</span> · Innova Región 2026
           </p>
         </footer>

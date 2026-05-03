@@ -60,7 +60,8 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       description: "¿POR QUÉ ES EL PRIMER PASO?",
       details: "La reserva de nombre protege la denominación de tu empresa por 30 días en SUNARP mientras formalizas la escritura pública.",
       requirements: ["DNI vigente.", "Mínimo 3 opciones de nombres.", "Pago de tasa registral (Costo: S/ 24.00)."],
-      steps: ["Realiza una 'Búsqueda de Índices' (S/ 5.00).", "Solicita la Reserva de Nombre indicando el tipo de sociedad.", "Obtén tu constancia de reserva."]
+      steps: ["Realiza una 'Búsqueda de Índices' (S/ 5.00).", "Solicita la Reserva de Nombre indicando el tipo de sociedad.", "Obtén tu constancia de reserva."],
+      link: "https://www.gob.pe/706-reservar-el-nombre-de-una-empresa"
     },
     {
       id: "indecopi",
@@ -81,7 +82,8 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       description: "¿DE QUÉ SE TRATA?",
       details: "Documento legal donde se definen estatutos y socios. Se puede gestionar en CDE (PRODUCE) para reducir costos.",
       requirements: ["Reserva SUNARP.", "Copia de DNI de socios.", "Detalle de aportes."],
-      steps: ["Acude a una Notaría o CDE de PRODUCE.", "Firma la minuta.", "Inscripción en SUNARP."]
+      steps: ["Acude a una Notaría o CDE de PRODUCE.", "Firma la minuta.", "Inscripción en SUNARP."],
+      link: "https://www.gob.pe/269-elaborar-la-minuta-de-constitucion-de-la-empresa-o-acto-constitutivo"
     },
     {
       id: "sunat",
@@ -91,7 +93,8 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       description: "¿POR QUÉ EL RUC?",
       details: "Registro para emitir comprobantes legales ante SUNAT.",
       requirements: ["Escritura inscrita.", "Recibo de luz local fiscal.", "DNI representante."],
-      steps: ["Activación de RUC virtual o presencial.", "Elección de Régimen (MYPE o Especial).", "Activa Clave SOL."]
+      steps: ["Activación de RUC virtual o presencial.", "Elección de Régimen (MYPE o Especial).", "Activa Clave SOL."],
+      link: "https://www.gob.pe/291-obtener-ruc-de-persona-juridica"
     },
     {
       id: "municipal",
@@ -101,7 +104,8 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       description: "¿AUTORIZACIÓN MUNICIPAL?",
       details: "Autorización para el desarrollo de actividades económicas.",
       requirements: ["RUC activo.", "Declaración Jurada de Seguridad.", "Pago de tasa municipal."],
-      steps: ["Verifica compatibilidad de uso.", "Presenta solicitud.", "Inspección técnica (ITSE)."]
+      steps: ["Verifica compatibilidad de uso.", "Presenta solicitud.", "Inspección técnica (ITSE)."],
+      link: "https://www.gob.pe/443-obtener-licencia-de-funcionamiento"
     }
   ];
 
@@ -114,7 +118,8 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       description: "¿POR QUÉ ACTUALIZAR?",
       details: "Asegura que tu actividad económica y domicilio fiscal estén al día.",
       requirements: ["Clave SOL.", "DNI representante."],
-      steps: ["Ingresa a SUNAT SOL.", "Actualiza actividad (CIIU).", "Verifica estado de Habido."]
+      steps: ["Ingresa a SUNAT SOL.", "Actualiza actividad (CIIU).", "Verifica estado de Habido."],
+      link: "https://www.sunat.gob.pe/sol.html"
     },
     {
       id: "remype",
@@ -124,7 +129,8 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       description: "¿BENEFICIOS LABORALES?",
       details: "Acceso a régimen laboral especial con costos reducidos.",
       requirements: ["RUC con Clave SOL.", "Mínimo 1 trabajador.", "Ventas < 1,700 UIT."],
-      steps: ["Accede al portal MTPE.", "Registro en sistema REMYPE.", "Obtén acreditación."]
+      steps: ["Accede al portal MTPE.", "Registro en sistema REMYPE.", "Obtén acreditación."],
+      link: "https://www.gob.pe/285-registro-de-la-micro-y-pequena-empresa-remype"
     },
     {
       id: "municipal-active",
@@ -148,7 +154,8 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         description: "¿ES OBLIGATORIO?",
         details: "Como empleador del hogar, necesitas un RUC para declarar la planilla y pagar los aportes de seguridad social (EsSalud/ONP).",
         requirements: ["DNI del empleador.", "Dirección del domicilio.", "Correo electrónico."],
-        steps: ["Inscríbete en SUNAT virtual o presencial.", "Obtén tu Clave SOL.", "Activa tu RUC como Empleador de Trabajador(a) del Hogar."]
+        steps: ["Inscríbete en SUNAT virtual o presencial.", "Obtén tu Clave SOL.", "Activa tu RUC como Empleador de Trabajador(a) del Hogar."],
+        link: "https://www.gob.pe/es/i/11545"
       },
       {
         id: "t-registro",
@@ -158,7 +165,8 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         description: "¿QUÉ ES EL ALTA?",
         details: "Es el registro formal del trabajador(a) ante la SUNAT para garantizar sus derechos sociales.",
         requirements: ["DNI del trabajador(a).", "Datos de jornada y sueldo.", "Clave SOL del empleador."],
-        steps: ["Ingresa a SUNAT Operaciones en Línea.", "Registra a tu trabajador(a) en el T-Registro.", "Genera la constancia de alta."]
+        steps: ["Ingresa a SUNAT Operaciones en Línea.", "Registra a tu trabajador(a) en el T-Registro.", "Genera la constancia de alta."],
+        link: "https://www.sunat.gob.pe/sol.html"
       },
       {
         id: "mtpe-contract",
@@ -173,6 +181,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           "Sube el contrato firmado al aplicativo virtual.",
           "Entrega copias y boletas mensuales."
         ],
+        link: "https://www.gob.pe/es/i/6570925",
         options: [
           { label: "Modelo referencial con residencia (Cama adentro)", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" },
           { label: "Modelo referencial sin residencia (Cama afuera)", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" },
@@ -185,43 +194,39 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         title: "Obligaciones del Empleador y Derechos",
         icon: <Scale className="w-5 h-5 text-primary" />,
         description: "¿QUÉ DEBO CUMPLIR SEGÚN LA LEY N° 31047?",
-        details: "Todo empleador del hogar tiene obligaciones legales para garantizar un trabajo digno. El incumplimiento genera sanciones.",
+        details: "Todo empleador del hogar tiene obligaciones legales para garantizar un trabajo digno. El incumplimiento genera sanciones graves.",
         requirements: [
           "Jornada Laboral: Máximo 8 horas diarias o 48 horas semanales.",
           "Descanso Semanal: Mínimo 24 horas consecutivas de descanso.",
-          "Gratificaciones: Un sueldo completo en Julio (Fiestas Patrias) y Diciembre (Navidad).",
-          "Vacaciones: 30 días calendario de descanso remunerado por cada año de servicios.",
-          "CTS: Depósito de CTS equivalente a media remuneración por año.",
-          "Seguro Social (EsSalud): El empleador aporta el 9% de la remuneración mensual.",
-          "Pensiones: El trabajador elige entre ONP o AFP (el aporte se descuenta del sueldo)."
+          "Gratificaciones: Un sueldo completo en Julio y Diciembre.",
+          "Vacaciones: 30 días calendario por cada año de servicios.",
+          "CTS: Pago proporcional según la remuneración mensual.",
+          "Seguro Social (EsSalud): El empleador aporta el 9%.",
+          "Pensiones: A cargo del trabajador (ONP o AFP)."
         ],
         steps: [
           "Respeta los horarios de descanso y jornada máxima legal.",
           "Realiza el pago de EsSalud mensualmente a través de SUNAT.",
           "Entrega obligatoriamente la boleta de pago firmada cada mes.",
-          "Proporciona alimentación y alojamiento (si es cama adentro) sin descuento del sueldo."
+          "Proporciona alimentación y alojamiento (si es cama adentro) dignos."
         ],
-        link: "https://www.gob.pe/institucion/mtpe/campa%C3%B1as/3305-conoce-tus-derechos-trabajadoras-y-trabajadores-del-hogar"
+        link: "https://www.gob.pe/11181-conocer-los-derechos-de-las-y-los-trabajadores-del-hogar"
       }
     ];
 
-    // Lógica: Si respondió "SÍ" (true) a una tarea, no la mostramos como pendiente.
-    // results[2] es RUC, results[3] es T-Registro, results[4] es Contrato.
     const isRucDone = results[2] === true;
     const isTRegDone = results[3] === true;
     const isContractDone = results[4] === true;
 
-    // Si todo está listo, solo devolvemos la última tarea (Obligaciones).
     if (isRucDone && isTRegDone && isContractDone) {
       return [allTasks[3]];
     }
 
-    // Si no, filtramos para mostrar solo lo que falta + las obligaciones.
     const pendingTasks: Task[] = [];
     if (!isRucDone) pendingTasks.push(allTasks[0]);
     if (!isTRegDone) pendingTasks.push(allTasks[1]);
     if (!isContractDone) pendingTasks.push(allTasks[2]);
-    pendingTasks.push(allTasks[3]); // Siempre mostrar obligaciones si falta algo.
+    pendingTasks.push(allTasks[3]);
 
     return pendingTasks;
   };

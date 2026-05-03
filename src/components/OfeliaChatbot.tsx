@@ -42,19 +42,32 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
     <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-4">
       {isOpen && (
         <div className="w-[320px] h-[450px] bg-white rounded-3xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-8">
-          <header className="bg-primary p-4 text-white flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+          <header className="bg-primary p-4 text-white flex justify-between items-center relative overflow-hidden">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center shrink-0">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
-              <div>
-                <h3 className="font-black text-sm tracking-tighter">ASISTENTE OFELIA</h3>
-                <p className="text-[8px] font-bold opacity-80 uppercase">En línea ahora</p>
+              <div className="z-10">
+                <h3 className="font-black text-sm tracking-tighter leading-none">ASISTENTE OFELIA</h3>
+                <p className="text-[8px] font-bold opacity-80 uppercase mt-0.5">En línea ahora</p>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-white/10 rounded-full transition-colors">
-              <X className="w-4 h-4" />
-            </button>
+            
+            <div className="flex items-center gap-2">
+              <div className="w-12 h-12 opacity-90">
+                <img 
+                  src="/Ofelia_logo.png" 
+                  alt="Logo OFELIA" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <button 
+                onClick={() => setIsOpen(false)} 
+                className="p-1 hover:bg-white/10 rounded-full transition-colors z-10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </header>
           
           <div className="flex-1 p-4 bg-gray-50 overflow-y-auto space-y-4">

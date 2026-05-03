@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -77,11 +78,28 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
 
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 bg-primary text-white rounded-full shadow-xl shadow-primary/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-all group relative"
+        className="w-16 h-16 bg-white rounded-full shadow-2xl shadow-primary/20 flex items-center justify-center hover:scale-105 active:scale-95 transition-all group relative border-2 border-primary/10 overflow-hidden"
       >
-        {isOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
+        {isOpen ? (
+          <X className="w-8 h-8 text-primary" />
+        ) : (
+          <div className="w-full h-full p-2">
+            <img 
+              src="/Ofelia_logo.png" 
+              alt="Asistente OFELIA" 
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                // Fallback en caso de que la extensión sea distinta
+                const target = e.target as HTMLImageElement;
+                if (target.src.endsWith('.png')) {
+                  target.src = target.src.replace('.png', '.jpg');
+                }
+              }}
+            />
+          </div>
+        )}
         {!isOpen && (
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white" />
+          <div className="absolute top-1 right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white z-10" />
         )}
       </button>
     </div>

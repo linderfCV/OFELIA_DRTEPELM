@@ -39,7 +39,7 @@ export default function Home() {
     <div className={cn(
       "min-h-screen flex flex-col items-center transition-all duration-700",
       step === 'registration' 
-        ? "bg-[url('/fondo3.png')] bg-cover bg-center bg-no-repeat bg-fixed" 
+        ? "bg-[url('/Fondo3.png')] bg-cover bg-center bg-no-repeat bg-fixed" 
         : "bg-[#FDFDFD]"
     )}>
       {/* Header Institucional Superior */}
@@ -59,7 +59,7 @@ export default function Home() {
         </header>
       )}
 
-      <div className="w-full max-w-[440px] px-4 pt-6 pb-20">
+      <div className="w-full max-w-[440px] px-4 pt-6 pb-20 relative z-10">
         {step === 'registration' && (
           <div className="flex flex-col gap-6">
             <header className="flex flex-col items-center text-center">
@@ -68,7 +68,7 @@ export default function Home() {
                 alt="Logo MTPE" 
                 style={{ width: '280px', height: 'auto', display: 'block', margin: '0 auto 1rem auto' }} 
               />
-              <div className="space-y-1 bg-white/40 backdrop-blur-sm p-4 rounded-3xl border border-white/50">
+              <div className="space-y-1 bg-white/40 backdrop-blur-md p-4 rounded-3xl border border-white/50 shadow-xl">
                 <h2 className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-[#1A1A1A]">
                   Dirección Regional de Trabajo y Promoción del Empleo de Lima Metropolitana
                 </h2>
@@ -79,7 +79,7 @@ export default function Home() {
                   Oficina de Formalización Empresarial, Laboral Itinerante y Asistida
                 </p>
               </div>
-              <p className="text-sm text-foreground/80 font-bold mt-4 max-w-[280px] drop-shadow-sm">
+              <p className="text-sm text-foreground/90 font-bold mt-4 max-w-[280px] drop-shadow-md">
                 Comienza tu ruta de crecimiento. Accede a tu panel de formalización.
               </p>
             </header>
@@ -103,8 +103,8 @@ export default function Home() {
 
       {/* Footer solo en registro */}
       {step === 'registration' && (
-        <footer className="mt-auto py-8 text-center">
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30">
+        <footer className="mt-auto py-8 text-center relative z-10">
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider bg-white/30 backdrop-blur-md px-4 py-2 rounded-full border border-white/30">
             Iniciativa de la <span className="text-foreground font-extrabold">DRTPELM</span> · Innova Región 2026
           </p>
         </footer>

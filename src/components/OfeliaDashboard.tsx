@@ -77,7 +77,10 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       "Participa en ferias y programas de capacitación de la DRTPELM.",
       "Protege tu patrimonio separando tus cuentas personales de las de la empresa."
     ],
-    link: "https://www.gob.pe/285-registro-de-la-micro-y-pequena-empresa-remype"
+    options: [
+      { label: "Conoce los 6 beneficios de la formalización empresarial", url: "https://www.gob.pe/institucion/tuempresa/noticias/914295-conozca-los-6-beneficios-de-la-formalizacion-empresarial" },
+      { label: "Beneficios de ser formal (Portal Emprender SUNAT)", url: "https://emprender.sunat.gob.pe/acciones-contribuyente/formalizacion/beneficios-ser-formal" }
+    ]
   });
 
   const getIdeaTasks = (): Task[] => {
@@ -385,7 +388,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
 
                     {task.options && (
                       <section className="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                        <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">MODELOS DE CONTRATO</h4>
+                        <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">ENLACES DE INTERÉS</h4>
                         <div className="space-y-2">
                           {task.options.map((opt, idx) => (
                             <button
@@ -394,7 +397,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                               className="w-full flex items-center justify-between gap-3 p-3 bg-white border border-gray-200 rounded-lg hover:border-primary/30 hover:bg-red-50/30 transition-all group text-left"
                             >
                               <span className="text-[11px] font-bold text-gray-700 leading-tight group-hover:text-primary">{opt.label}</span>
-                              <Download className="w-3.5 h-3.5 text-gray-400 group-hover:text-primary shrink-0" />
+                              <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover:text-primary shrink-0" />
                             </button>
                           ))}
                         </div>

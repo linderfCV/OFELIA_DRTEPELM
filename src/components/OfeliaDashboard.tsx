@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -145,7 +146,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       description: "¿ES OBLIGATORIO?",
       details: "Como empleador del hogar, necesitas un RUC para declarar la planilla y pagar los aportes de seguridad social (EsSalud/ONP).",
       requirements: ["DNI del empleador.", "Dirección del domicilio.", "Correo electrónico."],
-      steps: ["Inscríbete en SUNAT virtual o presencial.", "Obtén tu Clave SOL.", "Activa tu RUC como Empleador de Trabajador del Hogar."]
+      steps: ["Inscríbete en SUNAT virtual o presencial.", "Obtén tu Clave SOL.", "Activa tu RUC como Empleador de Trabajador(a) del Hogar."]
     },
     {
       id: "t-registro",
@@ -153,9 +154,9 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       title: "Alta en el T-Registro (SUNAT)",
       icon: <UserCheck className="w-5 h-5 text-primary" />,
       description: "¿QUÉ ES EL ALTA?",
-      details: "Es el registro formal del trabajador ante la SUNAT para garantizar sus derechos sociales.",
-      requirements: ["DNI del trabajador.", "Datos de jornada y sueldo.", "Clave SOL del empleador."],
-      steps: ["Ingresa a SUNAT Operaciones en Línea.", "Registra a tu trabajadora en el T-Registro.", "Genera la constancia de alta."]
+      details: "Es el registro formal del trabajador(a) ante la SUNAT para garantizar sus derechos sociales.",
+      requirements: ["DNI del trabajador(a).", "Datos de jornada y sueldo.", "Clave SOL del empleador."],
+      steps: ["Ingresa a SUNAT Operaciones en Línea.", "Registra a tu trabajador(a) en el T-Registro.", "Genera la constancia de alta."]
     },
     {
       id: "mtpe-contract",

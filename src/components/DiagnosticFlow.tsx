@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -58,8 +59,8 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
       "¿Tienes licencia de funcionamiento?"
     ],
     domestic: [
-      "RUC Activo: ¿Tiene RUC para declarar la planilla de su trabajadora?",
-      "Alta en SUNAT: ¿Inscribió a su trabajadora en el Registro de Trabajadores del Hogar (T-Registro)?",
+      "RUC Activo: ¿Tiene RUC para declarar la planilla de su trabajador(a)?",
+      "Alta en SUNAT: ¿Inscribió a su trabajador(a) en el Registro de Trabajadores del Hogar (T-Registro)?",
       "Contrato Formal: ¿El contrato está firmado y subido al aplicativo del Ministerio de Trabajo?"
     ]
   };
@@ -121,14 +122,14 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
           </button>
 
           <button
-            onClick={() => { setProfile('domestic'); setRouteType('domestic'); setSector('Trabajadoras del Hogar'); setStep(1); }}
+            onClick={() => { setProfile('domestic'); setRouteType('domestic'); setSector('Trabajadores(as) del Hogar'); setStep(1); }}
             className="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-2xl text-left hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all group"
           >
             <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 shrink-0">
               <Home className="w-6 h-6" />
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-[#1A1A1A]">Soy Empleador de Trabajadoras del Hogar</h3>
+              <h3 className="font-bold text-[#1A1A1A]">Soy Empleador de Trabajadores(as) del Hogar</h3>
               <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-tight">Régimen Especial</p>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />

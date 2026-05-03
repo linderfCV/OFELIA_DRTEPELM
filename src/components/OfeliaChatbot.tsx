@@ -78,18 +78,17 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
 
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 bg-white rounded-full shadow-2xl shadow-primary/20 flex items-center justify-center hover:scale-105 active:scale-95 transition-all group relative border-2 border-primary/10 overflow-hidden"
+        className="w-16 h-16 bg-white rounded-full shadow-2xl shadow-primary/20 flex items-center justify-center hover:scale-105 active:scale-95 transition-all group relative border-2 border-primary/10 overflow-hidden p-0"
       >
         {isOpen ? (
           <X className="w-8 h-8 text-primary" />
         ) : (
-          <div className="w-full h-full p-2">
+          <div className="w-full h-full relative">
             <img 
               src="/Ofelia_logo.png" 
               alt="Asistente OFELIA" 
-              className="w-full h-full object-contain"
+              className="w-full h-full object-cover"
               onError={(e) => {
-                // Fallback en caso de que la extensión sea distinta
                 const target = e.target as HTMLImageElement;
                 if (target.src.endsWith('.png')) {
                   target.src = target.src.replace('.png', '.jpg');

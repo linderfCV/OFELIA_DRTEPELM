@@ -13,7 +13,7 @@ import {
   ShieldCheck,
   ExternalLink,
   UserCheck,
-  Home
+  Download
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -23,6 +23,24 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 
+interface TaskOption {
+  label: string;
+  url: string;
+}
+
+interface Task {
+  id: string;
+  step: string;
+  title: string;
+  icon: React.ReactNode;
+  description: string;
+  details: string;
+  requirements: string[];
+  steps: string[];
+  link?: string;
+  options?: TaskOption[];
+}
+
 interface OfeliaDashboardProps {
   routeType: 'idea' | 'active' | 'domestic';
   results: Record<number, boolean>;
@@ -31,7 +49,7 @@ interface OfeliaDashboardProps {
 }
 
 export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnostic }: OfeliaDashboardProps) {
-  const getIdeaTasks = () => [
+  const getIdeaTasks = (): Task[] => [
     {
       id: "sunarp",
       step: "PASO 1",
@@ -85,7 +103,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     }
   ];
 
-  const getActiveTasks = () => [
+  const getActiveTasks = (): Task[] => [
     {
       id: "ruc-update",
       step: "PASO 1",
@@ -118,7 +136,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     }
   ];
 
-  const getDomesticTasks = () => [
+  const getDomesticTasks = (): Task[] => [
     {
       id: "ruc-domestic",
       step: "PASO 1",
@@ -147,7 +165,16 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       description: "¿FORMALIDAD LABORAL?",
       details: "El contrato debe ser por escrito y registrado en el portal del Ministerio de Trabajo.",
       requirements: ["Contrato firmado.", "Registro en el aplicativo del MTPE.", "Boleta de pago mensual."],
-      steps: ["Descarga el modelo de contrato oficial del MTPE.", "Sube el contrato firmado al aplicativo virtual.", "Entrega copias y boletas mensuales."]
+      steps: [
+        "Selecciona y descarga el modelo de contrato que necesites.",
+        "Sube el contrato firmado al aplicativo virtual.",
+        "Entrega copias y boletas mensuales."
+      ],
+      options: [
+        { label: "Modelo referencial con residencia (Cama adentro)", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" },
+        { label: "Modelo referencial sin residencia (Cama afuera)", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" },
+        { label: "Modelo referencial tiempo parcial (Sin residencia)", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" }
+      ]
     }
   ];
 
@@ -176,7 +203,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         <h2 className="text-3xl font-black text-[#1A1A1A] tracking-tight">
           Tu Hoja de Ruta para tu Formalización
         </h2>
-        <p className="text-sm text-muted-foreground font-medium">Información oficial de SUNAT, MTPE, SUNARP, INDECOPI y PRODUCE.</p>
+        <p className="text-sm text-muted-foreground font-medium">Información basada en portales oficiales como SUNAT, MTPE, SUNARP, INDECOPI y PRODUCE.</p>
       </header>
 
       <div className="space-y-4">
@@ -203,12 +230,30 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                   <section>
                     <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">{task.description}</h4>
                     <p className="text-xs font-medium leading-relaxed text-gray-700">{task.details}</p>
-                    {(task as any).link && (
-                      <Button variant="link" className="h-auto p-0 text-primary text-[10px] font-bold uppercase gap-1 mt-2" onClick={() => window.open((task as any).link, '_blank')}>
+                    {task.link && (
+                      <Button variant="link" className="h-auto p-0 text-primary text-[10px] font-bold uppercase gap-1 mt-2" onClick={() => window.open(task.link, '_blank')}>
                         Ir a la plataforma oficial <ExternalLink className="w-3 h-3" />
                       </Button>
                     )}
                   </section>
+
+                  {task.options && (
+                    <section className="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                      <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">MODELOS DE CONTRATO</h4>
+                      <div className="space-y-2">
+                        {task.options.map((opt, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => window.open(opt.url, '_blank')}
+                            className="w-full flex items-center justify-between gap-3 p-3 bg-white border border-gray-200 rounded-lg hover:border-primary/30 hover:bg-red-50/30 transition-all group text-left"
+                          >
+                            <span className="text-[11px] font-bold text-gray-700 leading-tight group-hover:text-primary">{opt.label}</span>
+                            <Download className="w-3.5 h-3.5 text-gray-400 group-hover:text-primary shrink-0" />
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+                  )}
 
                   <section>
                     <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">REQUISITOS</h4>

@@ -14,7 +14,8 @@ import {
   ShieldCheck,
   ExternalLink,
   UserCheck,
-  Download
+  Download,
+  Scale
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -176,6 +177,30 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         { label: "Modelo referencial sin residencia (Cama afuera)", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" },
         { label: "Modelo referencial tiempo parcial (Sin residencia)", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" }
       ]
+    },
+    {
+      id: "obligations-domestic",
+      step: "INFO CLAVE",
+      title: "Obligaciones del Empleador y Derechos",
+      icon: <Scale className="w-5 h-5 text-primary" />,
+      description: "¿QUÉ DEBO CUMPLIR SEGÚN LA LEY N° 31047?",
+      details: "Todo empleador del hogar tiene obligaciones legales para garantizar un trabajo digno. El incumplimiento genera sanciones.",
+      requirements: [
+        "Jornada Laboral: Máximo 8 horas diarias o 48 horas semanales.",
+        "Descanso Semanal: Mínimo 24 horas consecutivas de descanso.",
+        "Gratificaciones: Un sueldo completo en Julio (Fiestas Patrias) y Diciembre (Navidad).",
+        "Vacaciones: 30 días calendario de descanso remunerado por cada año de servicios.",
+        "CTS: Depósito de CTS equivalente a media remuneración por año.",
+        "Seguro Social (EsSalud): El empleador aporta el 9% de la remuneración mensual.",
+        "Pensiones: El trabajador elige entre ONP o AFP (el aporte se descuenta del sueldo)."
+      ],
+      steps: [
+        "Respeta los horarios de descanso y jornada máxima legal.",
+        "Realiza el pago de EsSalud mensualmente a través de SUNAT.",
+        "Entrega obligatoriamente la boleta de pago firmada cada mes.",
+        "Proporciona alimentación y alojamiento (si es cama adentro) sin descuento del sueldo."
+      ],
+      link: "https://www.gob.pe/institucion/mtpe/campa%C3%B1as/3305-conoce-tus-derechos-trabajadoras-y-trabajadores-del-hogar"
     }
   ];
 
@@ -257,7 +282,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                   )}
 
                   <section>
-                    <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">REQUISITOS</h4>
+                    <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">REQUISITOS / OBLIGACIONES</h4>
                     <ul className="space-y-1.5">
                       {task.requirements.map((req, idx) => (
                         <li key={idx} className="text-xs font-medium flex items-start gap-2">

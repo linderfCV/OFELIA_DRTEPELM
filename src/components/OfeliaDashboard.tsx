@@ -79,7 +79,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     ],
     options: [
       { label: "Conoce los 6 beneficios de la formalización empresarial", url: "https://www.gob.pe/institucion/tuempresa/noticias/914295-conozca-los-6-beneficios-de-la-formalizacion-empresarial" },
-      { label: "Beneficios de ser formal (Portal Emprender SUNAT)", url: "https://emprender.sunat.gob.pe/acciones-contribuyente/formalizacion/beneficios-ser-formal" }
+      { label: "Beneficios de ser formal (Portal Emprender SUNAT)", url: "https://emprender.sunat.gob.pe/acciones-contribuyente/formalizacion/benefits-ser-formal" }
     ]
   });
 
@@ -387,17 +387,19 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                     </section>
 
                     {task.options && (
-                      <section className="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                        <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">ENLACES DE INTERÉS</h4>
+                      <section className="bg-blue-50/30 p-3 rounded-xl border border-blue-100/50">
+                        <h4 className="text-[10px] font-black text-blue-800/60 uppercase tracking-widest mb-2">ENLACES DE INTERÉS</h4>
                         <div className="space-y-2">
                           {task.options.map((opt, idx) => (
                             <button
                               key={idx}
                               onClick={() => window.open(opt.url, '_blank')}
-                              className="w-full flex items-center justify-between gap-3 p-3 bg-white border border-gray-200 rounded-lg hover:border-primary/30 hover:bg-red-50/30 transition-all group text-left"
+                              className="w-full flex items-center justify-between gap-3 p-3 bg-white border border-gray-200 rounded-lg hover:border-blue-400/50 hover:bg-blue-50/50 transition-all group text-left shadow-sm"
                             >
-                              <span className="text-[11px] font-bold text-gray-700 leading-tight group-hover:text-primary">{opt.label}</span>
-                              <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover:text-primary shrink-0" />
+                              <span className="text-[11px] font-black italic text-blue-600 leading-tight group-hover:underline">
+                                {opt.label}
+                              </span>
+                              <ExternalLink className="w-3.5 h-3.5 text-blue-400 group-hover:text-blue-600 shrink-0" />
                             </button>
                           ))}
                         </div>

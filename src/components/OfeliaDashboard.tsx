@@ -63,52 +63,52 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     if (sectorLabel.includes("Educación")) {
       return {
         id: "sectoral-edu",
-        step: "PASO SECTORIAL",
-        title: "Autorización Sectorial (MINEDU)",
+        step: "AUTORIZACION SECTORIAL",
+        title: "Autorización de Funcionamiento (MINEDU)",
         icon: <GraduationCap className="w-5 h-5" />,
         description: "¿RUBRO EDUCACIÓN?",
-        details: "Para instituciones educativas privadas (Nidos, Colegios, Institutos), necesitas la autorización de funcionamiento del Ministerio de Educación o la UGEL correspondiente.",
+        details: "Para instituciones educativas privadas (Nidos, Colegios, Institutos), necesitas la autorización de funcionamiento otorgada por el Ministerio de Educación o la UGEL de tu jurisdicción.",
         requirements: ["Proyecto Educativo Institucional (PEI).", "Plano de infraestructura aprobado.", "DNI del promotor."],
-        steps: ["Verifica requisitos en el portal del MINEDU.", "Presenta expediente en la UGEL de tu jurisdicción.", "Obtén la Resolución de Funcionamiento."],
+        steps: ["Verifica requisitos en el portal del MINEDU.", "Presenta expediente en la UGEL correspondiente.", "Obtén la Resolución Directoral de Funcionamiento."],
         link: "https://www.gob.pe/minedu"
       };
     }
     if (sectorLabel.includes("Salud")) {
       return {
         id: "sectoral-salud",
-        step: "PASO SECTORIAL",
+        step: "AUTORIZACION SECTORIAL",
         title: "Registro de IPRESS (SUSALUD)",
         icon: <HeartPulse className="w-5 h-5" />,
         description: "¿RUBRO SALUD?",
-        details: "Todo establecimiento de salud (Boticas, Clínicas, Consultorios) debe registrarse ante SUSALUD como Institución Prestadora de Servicios de Salud.",
+        details: "Todo establecimiento de salud (Boticas, Clínicas, Consultorios) debe registrarse ante la Superintendencia Nacional de Salud (SUSALUD) como IPRESS.",
         requirements: ["RUC activo.", "Título profesional del Director Médico.", "Categorización vigente de la DIRIS/DIRESA."],
-        steps: ["Obtén categorización en la DIRIS local.", "Inscribe el establecimiento en el Registro Nacional de IPRESS.", "Mantén el registro actualizado en SUSALUD."],
+        steps: ["Obtén la categorización en la DIRIS local.", "Inscribe el establecimiento en el Registro Nacional de IPRESS (RENIPRESS).", "Mantén el registro actualizado ante SUSALUD."],
         link: "https://www.gob.pe/susalud"
       };
     }
     if (sectorLabel.includes("Transporte")) {
       return {
         id: "sectoral-transporte",
-        step: "PASO SECTORIAL",
+        step: "AUTORIZACION SECTORIAL",
         title: "Autorización de Operación (ATU/MTC)",
         icon: <Truck className="w-5 h-5" />,
         description: "¿RUBRO TRANSPORTE?",
-        details: "Para servicios de transporte de pasajeros o carga, requieres permisos específicos de la Autoridad de Transporte Urbano (ATU) o el MTC.",
-        requirements: ["Tarjeta de propiedad.", "SOAT vigente.", "Revisión técnica."],
-        steps: ["Solicita la habilitación vehicular.", "Obtén el Permiso de Operación.", "Registra a tus conductores."],
+        details: "Para servicios de transporte de pasajeros o carga, requieres permisos específicos de la Autoridad de Transporte Urbano (ATU) para Lima y Callao o del MTC.",
+        requirements: ["Tarjeta de propiedad del vehículo.", "SOAT vigente.", "Certificado de Inspección Técnica Vehicular (CITV)."],
+        steps: ["Solicita la habilitación vehicular ante la ATU.", "Obtén el Permiso de Operación para la ruta.", "Registra a tus conductores en el padrón oficial."],
         link: "https://www.gob.pe/atu"
       };
     }
     if (sectorLabel.includes("Gastronomía")) {
       return {
         id: "sectoral-gastro",
-        step: "PASO SECTORIAL",
-        title: "Registro Sanitario (DIGESA)",
+        step: "AUTORIZACION SECTORIAL",
+        title: "Registro Sanitario y Vigilancia (DIGESA)",
         icon: <Landmark className="w-5 h-5" />,
         description: "¿RUBRO ALIMENTOS?",
-        details: "Si fabricas o comercializas alimentos procesados, necesitas el Registro Sanitario de DIGESA para garantizar la inocuidad.",
-        requirements: ["Resultados de análisis físico-químico.", "Ficha técnica del producto.", "Pago de tasa."],
-        steps: ["Realiza análisis de laboratorio.", "Solicita el registro vía VUCE.", "Obtén el código de Registro Sanitario."],
+        details: "Si fabricas o comercializas alimentos procesados, necesitas el Registro Sanitario de DIGESA para garantizar la inocuidad alimentaria.",
+        requirements: ["Resultados de análisis físico-químico.", "Ficha técnica del producto.", "Pago de tasa administrativa."],
+        steps: ["Realiza los análisis de laboratorio obligatorios.", "Solicita el registro vía VUCE.", "Obtén el código de Registro Sanitario para tus productos."],
         link: "https://www.gob.pe/digesa"
       };
     }
@@ -213,7 +213,6 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     if (results[5] === false) pendingTasks.push(allTasks[3]);
     if (results[6] === false) pendingTasks.push(allTasks[4]);
     
-    // Agregar autorización sectorial si el rubro lo requiere
     if (results.sector) {
       const sectoralTask = getSectoralTask(results.sector);
       if (sectoralTask) pendingTasks.push(sectoralTask);
@@ -267,7 +266,6 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     if (results[4] === false) pendingTasks.push(allTasks[1]);
     if (results[5] === false) pendingTasks.push(allTasks[2]);
     
-    // Agregar autorización sectorial si el rubro lo requiere
     if (results.sector) {
       const sectoralTask = getSectoralTask(results.sector);
       if (sectoralTask) pendingTasks.push(sectoralTask);
@@ -402,7 +400,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         <Accordion type="single" collapsible className="w-full space-y-3" defaultValue={tasks[0]?.id}>
           {tasks.map((task) => {
             const isInfoClave = task.step === "INFO CLAVE";
-            const isSectoral = task.step === "PASO SECTORIAL";
+            const isSectoral = task.step === "AUTORIZACION SECTORIAL";
             
             return (
               <AccordionItem 

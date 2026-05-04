@@ -4,6 +4,7 @@ import * as React from "react"
 import { MessageCircle, X, Send, Sparkles, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ofeliaChat } from "@/ai/flows/ofelia-chat-flow"
+import { cn } from "@/lib/utils"
 
 interface Message {
   role: 'user' | 'model';

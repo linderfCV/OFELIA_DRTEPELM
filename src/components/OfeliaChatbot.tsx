@@ -42,10 +42,10 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
   }, [messages, isLoading]);
 
   const getGreeting = () => {
-    if (context === 'idea') return "¡Hola! Soy OFELIA. Veo que tienes una idea de negocio. ¿Cómo puedo orientarte hoy con SUNARP o INDECOPI?";
-    if (context === 'active') return "¡Hola! Soy OFELIA. Ya tienes un negocio en marcha, ¡excelente! ¿Hablamos del REMYPE o regularización?";
-    if (context === 'domestic') return "¡Hola! Soy OFELIA. Te ayudaré con la formalidad en el hogar. ¿Alguna duda sobre el T-Registro?";
-    return "¡Hola! Soy OFELIA, tu asistente técnica de la DRTPE Lima. Regístrate para iniciar tu ruta de formalización.";
+    if (context === 'idea') return "¡Hola! Soy OFELIA. Veo que tienes una idea de negocio. ¿Cómo puedo orientarte hoy con temas de SUNARP, INDECOPI o tu constitución legal?";
+    if (context === 'active') return "¡Hola! Soy OFELIA. Ya tienes un negocio en marcha. ¿Hablamos sobre cómo registrarte en el REMYPE o regularizar tu situación laboral?";
+    if (context === 'domestic') return "¡Hola! Soy OFELIA. Te ayudaré con la formalidad del hogar. ¿Tienes alguna duda sobre el T-Registro de SUNAT o el contrato del MTPE?";
+    return "¡Hola! Soy OFELIA, tu asistente técnica de la DRTPE Lima. Regístrate para iniciar tu ruta de formalización y poder ayudarte mejor.";
   };
 
   const handleSend = async () => {
@@ -53,21 +53,30 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
 
     const userMessage = input.trim();
     setInput("");
-    const newMessages = [...messages, { role: 'user', content: userMessage } as Message];
-    setMessages(newMessages);
+    
+    // Actualizar mensajes localmente inmediatamente
+    const currentMessages = [...messages, { role: 'user', content: userMessage } as Message];
+    setMessages(currentMessages);
     setIsLoading(true);
 
     try {
+      // Llamada al flujo de Genkit con RAG
       const response = await ofeliaChat({
         message: userMessage,
         context: context || 'general',
-        history: messages.map(m => ({ role: m.role, content: m.content }))
+        history: messages.map(m => ({ 
+          role: m.role === 'model' ? 'model' : 'user', 
+          content: m.content 
+        }))
       });
 
-      setMessages([...newMessages, { role: 'model', content: response.text } as Message]);
+      setMessages([...currentMessages, { role: 'model', content: response.text } as Message]);
     } catch (error) {
       console.error("Chat error:", error);
-      setMessages([...newMessages, { role: 'model', content: "Lo siento, tuve un problema al conectar con mis sistemas. Por favor, intenta de nuevo en unos momentos." } as Message]);
+      setMessages([...currentMessages, { 
+        role: 'model', 
+        content: "He tenido un inconveniente al consultar las fuentes oficiales del Estado. Por favor, intenta de nuevo o sé más específico en tu consulta técnica." 
+      } as Message]);
     } finally {
       setIsLoading(false);
     }
@@ -89,11 +98,11 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
             </div>
             
             <div className="flex items-center gap-1 h-full">
-              <div className="relative w-16 h-20 -mt-10 mr-1 select-none pointer-events-none">
+              <div className="relative w-16 h-11 -mr-2 select-none pointer-events-none">
                 <img 
                   src="/Ofelia_logo.png" 
                   alt="Asistente OFELIA" 
-                  className="w-full h-full object-contain drop-shadow-md"
+                  className="w-full h-full object-contain"
                 />
               </div>
               <button 

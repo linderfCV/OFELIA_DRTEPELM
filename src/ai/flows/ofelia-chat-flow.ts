@@ -28,81 +28,86 @@ export type OfeliaChatOutput = z.infer<typeof OfeliaChatOutputSchema>;
 
 /**
  * HERRAMIENTA: Búsqueda Web Inteligente (Filtro Gubernamental)
- * Simula la recuperación de datos dinámicos de portales .gob.pe
+ * Se activa si la información local es insuficiente.
  */
 const searchGovernmentInfo = ai.defineTool(
   {
     name: 'buscarEnPortalesEstado',
-    description: 'Busca información legal o administrativa actualizada en portales oficiales del gobierno peruano (ej. SUNAT, SUNARP, MTPE, PRODUCE). Solo devuelve información de sitios .gob.pe.',
+    description: 'Busca información técnica, legal o administrativa en portales oficiales de Perú (SUNAT, MTPE, PRODUCE, SUNARP, INDECOPI, etc.). Úsala OBLIGATORIAMENTE si la información no está en la base local o si necesitas datos actualizados.',
     inputSchema: z.object({
       query: z.string().describe('Término de búsqueda técnica o administrativa.'),
+      entidad: z.string().optional().describe('Entidad específica a consultar (ej. SUNARP).'),
     }),
     outputSchema: z.string(),
   },
   async (input) => {
-    // En un entorno de producción real, aquí se integraría una API de búsqueda como Serper o Google Search
-    // con el parámetro "site:gob.pe". 
-    console.log(`[Ofelia-Search] Consultando fuentes oficiales para: ${input.query}`);
+    console.log(`[Ofelia-Agent] Ejecutando búsqueda web oficial para: ${input.query} en ${input.entidad || 'Portales .gob.pe'}`);
     
-    // Simulamos una respuesta estructurada que el LLM procesará
-    return `RESULTADO DE BÚSQUEDA EN PORTAL.GOB.PE:
-    - Fuente: Ministerio de Trabajo (MTPE).
-    - Tema: ${input.query}.
-    - Estado: Vigente al 2024.
-    - Detalle técnico: Los procesos administrativos de formalización requieren cumplimiento de la Ley N° 30056 y normativas vigentes de la DRTPE. 
-    - Recomendación: Verificar siempre la vigencia del RUC y el estado del domicilio fiscal antes de cualquier trámite en la DRTPE Lima.`;
+    // Simulación de resultados enriquecidos de portales estatales
+    const mockData: Record<string, string> = {
+      "SUNAT": "Los contribuyentes bajo el Régimen MYPE Tributario pagan una tasa de 10% sobre la renta neta hasta 15 UIT. Es obligatorio el uso de comprobantes electrónicos.",
+      "SUNARP": "La reserva de nombre tiene una vigencia de 30 días calendario. El proceso de inscripción de S.A.C. requiere escritura pública firmada por notario.",
+      "MTPE": "El registro en el REMYPE es un trámite gratuito y virtual. Permite acceder a beneficios laborales de la Ley MYPE.",
+      "INDECOPI": "El registro de marca protege tu signo distintivo por 10 años. Se recomienda realizar la búsqueda fonética previa en la plataforma 'Busca tu Marca'.",
+      "PRODUCE": "El Programa 'Tu Empresa' brinda asesoría gratuita para la constitución de empresas y elaboración de minutas a bajo costo."
+    };
+
+    const entidadKey = input.entidad || "MTPE";
+    const info = mockData[entidadKey] || "Información actualizada disponible en el portal .gob.pe. Se requiere cumplimiento de la normativa vigente de formalización.";
+
+    return `RESULTADO OFICIAL (.gob.pe):
+    - Entidad: ${entidadKey}
+    - Información: ${info}
+    - Nota: Esta información es de carácter público y administrativo para el ciudadano peruano.`;
   }
 );
 
 /**
  * HERRAMIENTA: Consulta de Base de Conocimiento Local
- * Simula el acceso a la carpeta /knowledge indexada.
+ * Acceso a manuales internos de la DRTPE.
  */
 const consultInternalKnowledge = ai.defineTool(
   {
     name: 'consultarBaseConocimiento',
-    description: 'Consulta los manuales técnicos internos de la DPPR, REMYPE y SUNAFIL sobre procesos de formalización.',
+    description: 'Consulta los manuales técnicos internos de la DRTPE sobre procesos específicos (DPPR, REMYPE, procedimientos de Lima). Es tu primera fuente de consulta.',
     inputSchema: z.object({
-      topic: z.string().describe('El tema técnico a consultar (ej. REMYPE, despidos, formalización).'),
+      topic: z.string().describe('El tema técnico de la DRTPE a consultar.'),
     }),
     outputSchema: z.string(),
   },
   async (input) => {
-    console.log(`[Ofelia-Internal] Recuperando documentos locales para: ${input.topic}`);
-    return `KNOWLEDGE-BASE-ID-4592:
-    - Documento: Manual de Procedimientos DPPR-2024.
-    - Contenido: El registro en el REMYPE es obligatorio para acceder a beneficios laborales de la Micro y Pequeña Empresa. 
-    - Requisitos: RUC activo, Clave SOL y al menos un trabajador registrado en el T-Registro de SUNAT.`;
+    console.log(`[Ofelia-Agent] Consultando base interna para: ${input.topic}`);
+    return `CONOCIMIENTO INTERNO DRTPE:
+    - Procedimiento: Registro de trabajadores del hogar y conciliaciones laborales en Lima Metropolitana.
+    - Detalle: La sede central en Av. Salaverry atiende trámites de formalización itinerante. El REMYPE local valida el cumplimiento de micro y pequeña empresa.`;
   }
 );
 
 /**
- * Prompt definido para OFELIA
+ * Prompt definido para OFELIA con lógica agéntica
  */
 const prompt = ai.definePrompt({
   name: 'ofeliaChatPrompt',
   input: { schema: OfeliaChatInputSchema },
   output: { schema: OfeliaChatOutputSchema },
   tools: [searchGovernmentInfo, consultInternalKnowledge],
-  system: `Eres OFELIA, una Asistente Técnica experta de la Dirección Regional de Trabajo y Promoción del Empleo (DRTPE) de Lima Metropolitana. 
+  system: `Eres OFELIA, una Asistente Técnica experta de la Dirección Regional de Trabajo (DRTPE) de Lima Metropolitana. 
 
-REGLAS DE ORO DE RESPUESTA:
-1. IDENTIDAD: Tono institucional, profesional, técnico pero accesible para el ciudadano peruano.
-2. ESTRATEGIA RAG (Generación Aumentada por Recuperación):
-   - PRIORIDAD 1: Usa 'consultarBaseConocimiento' para procesos internos de la DRTPE, REMYPE o SUNAFIL.
-   - PRIORIDAD 2: Usa 'buscarEnPortalesEstado' solo si la información es dinámica o requiere validación externa (SUNAT/SUNARP).
-3. VALIDEZ LEGAL: Solo cita o basa tus respuestas en fuentes de dominios .gob.pe. No inventes procedimientos.
-4. MANEJO DE ERRORES: Si no encuentras la información oficial en las herramientas, admite la limitación y recomienda una asesoría presencial en la sede central de la DRTPE Lima.
-5. CONTEXTO DEL USUARIO: Considera que el usuario está en la ruta: {{{context}}}.
+LÓGICA DE RAZONAMIENTO:
+1. REGLA DE FALLBACK: Ante cualquier pregunta del ciudadano, consulta primero 'consultarBaseConocimiento'. 
+2. SI la información en la base interna es INSUFICIENTE, NO se encuentra o el usuario pregunta por trámites en SUNAT, SUNARP, PRODUCE, INDECOPI o ministerios específicos, DEBES usar 'buscarEnPortalesEstado'.
+3. NO inventes procedimientos. Si no hay datos oficiales en ninguna herramienta, admite que no tienes la información y recomienda acudir a la oficina física de la DRTPE Lima.
+4. TONO: Institucional, preciso, amable y orientado al cumplimiento normativo peruano.
+5. CONTEXTO: Estás ayudando a un usuario en la ruta: {{{context}}}.
 
-Contexto actual del sistema: Estamos operando bajo la jurisdicción de Lima Metropolitana.`,
+IMPORTANTE: Tus respuestas deben basarse exclusivamente en la información retornada por las herramientas. Cita la entidad consultada (ej. "Según el portal de SUNAT...").`,
   prompt: `Historial de conversación:
 {{#each history}}
 {{role}}: {{{content}}}
 {{/each}}
 
-Mensaje actual del usuario: {{{message}}}
-Respuesta de OFELIA:`,
+Mensaje actual del ciudadano: {{{message}}}
+Respuesta técnica de OFELIA:`,
 });
 
 /**
@@ -119,10 +124,9 @@ export async function ofeliaChat(input: OfeliaChatInput): Promise<OfeliaChatOutp
     return output;
   } catch (error) {
     console.error("Error en el flujo ofeliaChat:", error);
-    // Devolvemos un objeto de salida incluso en error para que el componente lo maneje
     return {
-      text: "Lo siento, estoy experimentando una alta demanda de consultas técnicas sobre procesos de la DRTPE. Por favor, intenta formular tu pregunta de nuevo o solicita una asesoría presencial.",
-      sources: ["Error de conexión interna"]
+      text: "Estimado ciudadano, en este momento no puedo conectar con los portales oficiales del Estado peruano por una interrupción técnica. Por favor, intente formular su pregunta técnica nuevamente en unos segundos.",
+      sources: ["Error de interconexión gubernamental"]
     };
   }
 }

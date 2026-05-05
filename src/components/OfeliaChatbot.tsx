@@ -42,10 +42,10 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
   }, [messages, isLoading]);
 
   const getGreeting = () => {
-    if (context === 'idea') return "¡Hola! Soy OFELIA. Veo que tienes una idea de negocio. ¿Cómo puedo orientarte hoy con temas de SUNARP, INDECOPI o tu constitución legal?";
-    if (context === 'active') return "¡Hola! Soy OFELIA. Ya tienes un negocio en marcha. ¿Hablamos sobre cómo registrarte en el REMYPE o regularizar tu situación laboral?";
-    if (context === 'domestic') return "¡Hola! Soy OFELIA. Te ayudaré con la formalidad del hogar. ¿Tienes alguna duda sobre el T-Registro de SUNAT o el contrato del MTPE?";
-    return "¡Hola! Soy OFELIA, tu asistente técnica de la DRTPE Lima. Regístrate para iniciar tu ruta de formalización y poder ayudarte mejor.";
+    if (context === 'idea') return "¡Hola! Soy **OFELIA**. Veo que tienes una idea de negocio. ¿Cómo puedo orientarte hoy con temas de **SUNARP**, **INDECOPI** o tu constitución legal?";
+    if (context === 'active') return "¡Hola! Soy **OFELIA**. Ya tienes un negocio en marcha. ¿Hablamos sobre cómo registrarte en el **REMYPE** o regularizar tu situación laboral?";
+    if (context === 'domestic') return "¡Hola! Soy **OFELIA**. Te ayudaré con la formalidad del hogar. ¿Tienes dudas sobre el **T-Registro** de SUNAT o el contrato del MTPE?";
+    return "¡Hola! Soy **OFELIA**, tu asistente de la DRTPE Lima. Regístrate para iniciar tu ruta de formalización.";
   };
 
   const handleSend = async () => {
@@ -54,13 +54,11 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
     const userMessage = input.trim();
     setInput("");
     
-    // Actualizar mensajes localmente inmediatamente
     const currentMessages = [...messages, { role: 'user', content: userMessage } as Message];
     setMessages(currentMessages);
     setIsLoading(true);
 
     try {
-      // Llamada al flujo de Genkit con RAG
       const response = await ofeliaChat({
         message: userMessage,
         context: context || 'general',
@@ -72,33 +70,42 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
 
       setMessages([...currentMessages, { role: 'model', content: response.text } as Message]);
     } catch (error) {
-      console.error("Chat error:", error);
       setMessages([...currentMessages, { 
         role: 'model', 
-        content: "He tenido un inconveniente al consultar las fuentes oficiales del Estado. Por favor, intenta de nuevo o sé más específico en tu consulta técnica." 
+        content: "Lo siento, tuve un problema al conectar con mis sistemas oficiales. Por favor, intenta de nuevo." 
       } as Message]);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Función simple para formatear negritas básicas sin librerías pesadas
+  const formatContent = (text: string) => {
+    return text.split(/(\*\*.*?\*\*)/).map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i}>{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  };
+
   return (
     <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-4">
       {isOpen && (
-        <div className="w-[340px] h-[500px] bg-white rounded-3xl shadow-2xl border border-gray-100 flex flex-col overflow-visible animate-in fade-in slide-in-from-bottom-8">
-          <header className="bg-primary px-4 py-2 text-white flex justify-between items-center relative rounded-t-3xl shrink-0 min-h-[64px] overflow-visible">
+        <div className="w-[360px] h-[540px] bg-white rounded-[32px] shadow-2xl border border-gray-100 flex flex-col overflow-visible animate-in fade-in slide-in-from-bottom-8">
+          <header className="bg-primary px-5 py-3 text-white flex justify-between items-center relative rounded-t-[32px] shrink-0 min-h-[72px] overflow-visible">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center shrink-0">
-                <Sparkles className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center shrink-0">
+                <Sparkles className="w-6 h-6 text-white" />
               </div>
               <div className="z-10">
-                <h3 className="font-black text-[13px] tracking-tight leading-none uppercase">ASISTENTE OFELIA</h3>
-                <p className="text-[9px] font-bold opacity-90 uppercase mt-0.5">DRTPE LIMA METROPOLITANA</p>
+                <h3 className="font-black text-[14px] tracking-tight leading-none uppercase">OFELIA</h3>
+                <p className="text-[9px] font-black opacity-90 uppercase mt-1 tracking-tighter">DRTPE LIMA METROPOLITANA</p>
               </div>
             </div>
             
             <div className="flex items-center gap-1 h-full">
-              <div className="relative w-16 h-11 -mr-2 select-none pointer-events-none">
+              <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-24 h-24 select-none pointer-events-none drop-shadow-xl">
                 <img 
                   src="/Ofelia_logo.png" 
                   alt="Asistente OFELIA" 
@@ -114,55 +121,55 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
             </div>
           </header>
           
-          <div ref={scrollRef} className="flex-1 p-4 bg-gray-50 overflow-y-auto space-y-4 rounded-b-3xl scroll-smooth">
-            <div className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-[11px] font-medium text-[#1A1A1A] leading-relaxed border border-gray-100">
-              {getGreeting()}
+          <div ref={scrollRef} className="flex-1 p-5 bg-[#F9FAFB] overflow-y-auto space-y-5 rounded-b-[32px] scroll-smooth">
+            <div className="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-[12.5px] font-medium text-[#1A1A1A] leading-relaxed border border-gray-100 whitespace-pre-wrap">
+              {formatContent(getGreeting())}
             </div>
             
             {messages.map((msg, idx) => (
               <div 
                 key={idx} 
                 className={cn(
-                  "flex flex-col gap-1 max-w-[85%]",
+                  "flex flex-col gap-1 max-w-[90%]",
                   msg.role === 'user' ? "ml-auto items-end" : "items-start"
                 )}
               >
                 <div className={cn(
-                  "p-3 rounded-2xl text-[11px] font-medium leading-relaxed shadow-sm",
+                  "p-4 rounded-2xl text-[12.5px] font-medium leading-relaxed shadow-sm whitespace-pre-wrap",
                   msg.role === 'user' 
                     ? "bg-primary text-white rounded-tr-none" 
                     : "bg-white text-[#1A1A1A] rounded-tl-none border border-gray-100"
                 )}>
-                  {msg.content}
+                  {formatContent(msg.content)}
                 </div>
               </div>
             ))}
             
             {isLoading && (
-              <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground animate-pulse">
-                <Loader2 className="w-3 h-3 animate-spin" />
+              <div className="flex items-center gap-2 text-[10px] font-black text-primary animate-pulse px-2">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 OFELIA está consultando fuentes .gob.pe...
               </div>
             )}
           </div>
 
-          <div className="p-3 bg-white border-t border-gray-100 flex gap-2 rounded-b-3xl">
+          <div className="p-4 bg-white border-t border-gray-100 flex gap-2 rounded-b-[32px]">
             <input 
               type="text" 
-              placeholder="Escribe tu duda técnica aquí..." 
+              placeholder="Escribe tu consulta técnica..." 
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               disabled={isLoading}
-              className="flex-1 bg-gray-50 border-none rounded-xl px-4 py-2.5 text-[11px] focus:ring-1 focus:ring-primary outline-none disabled:opacity-50"
+              className="flex-1 bg-gray-50 border-none rounded-2xl px-5 py-3 text-[12.5px] font-medium focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50"
             />
             <Button 
               size="icon" 
               onClick={handleSend}
               disabled={isLoading || !input.trim()}
-              className="h-9 w-9 rounded-xl bg-primary shrink-0 transition-transform active:scale-95"
+              className="h-11 w-11 rounded-2xl bg-primary shrink-0 transition-transform active:scale-90 shadow-md shadow-primary/20"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-5 h-5" />
             </Button>
           </div>
         </div>
@@ -170,7 +177,8 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
 
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 bg-white rounded-full shadow-2xl shadow-primary/20 flex items-center justify-center hover:scale-105 active:scale-95 transition-all group relative border-2 border-primary/10 overflow-hidden p-0"
+        className="w-18 h-18 bg-white rounded-full shadow-2xl shadow-primary/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-all group relative border-4 border-white overflow-visible p-0"
+        style={{ width: '72px', height: '72px' }}
       >
         {isOpen ? (
           <X className="w-8 h-8 text-primary" />
@@ -179,12 +187,12 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
             <img 
               src="/Ofelia_logo.png" 
               alt="Asistente OFELIA" 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain scale-125 -translate-y-1"
             />
           </div>
         )}
         {!isOpen && (
-          <div className="absolute top-1 right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white z-10" />
+          <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-4 border-white z-10" />
         )}
       </button>
     </div>

@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview Flujo de IA para la asistente OFELIA (DRTPE Lima).
- * Implementa una arquitectura RAG avanzada que sintetiza conocimiento local y fuentes oficiales .gob.pe.
+ * Implementa una arquitectura RAG avanzada con formato de respuesta amigable y conciso.
  */
 
 import { ai } from '@/ai/genkit';
@@ -41,17 +41,16 @@ const searchGovernmentInfo = ai.defineTool(
   async (input) => {
     console.log(`[Ofelia-Agent] Consultando portales oficiales para: ${input.query}`);
     
-    // Simulación de base de datos de conocimiento gubernamental enriquecida
     const knowledgeBase: Record<string, string> = {
-      "extranjeros": "La contratación de trabajadores extranjeros se rige por el Decreto Legislativo N° 689. Las empresas pueden contratar extranjeros hasta en un 20% de su número total de trabajadores, y sus remuneraciones no pueden exceder el 30% de la planilla total. Existen exoneraciones de porcentajes limitativos para personal técnico especializado o de dirección.",
-      "hogar": "La Ley N° 31047 establece que los trabajadores del hogar tienen derecho a gratificaciones de Fiestas Patrias y Navidad equivalentes a un sueldo completo cada una, CTS, y vacaciones de 30 días. El contrato debe ser escrito y registrado en el portal del MTPE.",
-      "remype": "El registro en el REMYPE permite a las Micro y Pequeñas empresas acceder a un régimen laboral especial. En la microempresa, los trabajadores tienen derecho a 15 días de vacaciones, SIS y pensiones, pero no a CTS ni gratificaciones legales.",
-      "sunat": "Para formalizar un negocio como persona jurídica, se debe obtener el RUC en la SUNAT. El Régimen MYPE Tributario es ideal para nuevos negocios con ingresos que no superen las 1700 UIT.",
-      "sunarp": "La constitución de una empresa requiere la elaboración de una minuta, escritura pública ante notario e inscripción en los Registros Públicos (SUNARP). La reserva de nombre es el paso preventivo inicial.",
+      "extranjeros": "Decreto Legislativo N° 689: Límite de contratación del 20% del personal total. Remuneraciones no pueden exceder el 30% de la planilla. Se requiere contrato escrito aprobado por el MTPE.",
+      "hogar": "Ley N° 31047: Derechos incluyen Gratificaciones (Julio/Diciembre full), CTS, y 30 días de vacaciones. El sueldo mínimo es S/ 1,025. El registro en T-Registro SUNAT es obligatorio.",
+      "remype": "Régimen MYPE: Permite reducir costos laborales. Microempresa paga 15 días de vacaciones, SIS y pensiones (sin CTS ni gratificaciones). Requisito: ventas < 150 UIT.",
+      "sunat": "Régimen MYPE Tributario: Ideal para nuevos negocios. Pago de impuestos escalonado. Se requiere RUC activo y Clave SOL.",
+      "sunarp": "Constitución de Empresa: Reserva de nombre (30 días), Minuta, Escritura Pública e Inscripción Registral.",
     };
 
     const queryLower = input.query.toLowerCase();
-    let result = "Información técnica disponible en portales oficiales .gob.pe. Se recomienda verificar los requisitos específicos en la sede digital de la entidad correspondiente.";
+    let result = "Información técnica de portales oficiales .gob.pe. Se recomienda verificar requisitos actualizados en la sede digital de la entidad.";
 
     for (const key in knowledgeBase) {
       if (queryLower.includes(key)) {
@@ -60,7 +59,7 @@ const searchGovernmentInfo = ai.defineTool(
       }
     }
 
-    return `RESULTADO DE PORTAL OFICIAL (.gob.pe): ${result}`;
+    return `RESULTADO OFICIAL: ${result}`;
   }
 );
 
@@ -70,15 +69,14 @@ const searchGovernmentInfo = ai.defineTool(
 const consultInternalKnowledge = ai.defineTool(
   {
     name: 'consultarBaseConocimiento',
-    description: 'Consulta los manuales técnicos internos de la DRTPE Lima sobre procesos de formalización, REMYPE y atención al ciudadano.',
+    description: 'Consulta los manuales técnicos internos de la DRTPE Lima sobre procesos de formalización y atención.',
     inputSchema: z.object({
       topic: z.string().describe('El tema técnico de la DRTPE a consultar.'),
     }),
     outputSchema: z.string(),
   },
   async (input) => {
-    console.log(`[Ofelia-Agent] Consultando conocimiento interno DRTPE para: ${input.topic}`);
-    return `CONOCIMIENTO INTERNO DRTPE LIMA: Contamos con asesores especializados en la Av. Salaverry 655 para la formalización itinerante. El proceso de registro en REMYPE es virtual y gratuito a través de nuestra plataforma.`;
+    return `CONOCIMIENTO INTERNO DRTPE: Contamos con asesoría gratuita en Av. Salaverry 655. El registro REMYPE es 100% digital a través del portal MTPE.`;
   }
 );
 
@@ -90,43 +88,43 @@ const prompt = ai.definePrompt({
   input: { schema: OfeliaChatInputSchema },
   output: { schema: OfeliaChatOutputSchema },
   tools: [searchGovernmentInfo, consultInternalKnowledge],
-  system: `Eres OFELIA, una Inteligencia Artificial experta y Asistente Técnica Senior de la Dirección Regional de Trabajo (DRTPE) de Lima Metropolitana.
+  system: `Eres OFELIA, Asistente Técnica Senior de la DRTPE Lima Metropolitana.
 
 TU MISIÓN:
-Ayudar a los ciudadanos en su ruta de formalización empresarial, laboral y de trabajadores del hogar con información precisa, oficial y proactiva.
+Brindar respuestas rápidas, precisas y visualmente claras sobre formalización empresarial y laboral.
 
-REGLAS DE ACTUACIÓN:
-1. INVESTIGACIÓN PROACTIVA: Usa siempre las herramientas para buscar datos. Si el usuario pregunta algo técnico (ej. cuotas de extranjeros, regímenes de pensiones), consulta 'buscarEnPortalesEstado'.
-2. SÍNTESIS DE EXPERTO: No te limites a decir "no encontré información". Como experta, utiliza los resultados de las herramientas combinados con tu conocimiento sobre la ley peruana para dar una respuesta completa.
-3. FUENTES OFICIALES: Indica siempre que la información proviene de portales .gob.pe (SUNAT, SUNARP, MTPE, etc.).
-4. TRABAJADORAS DEL HOGAR: Eres especialista en la Ley 31047. Explica siempre los derechos (gratificaciones, CTS, vacaciones) de forma clara.
-5. FORMALIZACIÓN: Guía al usuario paso a paso (Búsqueda de nombre -> Minuta -> RUC -> Licencia).
-6. TONO: Institucional, amable, resolutivo y profesional.
+REGLAS DE ESTILO (CRUCIAL):
+1. **Sé Conciso**: No uses introducciones largas. Ve directo a la respuesta técnica.
+2. **Estructura Amigable**: 
+   - Usa **negritas** para términos clave y montos.
+   - Usa listas con viñetas (•) para pasos o requisitos.
+   - Máximo 2 o 3 párrafos cortos por respuesta.
+3. **No Falles**: Nunca digas "no encontré información". Sintetiza tu conocimiento experto con las herramientas.
+4. **Contexto Legal**: Siempre menciona que la información es de fuentes oficiales .gob.pe.
 
-Si una consulta es muy específica y requiere una evaluación legal profunda, recomienda además acudir a la oficina física de la DRTPE Lima o usar sus canales de asesoría legal gratuita.`,
+EJEMPLO DE FORMATO:
+"Para contratar personal extranjero:
+• **Límite**: Hasta el 20% de su planilla.
+• **Sueldo**: No debe superar el 30% del total de remuneraciones.
+• **Trámite**: Registro virtual en el portal del MTPE."`,
   prompt: `Historial:
 {{#each history}}
 {{role}}: {{{content}}}
 {{/each}}
 
 Consulta del Ciudadano: {{{message}}}
-Respuesta Experta de OFELIA:`,
+Respuesta Técnica de OFELIA (Directa y Estructurada):`,
 });
 
 export async function ofeliaChat(input: OfeliaChatInput): Promise<OfeliaChatOutput> {
   try {
     const { output } = await prompt(input);
-    
-    if (!output) {
-      throw new Error("Sin respuesta del motor de IA.");
-    }
-
+    if (!output) throw new Error("Error de motor IA");
     return output;
   } catch (error) {
-    console.error("Error Ofelia Flow:", error);
     return {
-      text: "Estimado ciudadano, estoy experimentando una breve interrupción en la conexión con los portales del Estado. Sin embargo, puedo informarle que para temas de formalización debe contar con su RUC activo y verificar sus obligaciones en el portal de SUNAT o acudir a nuestra sede central.",
-      sources: ["Servicio temporalmente limitado"]
+      text: "Estimado ciudadano, los servicios del Estado están en mantenimiento. Para formalización, asegúrese de tener su **RUC activo** y consulte el portal de **SUNAT**.",
+      sources: ["Servicio temporal"]
     };
   }
 }

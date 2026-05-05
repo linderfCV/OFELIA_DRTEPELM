@@ -79,7 +79,6 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
     }
   };
 
-  // Función simple para formatear negritas básicas sin librerías pesadas
   const formatContent = (text: string) => {
     return text.split(/(\*\*.*?\*\*)/).map((part, i) => {
       if (part.startsWith('**') && part.endsWith('**')) {
@@ -94,31 +93,31 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
       {isOpen && (
         <div className="w-[360px] h-[540px] bg-white rounded-[32px] shadow-2xl border border-gray-100 flex flex-col overflow-visible animate-in fade-in slide-in-from-bottom-8">
           <header className="bg-primary px-5 py-3 text-white flex justify-between items-center relative rounded-t-[32px] shrink-0 min-h-[72px] overflow-visible">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 relative">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center shrink-0">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
-              <div className="z-10">
+              <div className="z-10 pr-2">
                 <h3 className="font-black text-[14px] tracking-tight leading-none uppercase">OFELIA</h3>
                 <p className="text-[9px] font-black opacity-90 uppercase mt-1 tracking-tighter">DRTPE LIMA METROPOLITANA</p>
               </div>
-            </div>
-            
-            <div className="flex items-center gap-1 h-full">
-              <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-24 h-24 select-none pointer-events-none drop-shadow-xl">
+              
+              {/* Avatar de OFELIA a la derecha del texto */}
+              <div className="relative w-24 h-24 select-none pointer-events-none drop-shadow-xl z-20 -mt-10 -ml-2">
                 <img 
                   src="/Ofelia_logo.png" 
                   alt="Asistente OFELIA" 
                   className="w-full h-full object-contain"
                 />
               </div>
-              <button 
-                onClick={() => setIsOpen(false)} 
-                className="p-1.5 hover:bg-white/10 rounded-full transition-colors z-20"
-              >
-                <X className="w-5 h-5" />
-              </button>
             </div>
+            
+            <button 
+              onClick={() => setIsOpen(false)} 
+              className="p-1.5 hover:bg-white/10 rounded-full transition-colors z-20"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </header>
           
           <div ref={scrollRef} className="flex-1 p-5 bg-[#F9FAFB] overflow-y-auto space-y-5 rounded-b-[32px] scroll-smooth">

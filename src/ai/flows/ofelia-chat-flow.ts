@@ -121,10 +121,11 @@ export async function ofeliaChat(input: OfeliaChatInput): Promise<OfeliaChatOutp
     const { output } = await prompt(input);
     if (!output) throw new Error("Error de motor IA");
     return output;
-  } catch (error) {
+  } catch (error: any) {
+    console.error('[OFELIA ERROR]', error);
     return {
-      text: "Estimado ciudadano, los servicios del Estado están en mantenimiento. Para formalización, asegúrese de tener su **RUC activo** y consulte el portal de **SUNAT**.",
-      sources: ["Servicio temporal"]
+      text: `Error técnico: ${error?.message || 'Desconocido'}. Intente nuevamente.`,
+      sources: ["Log de error"]
     };
   }
 }

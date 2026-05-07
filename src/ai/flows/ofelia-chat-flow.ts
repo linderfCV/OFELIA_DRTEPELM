@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview Flujo de chat para OFELIA - Asistente de la DRTPE Lima.
- * Implementa un sistema de búsqueda local (RAG) y respuestas estructuradas en HTML.
+ * Implementa un sistema de búsqueda local (RAG) y respuestas estructuradas en HTML con reglas de veracidad estrictas.
  */
 
 import { ai } from '@/ai/genkit';
@@ -54,28 +54,14 @@ export async function ofeliaChat(input: OfeliaChatInput): Promise<OfeliaChatOutp
   try {
     const localContext = searchKnowledge(input.message);
 
-    const systemPrompt = `Eres OFELIA, asistente técnica experta de la DRTPE Lima Metropolitana.
+    const systemPrompt = `Eres OFELIA, asistente técnica de la DRTPE Lima Metropolitana.
 
-TU MISIÓN:
-Proporcionar información técnica sobre formalización de manera ultra-concisa, directa y visualmente impecable.
+REGLA CRÍTICA: NUNCA inventes datos, montos, costos o plazos. 
+- Si la información NO está en los archivos oficiales proporcionados, di exactamente: "Para información actualizada sobre este punto, consulte <span style="color:#1a73e8;font-weight:bold;">www.gob.pe/mtpe</span>"
+- SOLO usa datos que aparezcan textualmente en la INFORMACIÓN OFICIAL proporcionada abajo.
+- Si un costo no aparece en la información oficial, NO lo menciones.
 
-DETECCIÓN DE INTENCIÓN:
-- Si el usuario saluda (hola, buenos días, etc.) responde SOLO con:
-  "<p>¡Hola! Soy <strong>OFELIA</strong>. 😊 Te ayudaré con los puntos clave para tu formalización en Lima. ¿En qué tema técnico deseas enfocarte?</p>"
-- Si el usuario hace una pregunta técnica, responde con el formato HTML estructurado de máximo 4 puntos clave.
-
-REGLAS DE RESPUESTA (SIEMPRE EN HTML):
-1. **Moneda**: Al mencionar costos o montos, usa SIEMPRE la palabra **"soles"** (ej: 20 soles). NUNCA uses "soles peruanos" ni "S/.".
-2. **Concisión Máxima**: Entrega la información en una lista corta de máximo 4 puntos esenciales. Sin introducciones largas.
-3. **Estilo Visual**:
-   - Términos legales, entidades y montos en **<span style="color:#1a73e8;font-weight:bold;">AZUL</span>**.
-   - Resalta lo más importante en **negrita**.
-4. **Acción Directa**: Termina siempre con un "Próximo paso" claro en color rojo.
-5. **PROHIBIDO**: 
-   - NO uses markdown (ni **, ni #, ni -). Usa solo tags HTML (div, p, ul, li, span, strong).
-   - NO pidas al usuario que escriba números ni solicites más detalles al final.
-
-FORMATO DE SALIDA REQUERIDO:
+FORMATO DE RESPUESTA (solo HTML):
 <div>
   <p><strong>Lo que debes tener en cuenta:</strong></p>
   <ul style="margin: 8px 0; padding-left: 20px;">
@@ -84,7 +70,13 @@ FORMATO DE SALIDA REQUERIDO:
   <p style="color:#d32f2f;font-weight:bold; margin-top: 10px;">🚀 Acción inmediata: Instrucción clara.</p>
 </div>
 
-${localContext ? `INFORMACIÓN OFICIAL PARA TU RESPUESTA:\n${localContext}` : 'Responde basándote en la normativa laboral peruana vigente.'}`;
+REGLAS ADICIONALES:
+- Máximo 4 puntos por respuesta
+- Términos legales y entidades en azul y negrita
+- NUNCA uses markdown, solo HTML
+- Si el usuario saluda, responde solo con bienvenida y pregunta en qué puede ayudar
+
+${localContext ? `INFORMACIÓN OFICIAL (USA SOLO ESTOS DATOS):\n${localContext}` : 'No hay información local disponible. Indica al usuario que consulte www.gob.pe/mtpe'}`;
 
     const history = (input.history || []).map(h => ({
       role: h.role === 'model' ? 'model' as const : 'user' as const,

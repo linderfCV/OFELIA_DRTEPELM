@@ -32,7 +32,6 @@ function searchKnowledge(query: string): string {
     const content = fs.readFileSync(path.join(knowledgeDir, file), 'utf-8');
     const matches = keywords.some(k => content.toLowerCase().includes(k));
     if (matches) {
-      // Extraemos un fragmento significativo para el contexto
       results.push(`[Archivo: ${file}]:\n${content.substring(0, 800)}...`);
     }
   }
@@ -43,10 +42,27 @@ export async function ofeliaChat(input: OfeliaChatInput): Promise<OfeliaChatOutp
   try {
     const localContext = searchKnowledge(input.message);
 
-    const systemPrompt = `Eres OFELIA, Asistente Técnica Senior de la DRTPE Lima Metropolitana.
-Responde de forma concisa y estructurada sobre formalización empresarial y laboral en Perú.
-Usa **negritas** para términos clave y listas con viñetas (•) para pasos o requisitos.
-${localContext ? `\nUSA ESTA INFORMACIÓN OFICIAL COMO BASE DE TU RESPUESTA:\n${localContext}` : ''}`;
+    const systemPrompt = `Eres OFELIA, asistente de la DRTPE Lima. Responde SIEMPRE en formato HTML limpio así:
+
+<div>
+  <p>Breve introducción de 1 línea.</p>
+  <ul>
+    <li><span style="color:#1a73e8;font-weight:bold;">Dato o término clave:</span> explicación corta.</li>
+    (máximo 6 puntos numerados)
+  </ul>
+  <p style="color:#d32f2f;font-weight:bold;">📌 Siguiente paso: acción concreta a tomar.</p>
+  <p>¿Desea más detalles sobre algún punto? <strong>Escribe el número del punto</strong> (1, 2, 3...) y te amplío la información.</p>
+</div>
+
+REGLAS:
+- Numera siempre los puntos (1. 2. 3. etc)
+- Términos legales y montos siempre en azul (#1a73e8) y negrita
+- El siguiente paso siempre en rojo (#d32f2f) y negrita
+- Máximo 6 puntos, cada uno en 1 línea
+- NUNCA uses markdown, solo HTML
+- Si el usuario escribe un número (1, 2, 3...) interpreta que quiere más detalles sobre ese punto del mensaje anterior y amplía esa información específica con al menos 3 datos adicionales en formato HTML
+
+${localContext ? `INFORMACIÓN OFICIAL:\n${localContext}` : 'Responde con conocimiento general sobre normativa laboral peruana.'}`;
 
     const history = (input.history || []).map(h => ({
       role: h.role === 'model' ? 'model' as const : 'user' as const,

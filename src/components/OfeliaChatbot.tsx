@@ -42,10 +42,10 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
   }, [messages, isLoading]);
 
   const getGreeting = () => {
-    if (context === 'idea') return "¡Hola! Soy **OFELIA**. Veo que tienes una idea de negocio. ¿Cómo puedo orientarte hoy con temas de **SUNARP**, **INDECOPI** o tu constitución legal?";
-    if (context === 'active') return "¡Hola! Soy **OFELIA**. Ya tienes un negocio en marcha. ¿Hablamos sobre cómo registrarte en el **REMYPE** o regularizar tu situación laboral?";
-    if (context === 'domestic') return "¡Hola! Soy **OFELIA**. Te ayudaré con la formalidad del hogar. ¿Tienes dudas sobre el **T-Registro** de SUNAT o el contrato del MTPE?";
-    return "¡Hola! Soy **OFELIA**, tu asistente de la DRTPE Lima. Regístrate para iniciar tu ruta de formalización.";
+    if (context === 'idea') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Veo que tienes una idea de negocio. ¿Cómo puedo orientarte hoy con temas de <strong>SUNARP</strong>, <strong>INDECOPI</strong> o tu constitución legal?</div>";
+    if (context === 'active') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Ya tienes un negocio en marcha. ¿Hablamos sobre cómo registrarte en el <strong>REMYPE</strong> o regularizar tu situación laboral?</div>";
+    if (context === 'domestic') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Te ayudaré con la formalidad del hogar. ¿Tienes dudas sobre el <strong>T-Registro</strong> de SUNAT o el contrato del MTPE?</div>";
+    return "<div>¡Hola! Soy <strong>OFELIA</strong>, tu asistente de la DRTPE Lima. Regístrate para iniciar tu ruta de formalización.</div>";
   };
 
   const handleSend = async () => {
@@ -72,7 +72,7 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
     } catch (error) {
       setMessages([...currentMessages, { 
         role: 'model', 
-        content: "Lo siento, tuve un problema al conectar con mis sistemas oficiales. Por favor, intenta de nuevo." 
+        content: "<div>Lo siento, tuve un problema al conectar con mis sistemas oficiales. Por favor, intenta de nuevo.</div>" 
       } as Message]);
     } finally {
       setIsLoading(false);
@@ -80,6 +80,11 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
   };
 
   const formatContent = (text: string) => {
+    // Si parece HTML (empieza con < o contiene tags), lo renderizamos como tal
+    if (text.includes('<div') || text.includes('<p') || text.includes('<ul')) {
+      return <div className="prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: text }} />;
+    }
+
     return text.split(/(\*\*.*?\*\*)/).map((part, i) => {
       if (part.startsWith('**') && part.endsWith('**')) {
         return <strong key={i}>{part.slice(2, -2)}</strong>;
@@ -102,7 +107,6 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
                 <p className="text-[9px] font-black opacity-90 uppercase mt-1 tracking-tighter">DRTPE LIMA METROPOLITANA</p>
               </div>
               
-              {/* Avatar de OFELIA a la derecha del texto */}
               <div className="relative w-24 h-24 select-none pointer-events-none drop-shadow-xl z-20 -mt-10 -ml-2">
                 <img 
                   src="/Ofelia_logo.png" 
@@ -121,7 +125,7 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
           </header>
           
           <div ref={scrollRef} className="flex-1 p-5 bg-[#F9FAFB] overflow-y-auto space-y-5 rounded-b-[32px] scroll-smooth">
-            <div className="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-[12.5px] font-medium text-[#1A1A1A] leading-relaxed border border-gray-100 whitespace-pre-wrap">
+            <div className="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-[12.5px] font-medium text-[#1A1A1A] leading-relaxed border border-gray-100">
               {formatContent(getGreeting())}
             </div>
             
@@ -134,7 +138,7 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
                 )}
               >
                 <div className={cn(
-                  "p-4 rounded-2xl text-[12.5px] font-medium leading-relaxed shadow-sm whitespace-pre-wrap",
+                  "p-4 rounded-2xl text-[12.5px] font-medium leading-relaxed shadow-sm",
                   msg.role === 'user' 
                     ? "bg-primary text-white rounded-tr-none" 
                     : "bg-white text-[#1A1A1A] rounded-tl-none border border-gray-100"

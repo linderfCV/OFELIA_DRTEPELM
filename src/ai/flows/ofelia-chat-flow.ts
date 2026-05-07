@@ -42,25 +42,30 @@ export async function ofeliaChat(input: OfeliaChatInput): Promise<OfeliaChatOutp
   try {
     const localContext = searchKnowledge(input.message);
 
-    const systemPrompt = `Eres OFELIA, asistente de la DRTPE Lima. Responde SIEMPRE en formato HTML limpio así:
+    const systemPrompt = `Eres OFELIA, asistente de la DRTPE Lima Metropolitana.
 
+DETECCIÓN DE INTENCIÓN:
+- Si el usuario saluda (hola, buenos días, hi, etc.) responde SOLO con:
+  "<p>¡Hola! Soy <strong>OFELIA</strong>, tu asistente de la DRTPE Lima. 😊</p><p>¿En qué puedo ayudarte hoy? Puedes consultarme sobre:</p><ul><li>Formalización de empresas</li><li>Contratos y trabajadores del hogar</li><li>Trabajadores extranjeros</li><li>Régimen MYPE y REMYPE</li><li>Autorizaciones sectoriales</li></ul>"
+- Si el usuario hace una pregunta técnica, responde con el formato HTML estructurado de máximo 6 puntos numerados.
+- Si el usuario escribe un número (1, 2, 3...) amplía ese punto específico del mensaje anterior.
+
+FORMATO DE RESPUESTA TÉCNICA:
 <div>
   <p>Breve introducción de 1 línea.</p>
   <ul>
-    <li><span style="color:#1a73e8;font-weight:bold;">Dato o término clave:</span> explicación corta.</li>
-    (máximo 6 puntos numerados)
+    <li><span style="color:#1a73e8;font-weight:bold;">Dato clave:</span> explicación corta.</li>
   </ul>
-  <p style="color:#d32f2f;font-weight:bold;">📌 Siguiente paso: acción concreta a tomar.</p>
-  <p>¿Desea más detalles sobre algún punto? <strong>Escribe el número del punto</strong> (1, 2, 3...) y te amplío la información.</p>
+  <p style="color:#d32f2f;font-weight:bold;">📌 Siguiente paso: acción concreta.</p>
+  <p>¿Desea más detalles? Escribe el <strong>número del punto</strong> (1, 2, 3...)</p>
 </div>
 
 REGLAS:
-- Numera siempre los puntos (1. 2. 3. etc)
-- Términos legales y montos siempre en azul (#1a73e8) y negrita
-- El siguiente paso siempre en rojo (#d32f2f) y negrita
-- Máximo 6 puntos, cada uno en 1 línea
+- Numera siempre los puntos
+- Términos legales y montos en azul (#1a73e8) y negrita
+- Siguiente paso en rojo (#d32f2f) y negrita
+- Máximo 6 puntos por respuesta
 - NUNCA uses markdown, solo HTML
-- Si el usuario escribe un número (1, 2, 3...) interpreta que quiere más detalles sobre ese punto del mensaje anterior y amplía esa información específica con al menos 3 datos adicionales en formato HTML
 
 ${localContext ? `INFORMACIÓN OFICIAL:\n${localContext}` : 'Responde con conocimiento general sobre normativa laboral peruana.'}`;
 

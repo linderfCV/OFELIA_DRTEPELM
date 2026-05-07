@@ -1,7 +1,8 @@
+
 "use client"
 
 import * as React from "react"
-import { MessageCircle, X, Send, Sparkles, Loader2 } from "lucide-react"
+import { MessageCircle, X, Send, Sparkles, Loader2, User, Home, Briefcase } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ofeliaChat } from "@/ai/flows/ofelia-chat-flow"
 import { cn } from "@/lib/utils"
@@ -9,6 +10,15 @@ import { cn } from "@/lib/utils"
 interface Message {
   role: 'user' | 'model';
   content: string;
+  isAction?: boolean;
+}
+
+interface UserChatData {
+  idNumber: string;
+  name: string;
+  district: string;
+  reference?: string;
+  profile?: 'entrepreneur' | 'domestic';
 }
 
 interface OfeliaChatbotProps {
@@ -18,13 +28,17 @@ interface OfeliaChatbotProps {
   onOpenChange?: (open: boolean) => void;
 }
 
+type OnboardingStep = 'id' | 'name' | 'district' | 'ref' | 'profile' | 'ready';
+
 export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, onOpenChange }: OfeliaChatbotProps) {
   const [internalIsOpen, setInternalIsOpen] = React.useState(false);
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [input, setInput] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const [onboardingStep, setOnboardingStep] = React.useState<OnboardingStep | null>(null);
+  const [userData, setUserData] = React.useState<Partial<UserChatData>>({});
+  
   const scrollRef = React.useRef<HTMLDivElement>(null);
-
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
   
   const setIsOpen = (value: boolean) => {
@@ -34,6 +48,21 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
       setInternalIsOpen(value);
     }
   };
+
+  // Iniciar onboarding si se abre en la pantalla de registro
+  React.useEffect(() => {
+    if (isOpen && currentStep === 'registration' && onboardingStep === null && messages.length === 0) {
+      setOnboardingStep('id');
+      setMessages([
+        { role: 'model', content: "<div>¡Hola! Soy <strong>OFELIA</strong>. Para ayudarte con tu formalización, primero necesito conocerte un poco. ¿Cuál es tu número de <strong>DNI o CE</strong>? (Solo números)</div>" }
+      ]);
+    } else if (isOpen && currentStep !== 'registration' && messages.length === 0) {
+      setOnboardingStep('ready');
+      setMessages([
+        { role: 'model', content: getGreeting() }
+      ]);
+    }
+  }, [isOpen, currentStep]);
 
   React.useEffect(() => {
     if (scrollRef.current) {
@@ -45,23 +74,74 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
     if (context === 'idea') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Veo que tienes una idea de negocio. ¿Cómo puedo orientarte hoy con temas de <strong>SUNARP</strong>, <strong>INDECOPI</strong> o tu constitución legal?</div>";
     if (context === 'active') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Ya tienes un negocio en marcha. ¿Hablamos sobre cómo registrarte en el <strong>REMYPE</strong> o regularizar tu situación laboral?</div>";
     if (context === 'domestic') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Te ayudaré con la formalidad del hogar. ¿Tienes dudas sobre el <strong>T-Registro</strong> de SUNAT o el contrato del MTPE?</div>";
-    return "<div>¡Hola! Soy <strong>OFELIA</strong>, tu asistente de la DRTPE Lima. Regístrate para iniciar tu ruta de formalización.</div>";
+    return "<div>¡Hola! Soy <strong>OFELIA</strong>, tu asistente de la DRTPE Lima. ¿En qué tema técnico deseas enfocarte hoy?</div>";
+  };
+
+  const handleOnboarding = async (val: string) => {
+    const currentMessages = [...messages, { role: 'user', content: val } as Message];
+    setMessages(currentMessages);
+
+    if (onboardingStep === 'id') {
+      if (!/^\d+$/.test(val)) {
+        setMessages([...currentMessages, { role: 'model', content: "<div>El número de documento debe contener <strong>solo números</strong>. Por favor, intenta de nuevo.</div>" }]);
+        return;
+      }
+      setUserData({ ...userData, idNumber: val });
+      setOnboardingStep('name');
+      setMessages([...currentMessages, { role: 'model', content: "<div>Perfecto. Ahora, ¿cuál es tu <strong>nombre completo</strong> o razón social?</div>" }]);
+    } 
+    else if (onboardingStep === 'name') {
+      setUserData({ ...userData, name: val });
+      setOnboardingStep('district');
+      setMessages([...currentMessages, { role: 'model', content: "<div>¿En qué <strong>distrito</strong> de Lima te encuentras?</div>" }]);
+    }
+    else if (onboardingStep === 'district') {
+      setUserData({ ...userData, district: val });
+      setOnboardingStep('ref');
+      setMessages([...currentMessages, { role: 'model', content: "<div>¿Tienes alguna <strong>referencia</strong> de ubicación? (Opcional, si no tienes escribe 'No')</div>" }]);
+    }
+    else if (onboardingStep === 'ref') {
+      setUserData({ ...userData, reference: val.toLowerCase() === 'no' ? undefined : val });
+      setOnboardingStep('profile');
+      setMessages([...currentMessages, { 
+        role: 'model', 
+        content: "<div>¡Gracias! Por último, selecciona tu perfil para darte respuestas exactas:</div>",
+        isAction: true
+      }]);
+    }
+  };
+
+  const selectProfile = (profile: 'entrepreneur' | 'domestic') => {
+    const profileText = profile === 'entrepreneur' ? 'Soy emprendedor' : 'Soy empleador de trabajadoras del hogar';
+    const currentMessages = [...messages, { role: 'user', content: profileText } as Message];
+    setMessages(currentMessages);
+    
+    setUserData({ ...userData, profile });
+    setOnboardingStep('ready');
+    setMessages([...currentMessages, { 
+      role: 'model', 
+      content: `<div>¡Registro completo! Bienvenido, <strong>${userData.name || 'Ciudadano'}</strong>. Ahora puedes realizar cualquier consulta técnica sobre formalización laboral o empresarial. ¿En qué te ayudo?</div>` 
+    }]);
   };
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
-
-    const userMessage = input.trim();
+    const val = input.trim();
     setInput("");
-    
-    const currentMessages = [...messages, { role: 'user', content: userMessage } as Message];
+
+    if (onboardingStep !== 'ready' && onboardingStep !== null) {
+      handleOnboarding(val);
+      return;
+    }
+
+    const currentMessages = [...messages, { role: 'user', content: val } as Message];
     setMessages(currentMessages);
     setIsLoading(true);
 
     try {
       const response = await ofeliaChat({
-        message: userMessage,
-        context: context || 'general',
+        message: val,
+        context: context || (userData.profile === 'domestic' ? 'domestic' : 'general'),
         history: messages.map(m => ({ 
           role: m.role === 'model' ? 'model' : 'user', 
           content: m.content 
@@ -80,17 +160,10 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
   };
 
   const formatContent = (text: string) => {
-    // Si parece HTML (empieza con < o contiene tags), lo renderizamos como tal
     if (text.includes('<div') || text.includes('<p') || text.includes('<ul')) {
       return <div className="prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: text }} />;
     }
-
-    return text.split(/(\*\*.*?\*\*)/).map((part, i) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={i}>{part.slice(2, -2)}</strong>;
-      }
-      return part;
-    });
+    return text;
   };
 
   return (
@@ -125,10 +198,6 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
           </header>
           
           <div ref={scrollRef} className="flex-1 p-5 bg-[#F9FAFB] overflow-y-auto space-y-5 rounded-b-[32px] scroll-smooth">
-            <div className="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-[12.5px] font-medium text-[#1A1A1A] leading-relaxed border border-gray-100">
-              {formatContent(getGreeting())}
-            </div>
-            
             {messages.map((msg, idx) => (
               <div 
                 key={idx} 
@@ -145,31 +214,57 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
                 )}>
                   {formatContent(msg.content)}
                 </div>
+                
+                {msg.isAction && onboardingStep === 'profile' && (
+                  <div className="flex flex-col gap-2 w-full mt-2 animate-in fade-in zoom-in-95">
+                    <Button 
+                      variant="outline" 
+                      className="justify-start gap-3 h-12 rounded-xl border-blue-100 hover:bg-blue-50 text-blue-700 font-bold text-xs"
+                      onClick={() => selectProfile('entrepreneur')}
+                    >
+                      <Briefcase className="w-4 h-4" />
+                      Soy emprendedor
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="justify-start gap-3 h-12 rounded-xl border-emerald-100 hover:bg-emerald-50 text-emerald-700 font-bold text-xs"
+                      onClick={() => selectProfile('domestic')}
+                    >
+                      <Home className="w-4 h-4" />
+                      Soy empleador del hogar
+                    </Button>
+                  </div>
+                )}
               </div>
             ))}
             
             {isLoading && (
               <div className="flex items-center gap-2 text-[10px] font-black text-primary animate-pulse px-2">
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                OFELIA está consultando fuentes .gob.pe...
+                OFELIA está consultando fuentes oficiales...
               </div>
             )}
           </div>
 
           <div className="p-4 bg-white border-t border-gray-100 flex gap-2 rounded-b-[32px]">
             <input 
-              type="text" 
-              placeholder="Escribe tu consulta técnica..." 
+              type={onboardingStep === 'id' ? "text" : "text"}
+              inputMode={onboardingStep === 'id' ? "numeric" : "text"}
+              placeholder={
+                onboardingStep === 'id' ? "Ingresa solo números..." : 
+                onboardingStep === 'profile' ? "Selecciona una opción arriba" :
+                "Escribe aquí..."
+              }
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              disabled={isLoading}
+              disabled={isLoading || onboardingStep === 'profile'}
               className="flex-1 bg-gray-50 border-none rounded-2xl px-5 py-3 text-[12.5px] font-medium focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50"
             />
             <Button 
               size="icon" 
               onClick={handleSend}
-              disabled={isLoading || !input.trim()}
+              disabled={isLoading || !input.trim() || onboardingStep === 'profile'}
               className="h-11 w-11 rounded-2xl bg-primary shrink-0 transition-transform active:scale-90 shadow-md shadow-primary/20"
             >
               <Send className="w-5 h-5" />

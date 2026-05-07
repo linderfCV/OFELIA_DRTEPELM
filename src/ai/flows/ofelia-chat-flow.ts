@@ -104,7 +104,7 @@ ${localContext ? `INFORMACIÓN OFICIAL PARA TU RESPUESTA:\n${localContext}` : 'R
   } catch (error: any) {
     console.error('[OFELIA ERROR]', error);
     return {
-      text: `Hubo un inconveniente técnico al consultar los manuales. Por favor, intenta de nuevo en unos momentos.`,
+      text: `Error técnico: ${error?.message || 'Desconocido'}. Intente nuevamente.`,
       sources: [],
     };
   }

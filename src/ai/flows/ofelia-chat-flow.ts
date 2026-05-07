@@ -118,9 +118,10 @@ Respuesta Técnica de OFELIA (Directa y Estructurada):`,
 
 export async function ofeliaChat(input: OfeliaChatInput): Promise<OfeliaChatOutput> {
   try {
-    const { output } = await prompt(input);
-    if (!output) throw new Error("Error de motor IA");
-    return output;
+    const { output, text } = await prompt(input);
+    if (output) return output;
+    if (text) return { text, sources: [] };
+    throw new Error("Error en la generación de respuesta del motor IA.");
   } catch (error: any) {
     console.error('[OFELIA ERROR]', error);
     return {

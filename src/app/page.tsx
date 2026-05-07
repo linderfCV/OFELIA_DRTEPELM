@@ -96,7 +96,7 @@ export default function Home() {
 
         {step === 'diagnostic' && (
           <div className="pt-6">
-            <DiagnosticFlow onComplete={handleDiagnosticComplete} />
+            <DiagnosticFlow onComplete={handleDiagnosticComplete} userData={userData} />
           </div>
         )}
 

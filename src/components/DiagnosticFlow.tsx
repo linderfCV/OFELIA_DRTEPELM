@@ -7,9 +7,11 @@ import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import { logOfeliaEvent } from "@/services/event-service"
 
 interface DiagnosticFlowProps {
   onComplete: (type: 'idea' | 'active' | 'domestic', answers: any) => void;
+  userData?: any;
 }
 
 const SECTORS = [
@@ -36,7 +38,7 @@ const DISTRICTS = [
   "Villa María del Triunfo"
 ].sort();
 
-export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
+export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
   const [step, setStep] = React.useState(-1);
   const [profile, setProfile] = React.useState<'entrepreneur' | 'domestic' | null>(null);
   const [routeType, setRouteType] = React.useState<'idea' | 'active' | 'domestic' | null>(null);
@@ -81,7 +83,7 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
 
   const { total: totalSteps, percent: currentProgress } = getProgressInfo();
 
-  const handleNext = (data: Partial<typeof answers>) => {
+  const handleNext = async (data: Partial<typeof answers>) => {
     const nextAnswers = { ...answers, ...data };
     setAnswers(nextAnswers);
     
@@ -91,6 +93,19 @@ export function DiagnosticFlow({ onComplete }: DiagnosticFlowProps) {
     if (step < finalStep) {
       setStep(step + 1);
     } else {
+      // Registro de diagnóstico en Firestore
+      await logOfeliaEvent({
+        tipoEvento: "diagnostico_usuario",
+        numeroDocumento: userData?.docNumber || "N/A",
+        nombresApellidos: userData?.fullName || "N/A",
+        tipoUsuario: routeType,
+        sector: sector || "Hogar",
+        distrito: district,
+        referencia: zone,
+        respuestasDiagnostico: nextAnswers,
+        canal: "diagnostico_inicial"
+      });
+
       onComplete(routeType!, nextAnswers);
     }
   };

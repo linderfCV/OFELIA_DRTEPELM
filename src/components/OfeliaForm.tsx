@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -10,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
+import { logOfeliaEvent } from "@/services/event-service"
 import {
   Form,
   FormControl,
@@ -45,7 +45,18 @@ export function OfeliaForm({ onComplete }: OfeliaFormProps) {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    // Registro de evento en Firestore
+    await logOfeliaEvent({
+      tipoEvento: "registro_usuario",
+      tipoDocumento: values.docType,
+      numeroDocumento: values.docNumber,
+      nombresApellidos: values.fullName,
+      correoElectronico: values.email,
+      telefonoCelular: values.phone,
+      canal: "pantalla_principal"
+    });
+    
     onComplete(values);
   }
 

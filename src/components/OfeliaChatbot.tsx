@@ -5,6 +5,7 @@ import { MessageCircle, X, Send, Sparkles, Loader2, User, Home, Briefcase } from
 import { Button } from "@/components/ui/button"
 import { ofeliaChat } from "@/ai/flows/ofelia-chat-flow"
 import { cn } from "@/lib/utils"
+import { logOfeliaEvent } from "@/services/event-service"
 
 interface Message {
   role: 'user' | 'model';
@@ -37,6 +38,9 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
   const [onboardingStep, setOnboardingStep] = React.useState<OnboardingStep | null>(null);
   const [userData, setUserData] = React.useState<Partial<UserChatData>>({});
   
+  // Session ID para relacionar eventos de una misma sesión de chat
+  const sessionId = React.useMemo(() => Math.random().toString(36).substring(2, 15), []);
+  
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
   
@@ -55,7 +59,6 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
     return "<div>¡Hola! Soy <strong>OFELIA</strong>, tu asistente de la DRTPE Lima. ¿En qué tema técnico deseas enfocarte hoy?</div>";
   }, [context]);
 
-  // RESET LOGIC: Si el usuario cambia de pantalla (fuera de registration), reiniciamos el estado del chat
   React.useEffect(() => {
     if (currentStep !== 'registration' && onboardingStep !== 'ready' && onboardingStep !== null) {
       setMessages([]);
@@ -64,7 +67,6 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
     }
   }, [currentStep, onboardingStep]);
 
-  // Manejo de apertura y saludos iniciales
   React.useEffect(() => {
     if (isOpen) {
       if (currentStep === 'registration' && onboardingStep === null && messages.length === 0) {
@@ -125,13 +127,29 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
     }
   };
 
-  const selectProfile = (profile: 'entrepreneur' | 'domestic') => {
+  const selectProfile = async (profile: 'entrepreneur' | 'domestic') => {
     const profileText = profile === 'entrepreneur' ? 'Soy emprendedor' : 'Soy empleador de trabajadoras del hogar';
     const currentMessages = [...messages, { role: 'user', content: profileText } as Message];
     setMessages(currentMessages);
     
-    setUserData({ ...userData, profile });
+    const finalUserData = { ...userData, profile };
+    setUserData(finalUserData);
     setOnboardingStep('ready');
+
+    // Registro de evento de Onboarding completo en Firestore
+    await logOfeliaEvent({
+      tipoEvento: "registro_chatbot",
+      sessionId,
+      tipoDocumento: finalUserData.idNumber?.length === 8 ? "DNI" : "CE",
+      numeroDocumento: finalUserData.idNumber,
+      nombresApellidos: finalUserData.name,
+      distrito: finalUserData.district,
+      lugarReferencia: finalUserData.reference || "N/A",
+      tipoUsuario: profile,
+      usuarioRegistrado: true,
+      canal: "chatbot"
+    });
+
     setMessages([...currentMessages, { 
       role: 'model', 
       content: `<div>¡Registro completo! Bienvenido, <strong>${userData.name || 'Ciudadano'}</strong>. Ahora puedes realizar cualquier consulta técnica sobre formalización laboral o empresarial. ¿En qué te ayudo?</div>` 
@@ -160,6 +178,22 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
           role: m.role === 'model' ? 'model' : 'user', 
           content: m.content 
         }))
+      });
+
+      // Registro de consulta en Firestore
+      await logOfeliaEvent({
+        tipoEvento: "consulta_chatbot",
+        sessionId,
+        tipoDocumento: userData.idNumber ? (userData.idNumber.length === 8 ? "DNI" : "CE") : "N/A",
+        numeroDocumento: userData.idNumber || "Anónimo",
+        nombresApellidos: userData.name || "Usuario Chat",
+        distrito: userData.district || "Desconocido",
+        tipoUsuario: context || userData.profile || "general",
+        textoConsulta: val,
+        respuestaGenerada: response.text,
+        fuenteUsada: response.sources?.[0] || "AI/Web",
+        usuarioRegistrado: onboardingStep === 'ready',
+        canal: "chatbot"
       });
 
       setMessages([...currentMessages, { role: 'model', content: response.text }]);

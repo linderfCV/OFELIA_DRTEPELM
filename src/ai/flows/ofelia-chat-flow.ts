@@ -86,7 +86,6 @@ const consultInternalKnowledge = ai.defineTool(
 const prompt = ai.definePrompt({
   name: 'ofeliaChatPrompt',
   input: { schema: OfeliaChatInputSchema },
-  output: { schema: OfeliaChatOutputSchema },
   tools: [searchGovernmentInfo, consultInternalKnowledge],
   system: `Eres OFELIA, Asistente Técnica Senior de la DRTPE Lima Metropolitana.
 
@@ -100,13 +99,7 @@ REGLAS DE ESTILO (CRUCIAL):
    - Usa listas con viñetas (•) para pasos o requisitos.
    - Máximo 2 o 3 párrafos cortos por respuesta.
 3. **No Falles**: Nunca digas "no encontré información". Sintetiza tu conocimiento experto con las herramientas.
-4. **Contexto Legal**: Siempre menciona que la información es de fuentes oficiales .gob.pe.
-
-EJEMPLO DE FORMATO:
-"Para contratar personal extranjero:
-• **Límite**: Hasta el 20% de su planilla.
-• **Sueldo**: No debe superar el 30% del total de remuneraciones.
-• **Trámite**: Registro virtual en el portal del MTPE."`,
+4. **Contexto Legal**: Siempre menciona que la información es de fuentes oficiales .gob.pe.`,
   prompt: `Historial:
 {{#each history}}
 {{role}}: {{{content}}}
@@ -118,10 +111,10 @@ Respuesta Técnica de OFELIA (Directa y Estructurada):`,
 
 export async function ofeliaChat(input: OfeliaChatInput): Promise<OfeliaChatOutput> {
   try {
-    const { output, text } = await prompt(input);
-    if (output) return output;
-    if (text) return { text, sources: [] };
-    throw new Error("Error en la generación de respuesta del motor IA.");
+    const response = await prompt(input);
+    const text = response.text;
+    if (!text) throw new Error("Respuesta vacía del motor IA.");
+    return { text, sources: [] };
   } catch (error: any) {
     console.error('[OFELIA ERROR]', error);
     return {

@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -159,7 +158,7 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
         }))
       });
 
-      setMessages([...currentMessages, { role: 'model', content: response.text } as Message]);
+      setMessages([...currentMessages, { role: 'model', content: response.text }]);
     } catch (error) {
       setMessages([...currentMessages, { 
         role: 'model', 

@@ -1,4 +1,9 @@
 'use server';
+/**
+ * @fileOverview Flujo de chat para OFELIA - Asistente de la DRTPE Lima.
+ * Implementa un sistema de búsqueda local (RAG) y respuestas estructuradas en HTML.
+ */
+
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import fs from 'fs';
@@ -20,6 +25,9 @@ export type OfeliaChatOutput = {
   sources?: string[];
 };
 
+/**
+ * Realiza una búsqueda simple de palabras clave en los archivos de conocimiento.
+ */
 function searchKnowledge(query: string): string {
   const knowledgeDir = '/home/user/studio/knowledge';
   if (!fs.existsSync(knowledgeDir)) return '';
@@ -32,42 +40,50 @@ function searchKnowledge(query: string): string {
     const content = fs.readFileSync(path.join(knowledgeDir, file), 'utf-8');
     const matches = keywords.some(k => content.toLowerCase().includes(k));
     if (matches) {
-      results.push(`[Archivo: ${file}]:\n${content.substring(0, 800)}...`);
+      // Tomamos una porción significativa del contenido para el contexto
+      results.push(`[Archivo: ${file}]:\n${content.substring(0, 1000)}...`);
     }
   }
   return results.length > 0 ? results.join('\n\n') : '';
 }
 
+/**
+ * Función principal del flujo de chat de OFELIA.
+ */
 export async function ofeliaChat(input: OfeliaChatInput): Promise<OfeliaChatOutput> {
   try {
     const localContext = searchKnowledge(input.message);
 
-    const systemPrompt = `Eres OFELIA, asistente de la DRTPE Lima Metropolitana.
+    const systemPrompt = `Eres OFELIA, la asistente técnica experta de la DRTPE Lima Metropolitana. 
 
-DETECCIÓN DE INTENCIÓN:
-- Si el usuario saluda (hola, buenos días, hi, etc.) responde SOLO con:
-  "<p>¡Hola! Soy <strong>OFELIA</strong>, tu asistente de la DRTPE Lima. 😊</p><p>¿En qué puedo ayudarte hoy? Puedes consultarme sobre:</p><ul><li>Formalización de empresas</li><li>Contratos y trabajadores del hogar</li><li>Trabajadores extranjeros</li><li>Régimen MYPE y REMYPE</li><li>Autorizaciones sectoriales</li></ul>"
-- Si el usuario hace una pregunta técnica, responde con el formato HTML estructurado de máximo 6 puntos numerados.
-- Si el usuario escribe un número (1, 2, 3...) amplía ese punto específico del mensaje anterior.
+TU MISIÓN:
+Proporcionar información técnica sobre formalización de manera ultra-concisa, directa y visualmente impecable.
 
-FORMATO DE RESPUESTA TÉCNICA:
+REGLAS DE RESPUESTA (SIEMPRE EN HTML):
+1. **Concisión Máxima**: No saludes de nuevo si ya hay un historial. No uses introducciones largas.
+2. **Puntos Clave**: Entrega la información en una lista corta de máximo 4 puntos esenciales.
+3. **Estilo Visual**:
+   - Términos legales, entidades y montos en **<span style="color:#1a73e8;font-weight:bold;">AZUL</span>**.
+   - Resalta lo más importante en **negrita**.
+4. **Acción Directa**: Termina siempre con un "Próximo paso" claro en color rojo.
+5. **PROHIBIDO**: 
+   - NO uses markdown (ni **, ni #, ni -). Usa solo tags HTML.
+   - NO pidas al usuario que escriba números para más detalles.
+   - NO generes textos largos.
+
+FORMATO DE SALIDA REQUERIDO:
 <div>
-  <p>Breve introducción de 1 línea.</p>
-  <ul>
-    <li><span style="color:#1a73e8;font-weight:bold;">Dato clave:</span> explicación corta.</li>
+  <p><strong>Lo que debes saber:</strong></p>
+  <ul style="margin: 8px 0; padding-left: 20px;">
+    <li><span style="color:#1a73e8;font-weight:bold;">Término:</span> Explicación breve de 1 línea.</li>
   </ul>
-  <p style="color:#d32f2f;font-weight:bold;">📌 Siguiente paso: acción concreta.</p>
-  <p>¿Desea más detalles? Escribe el <strong>número del punto</strong> (1, 2, 3...)</p>
+  <p style="color:#d32f2f;font-weight:bold; margin-top: 10px;">🚀 Acción inmediata: Instrucción clara.</p>
 </div>
 
-REGLAS:
-- Numera siempre los puntos
-- Términos legales y montos en azul (#1a73e8) y negrita
-- Siguiente paso en rojo (#d32f2f) y negrita
-- Máximo 6 puntos por respuesta
-- NUNCA uses markdown, solo HTML
+GREETING (Solo si el usuario saluda por primera vez):
+<p>¡Hola! Soy <strong>OFELIA</strong>. 😊 Te ayudaré con los puntos clave para tu formalización en Lima. ¿En qué tema técnico deseas enfocarte?</p>
 
-${localContext ? `INFORMACIÓN OFICIAL:\n${localContext}` : 'Responde con conocimiento general sobre normativa laboral peruana.'}`;
+${localContext ? `INFORMACIÓN OFICIAL PARA TU RESPUESTA:\n${localContext}` : 'Responde basándote en la normativa laboral peruana vigente.'}`;
 
     const history = (input.history || []).map(h => ({
       role: h.role === 'model' ? 'model' as const : 'user' as const,
@@ -81,13 +97,13 @@ ${localContext ? `INFORMACIÓN OFICIAL:\n${localContext}` : 'Responde con conoci
     });
 
     return {
-      text: response.text || 'No se pudo generar una respuesta.',
-      sources: localContext ? ['Base de conocimiento local (DRTPE)'] : ['Modelo Groq AI'],
+      text: response.text || 'Lo siento, no pude procesar la respuesta técnica.',
+      sources: localContext ? ['Manuales DRTPE'] : ['Conocimiento General'],
     };
   } catch (error: any) {
     console.error('[OFELIA ERROR]', error);
     return {
-      text: `Error técnico: ${error?.message || 'Desconocido'}. Intente nuevamente.`,
+      text: `Hubo un inconveniente técnico al consultar los manuales. Por favor, intenta de nuevo en unos momentos.`,
       sources: [],
     };
   }

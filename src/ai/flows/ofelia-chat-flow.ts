@@ -112,9 +112,10 @@ Respuesta Técnica de OFELIA (Directa y Estructurada):`,
 export async function ofeliaChat(input: OfeliaChatInput): Promise<OfeliaChatOutput> {
   try {
     const response = await prompt(input);
-    const text = response.text;
+    console.log('[OFELIA RESPONSE]', JSON.stringify(response, null, 2));
+    const text = response.text ?? response?.output?.text ?? Object.values(response || {}).find(v => typeof v === 'string');
     if (!text) throw new Error("Respuesta vacía del motor IA.");
-    return { text, sources: [] };
+    return { text: text as string, sources: [] };
   } catch (error: any) {
     console.error('[OFELIA ERROR]', error);
     return {

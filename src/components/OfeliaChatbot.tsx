@@ -49,33 +49,44 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
     }
   };
 
-  // Iniciar onboarding si se abre en la pantalla de registro
+  const getGreeting = React.useCallback(() => {
+    if (context === 'idea') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Veo que tienes una idea de negocio. ¿Cómo puedo orientarte hoy con temas de <strong>SUNARP</strong>, <strong>INDECOPI</strong> o tu constitución legal?</div>";
+    if (context === 'active') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Ya tienes un negocio en marcha. ¿Hablamos sobre cómo registrarte en el <strong>REMYPE</strong> o regularizar tu situación laboral?</div>";
+    if (context === 'domestic') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Te ayudaré con la formalidad del hogar. ¿Tienes dudas sobre el <strong>T-Registro</strong> de SUNAT o el contrato del MTPE?</div>";
+    return "<div>¡Hola! Soy <strong>OFELIA</strong>, tu asistente de la DRTPE Lima. ¿En qué tema técnico deseas enfocarte hoy?</div>";
+  }, [context]);
+
+  // RESET LOGIC: Si el usuario cambia de pantalla (fuera de registration), reiniciamos el estado del chat
   React.useEffect(() => {
-    if (isOpen && currentStep === 'registration' && onboardingStep === null && messages.length === 0) {
-      setOnboardingStep('id');
-      setMessages([
-        { role: 'model', content: "<div>¡Hola! Soy <strong>OFELIA</strong>. Para ayudarte con tu formalización, primero necesito conocerte un poco. ¿Cuál es tu número de <strong>DNI o CE</strong>? (Solo números)</div>" }
-      ]);
-    } else if (isOpen && currentStep !== 'registration' && messages.length === 0) {
+    if (currentStep !== 'registration' && onboardingStep !== 'ready' && onboardingStep !== null) {
+      setMessages([]);
+      setUserData({});
       setOnboardingStep('ready');
-      setMessages([
-        { role: 'model', content: getGreeting() }
-      ]);
     }
-  }, [isOpen, currentStep]);
+  }, [currentStep, onboardingStep]);
+
+  // Manejo de apertura y saludos iniciales
+  React.useEffect(() => {
+    if (isOpen) {
+      if (currentStep === 'registration' && onboardingStep === null && messages.length === 0) {
+        setOnboardingStep('id');
+        setMessages([
+          { role: 'model', content: "<div>¡Hola! Soy <strong>OFELIA</strong>. Para ayudarte con tu formalización, primero necesito conocerte un poco. ¿Cuál es tu número de <strong>DNI o CE</strong>? (Solo números)</div>" }
+        ]);
+      } else if (currentStep !== 'registration' && messages.length === 0) {
+        setOnboardingStep('ready');
+        setMessages([
+          { role: 'model', content: getGreeting() }
+        ]);
+      }
+    }
+  }, [isOpen, currentStep, onboardingStep, messages.length, getGreeting]);
 
   React.useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
-
-  const getGreeting = () => {
-    if (context === 'idea') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Veo que tienes una idea de negocio. ¿Cómo puedo orientarte hoy con temas de <strong>SUNARP</strong>, <strong>INDECOPI</strong> o tu constitución legal?</div>";
-    if (context === 'active') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Ya tienes un negocio en marcha. ¿Hablamos sobre cómo registrarte en el <strong>REMYPE</strong> o regularizar tu situación laboral?</div>";
-    if (context === 'domestic') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Te ayudaré con la formalidad del hogar. ¿Tienes dudas sobre el <strong>T-Registro</strong> de SUNAT o el contrato del MTPE?</div>";
-    return "<div>¡Hola! Soy <strong>OFELIA</strong>, tu asistente de la DRTPE Lima. ¿En qué tema técnico deseas enfocarte hoy?</div>";
-  };
 
   const handleOnboarding = async (val: string) => {
     const currentMessages = [...messages, { role: 'user', content: val } as Message];
@@ -248,7 +259,7 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
 
           <div className="p-4 bg-white border-t border-gray-100 flex gap-2 rounded-b-[32px]">
             <input 
-              type={onboardingStep === 'id' ? "text" : "text"}
+              type="text"
               inputMode={onboardingStep === 'id' ? "numeric" : "text"}
               placeholder={
                 onboardingStep === 'id' ? "Ingresa solo números..." : 

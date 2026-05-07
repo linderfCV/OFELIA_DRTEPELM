@@ -1,9 +1,4 @@
 'use server';
-/**
- * @fileOverview Flujo de chat para OFELIA - Asistente de la DRTPE Lima.
- * Implementa un sistema de búsqueda local (RAG) y respuestas estructuradas en HTML con reglas de veracidad estrictas.
- */
-
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import fs from 'fs';
@@ -25,9 +20,6 @@ export type OfeliaChatOutput = {
   sources?: string[];
 };
 
-/**
- * Realiza una búsqueda simple de palabras clave en los archivos de conocimiento.
- */
 function searchKnowledge(query: string): string {
   const knowledgeDir = '/home/user/studio/knowledge';
   if (!fs.existsSync(knowledgeDir)) return '';
@@ -38,28 +30,30 @@ function searchKnowledge(query: string): string {
 
   for (const file of files) {
     const content = fs.readFileSync(path.join(knowledgeDir, file), 'utf-8');
-    const matches = keywords.some(k => content.toLowerCase().includes(k));
-    if (matches) {
-      // Tomamos una porción significativa del contenido para el contexto
-      results.push(`[Archivo: ${file}]:\n${content.substring(0, 1000)}...`);
+    const lines = content.split('\n');
+    const matchingLines = lines.filter(line =>
+      keywords.some(k => line.toLowerCase().includes(k))
+    );
+    if (matchingLines.length > 0) {
+      results.push(`[Archivo: ${file}]:\n${matchingLines.slice(0, 10).join('\n')}`);
     }
   }
-  return results.length > 0 ? results.join('\n\n') : '';
+  return results.length > 0 ? results.slice(0, 3).join('\n\n') : '';
 }
 
-/**
- * Función principal del flujo de chat de OFELIA.
- */
 export async function ofeliaChat(input: OfeliaChatInput): Promise<OfeliaChatOutput> {
   try {
     const localContext = searchKnowledge(input.message);
 
     const systemPrompt = `Eres OFELIA, asistente técnica de la DRTPE Lima Metropolitana.
 
-REGLA CRÍTICA: NUNCA inventes datos, montos, costos o plazos. 
-- Si la información NO está en los archivos oficiales proporcionados, di exactamente: "Para información actualizada sobre este punto, consulte <span style="color:#1a73e8;font-weight:bold;">www.gob.pe/mtpe</span>"
-- SOLO usa datos que aparezcan textualmente en la INFORMACIÓN OFICIAL proporcionada abajo.
-- Si un costo no aparece en la información oficial, NO lo menciones.
+PRIORIDAD DE FUENTES:
+1. PRIMERO usa la INFORMACIÓN OFICIAL de los archivos locales (si está disponible abajo).
+2. Si no hay información local suficiente, consulta tu conocimiento sobre portales oficiales peruanos: gob.pe, mtpe.gob.pe, sunat.gob.pe, sunarp.gob.pe, produce.gob.pe.
+3. NUNCA inventes datos, montos o plazos que no puedas verificar.
+
+REGLA CRÍTICA:
+- Si usas información de portales oficiales (no de archivos locales), termina con: "<p style='color:#757575;font-size:0.85em;'>📎 Fuente: Portal oficial consultado. Verifique en <span style='color:#1a73e8;font-weight:bold;'>www.gob.pe</span></p>"
 
 FORMATO DE RESPUESTA (solo HTML):
 <div>
@@ -71,12 +65,13 @@ FORMATO DE RESPUESTA (solo HTML):
 </div>
 
 REGLAS ADICIONALES:
-- Máximo 4 puntos por respuesta
-- Términos legales y entidades en azul y negrita
-- NUNCA uses markdown, solo HTML
-- Si el usuario saluda, responde solo con bienvenida y pregunta en qué puede ayudar
+- Máximo 5 puntos por respuesta.
+- Términos legales, entidades y montos en azul y negrita.
+- NUNCA uses markdown, solo HTML.
+- Si el usuario saluda, responde solo con bienvenida y pregunta en qué puede ayudar.
+- Si el usuario escribe un número (1,2,3...) amplía ese punto con más detalles.
 
-${localContext ? `INFORMACIÓN OFICIAL (USA SOLO ESTOS DATOS):\n${localContext}` : 'No hay información local disponible. Indica al usuario que consulte www.gob.pe/mtpe'}`;
+${localContext ? `INFORMACIÓN OFICIAL LOCAL (PRIORIDAD MÁXIMA):\n${localContext}` : 'No hay información local disponible. Usa portales oficiales peruanos como fuente.'}`;
 
     const history = (input.history || []).map(h => ({
       role: h.role === 'model' ? 'model' as const : 'user' as const,
@@ -90,8 +85,8 @@ ${localContext ? `INFORMACIÓN OFICIAL (USA SOLO ESTOS DATOS):\n${localContext}`
     });
 
     return {
-      text: response.text || 'Lo siento, no pude procesar la respuesta técnica.',
-      sources: localContext ? ['Manuales DRTPE'] : ['Conocimiento General'],
+      text: response.text || 'No se pudo generar una respuesta.',
+      sources: localContext ? ['Manuales DRTPE'] : ['Portales oficiales .gob.pe'],
     };
   } catch (error: any) {
     console.error('[OFELIA ERROR]', error);

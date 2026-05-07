@@ -70,7 +70,7 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
       if (currentStep === 'registration' && onboardingStep === null && messages.length === 0) {
         setOnboardingStep('id');
         setMessages([
-          { role: 'model', content: "<div>¡Hola! Soy <strong>OFELIA</strong>. Para ayudarte con tu formalización, primero necesito conocerte un poco. ¿Cuál es tu número de <strong>DNI o CE</strong>? (Solo números)</div>" }
+          { role: 'model', content: "<div>¡Hola! Soy <strong>OFELIA</strong>. Para ayudarte con tu formalización, primero necesito conocerte un poco. ¿Cuál es tu número de <strong>DNI</strong> (8 dígitos) o <strong>CE</strong> (9 dígitos)?</div>" }
         ]);
       } else if (currentStep !== 'registration' && messages.length === 0) {
         setOnboardingStep('ready');
@@ -93,7 +93,11 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
 
     if (onboardingStep === 'id') {
       if (!/^\d+$/.test(val)) {
-        setMessages([...currentMessages, { role: 'model', content: "<div>El número de documento debe contener <strong>solo números</strong>. Por favor, intenta de nuevo.</div>" }]);
+        setMessages([...currentMessages, { role: 'model', content: "<div>El documento debe contener <strong>solo números</strong>. Por favor, intenta de nuevo.</div>" }]);
+        return;
+      }
+      if (val.length !== 8 && val.length !== 9) {
+        setMessages([...currentMessages, { role: 'model', content: "<div>El <strong>DNI</strong> debe tener 8 dígitos y el <strong>CE</strong> debe tener 9 dígitos. Por favor, verifica e intenta de nuevo.</div>" }]);
         return;
       }
       setUserData({ ...userData, idNumber: val });

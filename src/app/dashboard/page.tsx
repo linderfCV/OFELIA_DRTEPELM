@@ -31,7 +31,9 @@ import {
   Layers,
   Lightbulb,
   Clock,
-  ExternalLink
+  ExternalLink,
+  Target,
+  ListFilter
 } from "lucide-react";
 import { 
   BarChart, 
@@ -65,12 +67,6 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 
 // Carga dinámica del mapa para evitar errores de Hydration/SSR con Leaflet
 const RealLimaMap = dynamic(() => import('@/components/RealLimaMap'), { 
@@ -153,12 +149,10 @@ export default function OfeliaDashboard() {
 
   // --- PROCESAMIENTO DE DATOS ---
   const stats = React.useMemo(() => {
-    const total = events.length;
-    const diagnostics = events.filter(e => e.tipoEvento === 'diagnostico_usuario').length;
-    const queries = events.filter(e => e.tipoEvento === 'consulta_chatbot').length;
+    const diagEvents = events.filter(e => e.tipoEvento === 'diagnostico_usuario');
+    const chatbotEvents = events.filter(e => e.tipoEvento === 'consulta_chatbot');
     const uniqueUsers = new Set(events.map(e => e.numeroDocumento)).size;
     
-    const diagEvents = events.filter(e => e.tipoEvento === 'diagnostico_usuario');
     const userTypeCounts = {
       'Emprendedores': diagEvents.filter(e => e.tipoUsuario === 'emprendedor').length,
       'Empleadores Hogar': diagEvents.filter(e => e.tipoUsuario === 'empleador_hogar').length
@@ -166,12 +160,11 @@ export default function OfeliaDashboard() {
     const userTypeData = Object.entries(userTypeCounts).map(([name, value]) => ({ name, value }));
 
     const entrepreneurDiags = diagEvents.filter(e => e.tipoUsuario === 'emprendedor');
-    const stageCounts = {
-      'Idea de Negocio': entrepreneurDiags.filter(e => e.etapaEmprendimiento === 'idea_negocio').length,
-      'Negocio en Marcha': entrepreneurDiags.filter(e => e.etapaEmprendimiento === 'negocio_en_marcha').length,
-      'Otro': entrepreneurDiags.filter(e => !['idea_negocio', 'negocio_en_marcha'].includes(e.etapaEmprendimiento)).length
-    };
-    const stageData = Object.entries(stageCounts).map(([name, value]) => ({ name, value }));
+    const stageData = [
+      { name: 'Idea de Negocio', value: entrepreneurDiags.filter(e => e.etapaEmprendimiento === 'idea_negocio').length },
+      { name: 'Negocio en Marcha', value: entrepreneurDiags.filter(e => e.etapaEmprendimiento === 'negocio_en_marcha').length },
+      { name: 'Otro', value: entrepreneurDiags.filter(e => !['idea_negocio', 'negocio_en_marcha'].includes(e.etapaEmprendimiento)).length }
+    ];
 
     const rubroCounts: Record<string, number> = {};
     entrepreneurDiags.forEach(e => {
@@ -184,11 +177,17 @@ export default function OfeliaDashboard() {
       .slice(0, 8);
 
     const themeCounts: Record<string, number> = {};
-    diagEvents.forEach(e => {
-      e.temasDetectados?.forEach((t: string) => {
-        const readable = t.replace(/_/g, ' ').toUpperCase();
+    events.forEach(e => {
+      if (e.temasDetectados?.length) {
+        e.temasDetectados.forEach((t: string) => {
+          const readable = t.replace(/_/g, ' ').toUpperCase();
+          themeCounts[readable] = (themeCounts[readable] || 0) + 1;
+        });
+      }
+      if (e.fuenteUsada) {
+        const readable = e.fuenteUsada.replace(/\.md$/, '').replace(/_/g, ' ').toUpperCase();
         themeCounts[readable] = (themeCounts[readable] || 0) + 1;
-      });
+      }
     });
     const themeRanking = Object.entries(themeCounts)
       .map(([name, value]) => ({ name, value }))
@@ -211,9 +210,9 @@ export default function OfeliaDashboard() {
     }
 
     return {
-      total,
-      diagnostics,
-      queries,
+      total: events.length,
+      diagnostics: diagEvents.length,
+      queries: chatbotEvents.length,
       uniqueUsers,
       topDistrict,
       userTypeData,
@@ -224,12 +223,11 @@ export default function OfeliaDashboard() {
     };
   }, [events, mounted]);
 
-  // --- AGRUPACIÓN DE FILAS PARA LA TABLA ---
+  // --- AGRUPACIÓN DE FILAS PARA LA TABLA (REFINADA) ---
   const tableRows = React.useMemo(() => {
     const diagnosticEvents = events.filter(e => e.tipoEvento === 'diagnostico_usuario');
     const chatbotEvents = events.filter(e => e.tipoEvento === 'consulta_chatbot');
     
-    // Agrupar consultas chatbot por documento/sesión
     const chatbotGroups: Record<string, any> = {};
     chatbotEvents.forEach(e => {
       const key = e.numeroDocumento && e.numeroDocumento !== 'N/A' && e.numeroDocumento !== 'Anónimo' 
@@ -246,36 +244,23 @@ export default function OfeliaDashboard() {
           tipoUsuario: e.tipoUsuario,
           distrito: e.distrito,
           canal: 'Chatbot',
-          totalConsultas: 0,
-          temasConsultados: new Set(),
-          consultas: []
+          uniqueThemes: new Set(),
+          consultasResumen: []
         };
       }
       
-      chatbotGroups[key].totalConsultas += 1;
-      if (e.fuenteUsada) chatbotGroups[key].temasConsultados.add(e.fuenteUsada.replace(/\.md$/, '').replace(/_/g, ' '));
-      chatbotGroups[key].consultas.push({
-        hora: e.fechaHora,
-        pregunta: e.textoConsulta,
-        respuesta: e.respuestaGenerada,
-        fuente: e.fuenteUsada
-      });
-      
-      // Asegurar fecha más reciente para el grupo
-      if (e.fechaHora > chatbotGroups[key].fechaHora) {
-        chatbotGroups[key].fechaHora = e.fechaHora;
-      }
+      if (e.fuenteUsada) chatbotGroups[key].uniqueThemes.add(e.fuenteUsada.replace(/\.md$/, '').replace(/_/g, ' '));
+      chatbotGroups[key].consultasResumen.push(e.textoConsulta);
+      if (e.fechaHora > chatbotGroups[key].fechaHora) chatbotGroups[key].fechaHora = e.fechaHora;
     });
 
     const chatbotRows = Object.values(chatbotGroups).map(g => ({
       ...g,
-      temasDetectados: Array.from(g.temasConsultados),
-      resultadoDiagnosticoResumen: `${g.totalConsultas} consultas técnicas realizadas.`
+      temasDetectados: Array.from(g.uniqueThemes),
+      resultadoDiagnosticoResumen: Array.from(g.uniqueThemes).join(', ') || "Consulta Técnica General"
     }));
 
-    // Combinar con diagnósticos individuales
     const allRows = [...diagnosticEvents, ...chatbotRows].sort((a, b) => b.fechaHora - a.fechaHora);
-
     return allRows;
   }, [events]);
 
@@ -330,7 +315,6 @@ export default function OfeliaDashboard() {
 
       {/* --- CONTENIDO PRINCIPAL --- */}
       <main className="flex-1 p-8 lg:p-12 overflow-x-hidden">
-        {/* Header Superior */}
         <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-12">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -363,7 +347,7 @@ export default function OfeliaDashboard() {
           <KPICard title="Distrito Líder" value={stats.topDistrict} subvalue="Mayor demanda geográfica" icon={MapIcon} />
         </section>
 
-        {/* Sección Mapa e Insights */}
+        {/* Mapa e Insights */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
           <div className="lg:col-span-2 space-y-4">
             <div className="flex justify-between items-center px-2">
@@ -400,17 +384,10 @@ export default function OfeliaDashboard() {
                 </p>
               </motion.div>
 
-              <motion.div whileHover={{ x: 5 }} className="bg-white p-5 rounded-[28px] border-l-4 border-l-blue-600 border border-gray-100 shadow-sm transition-all">
-                <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Composición</p>
-                <p className="text-xs font-bold text-[#1A1A1A] leading-relaxed">
-                  La mayoría de usuarios se encuentran en etapa de <span className="text-blue-600">{stats.stageData[0]?.name || "N/A"}</span>.
-                </p>
-              </motion.div>
-              
-              <div className="bg-[#1A1A1A] text-white p-6 rounded-[32px] shadow-2xl relative overflow-hidden h-[180px] flex flex-col justify-between">
+              <div className="bg-[#1A1A1A] text-white p-6 rounded-[32px] shadow-2xl relative overflow-hidden h-[240px] flex flex-col justify-between">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full -mr-16 -mt-16 blur-3xl" />
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Tráfico Semanal</h4>
-                <div className="h-24 mt-2">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Volumen Semanal</h4>
+                <div className="h-40 mt-2">
                    <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={stats.dailyData}>
                       <Area type="monotone" dataKey="valor" stroke="#D91E18" strokeWidth={3} fill="#D91E18" fillOpacity={0.1} />
@@ -474,7 +451,7 @@ export default function OfeliaDashboard() {
                 <BarChart data={stats.rubroData} layout="vertical">
                   <XAxis type="number" hide />
                   <YAxis dataKey="name" type="category" width={80} axisLine={false} tickLine={false} tick={{fontSize: 8, fontWeight: 900, fill: '#64748B'}} />
-                  <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '12px', border: 'none', shadow: 'xl' }} />
+                  <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '12px', border: 'none' }} />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={12}>
                     {stats.rubroData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -506,26 +483,29 @@ export default function OfeliaDashboard() {
           </div>
         </section>
 
-        {/* Tabla de Eventos Consolidada */}
+        {/* Tabla Ejecutiva Refinada */}
         <section className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden mb-12">
           <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="space-y-1">
-              <h3 className="text-lg font-black uppercase tracking-tight">Actividad Consolidada por Ciudadano</h3>
-              <p className="text-xs font-bold text-gray-400">Consultas agrupadas por sesión para un análisis más eficiente.</p>
+              <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
+                <ListFilter className="w-5 h-5 text-primary" />
+                Monitoreo de Impacto por Ciudadano
+              </h3>
+              <p className="text-xs font-bold text-gray-400 italic">Análisis consolidado de brechas y necesidades técnicas.</p>
             </div>
             <div className="flex items-center gap-3 w-full md:w-auto">
               <div className="relative flex-1 md:w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input 
-                  placeholder="Buscar por DNI o Nombre..." 
-                  className="pl-10 h-11 rounded-xl border-gray-100 bg-gray-50"
+                  placeholder="DNI, Nombre o Distrito..." 
+                  className="pl-10 h-11 rounded-xl border-gray-100 bg-gray-50 font-medium"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Button variant="outline" className="h-11 rounded-xl border-gray-100 gap-2 font-bold text-xs uppercase">
+              <Button variant="outline" className="h-11 rounded-xl border-gray-100 gap-2 font-black text-[10px] uppercase tracking-widest">
                 <Download className="w-4 h-4" />
-                Exportar CSV
+                EXCEL
               </Button>
             </div>
           </div>
@@ -534,157 +514,146 @@ export default function OfeliaDashboard() {
             <Table>
               <TableHeader className="bg-gray-50/50">
                 <TableRow className="border-none">
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5 pl-8">Último Evento</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5">Ciudadano</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5">Perfil</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5">Canal</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5">Distrito</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5">Actividad / Resumen</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5 pr-8">Acciones</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6 pl-8">Último Evento</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Ciudadano</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Canal</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Distrito</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Resultado del Diagnóstico</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6 pr-8 text-right">Acción</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <AnimatePresence>
-                  {filteredRows.map((row) => (
-                    <React.Fragment key={row.id}>
-                      <TableRow className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                        <TableCell className="pl-8 py-5">
-                          <div className="flex flex-col">
-                            <span className="text-xs font-black text-[#1A1A1A]">{format(row.fechaHora, "dd/MM/yyyy")}</span>
-                            <span className="text-[10px] font-bold text-gray-400">{format(row.fechaHora, "HH:mm")}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="text-xs font-black text-[#1A1A1A] truncate max-w-[140px] capitalize">{row.nombresApellidos || "Anónimo"}</span>
-                            <span className="text-[10px] font-bold text-gray-400">{row.numeroDocumento || "Sin DOC"}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className={cn(
-                            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase",
-                            row.tipoUsuario?.includes('hogar') ? "bg-blue-50 text-blue-600" : "bg-primary/10 text-primary"
-                          )}>
-                            {row.tipoUsuario?.includes('hogar') ? <Home className="w-3 h-3" /> : <Briefcase className="w-3 h-3" />}
-                            {row.tipoUsuario?.replace(/_/g, ' ') || "N/A"}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className={cn(
-                            "text-[10px] font-black uppercase tracking-tighter",
-                            row.canal === 'Chatbot' ? "text-amber-600" : "text-[#1A1A1A]"
-                          )}>
-                            {row.canal}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-xs font-bold text-gray-600 flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-gray-300" />
-                            {row.distrito || "Lima"}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col gap-1 max-w-[250px]">
-                            <p className="text-[10px] font-medium text-gray-500 line-clamp-1">
-                              {row.resultadoDiagnosticoResumen}
-                            </p>
-                            <div className="flex flex-wrap gap-1">
-                              {row.temasDetectados?.slice(0, 2).map((t: string, i: number) => (
-                                <span key={i} className="text-[8px] font-black uppercase bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded">
-                                  {t.replace(/_/g, ' ')}
-                                </span>
-                              ))}
-                              {(row.temasDetectados?.length || 0) > 2 && (
-                                <span className="text-[8px] font-black text-primary">+{row.temasDetectados.length - 2}</span>
-                              )}
+                {filteredRows.map((row) => (
+                  <React.Fragment key={row.id}>
+                    <TableRow className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                      <TableCell className="pl-8 py-5">
+                        <div className="flex flex-col">
+                          <span className="text-xs font-black text-[#1A1A1A]">{format(row.fechaHora, "dd/MM/yyyy")}</span>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase">{format(row.fechaHora, "HH:mm")}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="text-xs font-black text-[#1A1A1A] capitalize">{row.nombresApellidos || "Anónimo"}</span>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[9px] font-bold text-gray-400">{row.numeroDocumento || "Sin DOC"}</span>
+                            <div className={cn(
+                              "px-1.5 py-0.5 rounded text-[8px] font-black uppercase",
+                              row.tipoUsuario?.includes('hogar') ? "bg-blue-50 text-blue-600" : "bg-primary/10 text-primary"
+                            )}>
+                              {row.tipoUsuario?.replace(/_/g, ' ')}
                             </div>
                           </div>
-                        </TableCell>
-                        <TableCell className="pr-8">
-                          {row.tipoEvento === 'chatbot_session' ? (
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-[10px] font-black uppercase gap-2 hover:text-primary"
-                              onClick={() => setExpandedRow(expandedRow === row.id ? null : row.id)}
-                            >
-                              {expandedRow === row.id ? "Cerrar" : "Ver Detalle"}
-                              {expandedRow === row.id ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                            </Button>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className={cn(
+                          "text-[10px] font-black uppercase tracking-tighter px-2 py-0.5 rounded-full border",
+                          row.canal === 'Chatbot' ? "text-amber-600 border-amber-200 bg-amber-50" : "text-emerald-600 border-emerald-200 bg-emerald-50"
+                        )}>
+                          {row.canal}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-xs font-bold text-gray-600 flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-gray-300" />
+                          {row.distrito || "Lima"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1.5 max-w-[400px]">
+                          {row.temasDetectados?.length > 0 ? (
+                            row.temasDetectados.map((t: string, i: number) => (
+                              <span key={i} className="text-[9px] font-black uppercase bg-white border border-gray-100 text-[#1A1A1A] px-2 py-1 rounded-lg shadow-sm">
+                                {t.replace(/_/g, ' ')}
+                              </span>
+                            ))
                           ) : (
-                            <span className="text-[9px] font-bold text-gray-300 uppercase italic">Registro Fijo</span>
+                            <span className="text-[10px] font-bold text-emerald-600 uppercase flex items-center gap-1">
+                              <Target className="w-3 h-3" /> Formalidad Base Detectada
+                            </span>
                           )}
-                        </TableCell>
-                      </TableRow>
-                      
-                      {/* Fila Expandida de Consultas */}
-                      <AnimatePresence>
-                        {expandedRow === row.id && row.consultas && (
-                          <TableRow className="bg-gray-50/50 border-none">
-                            <TableCell colSpan={7} className="p-0">
-                              <motion.div 
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                className="overflow-hidden"
-                              >
-                                <div className="p-8 space-y-6">
-                                  <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
-                                    <Clock className="w-4 h-4 text-amber-500" />
-                                    <h4 className="text-xs font-black uppercase tracking-widest text-[#1A1A1A]">Historial de Consultas Técnicas</h4>
+                        </div>
+                      </TableCell>
+                      <TableCell className="pr-8 text-right">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-[10px] font-black uppercase gap-1.5 hover:text-primary transition-all"
+                          onClick={() => setExpandedRow(expandedRow === row.id ? null : row.id)}
+                        >
+                          {expandedRow === row.id ? "Cerrar" : "Ver Detalle"}
+                          {expandedRow === row.id ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                    
+                    <AnimatePresence>
+                      {expandedRow === row.id && (
+                        <TableRow className="bg-gray-50/50 border-none">
+                          <TableCell colSpan={6} className="p-0">
+                            <motion.div 
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="px-12 py-8 space-y-6">
+                                <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 bg-white rounded-xl shadow-sm flex items-center justify-center">
+                                      <Clock className="w-4 h-4 text-primary" />
+                                    </div>
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1A1A1A]">Resumen Técnico de Necesidades</h4>
                                   </div>
-                                  <div className="grid gap-6">
-                                    {row.consultas.map((c: any, ci: number) => (
-                                      <div key={ci} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-3 relative group">
-                                        <div className="flex justify-between items-start">
-                                          <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
-                                              <UserCircle className="w-3.5 h-3.5 text-primary" />
-                                            </div>
-                                            <p className="text-[11px] font-bold text-[#1A1A1A]">Pregunta del Ciudadano</p>
-                                          </div>
-                                          <span className="text-[9px] font-black text-gray-300 uppercase">{format(c.hora, "HH:mm:ss")}</span>
-                                        </div>
-                                        <p className="text-xs font-medium text-gray-600 pl-8 leading-relaxed">"{c.pregunta}"</p>
-                                        
-                                        <div className="flex items-start gap-2 pt-2 border-t border-gray-50">
-                                          <div className="w-6 h-6 bg-amber-50 rounded-full flex items-center justify-center shrink-0 mt-1">
-                                            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                                          </div>
-                                          <div className="space-y-2">
-                                            <p className="text-[10px] font-black text-amber-600 uppercase tracking-tight">Orientación de OFELIA</p>
-                                            <div className="text-[11px] font-medium text-gray-500 leading-relaxed max-w-[600px] italic">
-                                              {c.respuesta.replace(/<[^>]*>?/gm, '').substring(0, 200)}...
-                                            </div>
-                                            {c.fuente && (
-                                              <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded w-fit">
-                                                <FileText className="w-3 h-3 text-gray-400" />
-                                                <span className="text-[9px] font-black text-gray-400 uppercase">Fuente: {c.fuente}</span>
-                                              </div>
-                                            )}
+                                  <span className="text-[9px] font-bold text-gray-400 uppercase italic">ID: {row.id}</span>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                  <div className="space-y-4">
+                                    <p className="text-[9px] font-black text-primary uppercase tracking-widest">Brechas Identificadas</p>
+                                    <div className="space-y-3">
+                                      {(row.respuestasDiagnosticoDetalle || []).filter((d: any) => d.necesitaOrientacion).map((d: any, idx: number) => (
+                                        <div key={idx} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-start gap-3">
+                                          <AlertCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                                          <div>
+                                            <p className="text-[11px] font-bold text-[#1A1A1A] leading-snug">{d.pregunta}</p>
+                                            <p className="text-[9px] font-black text-primary uppercase mt-1">Acción: {d.etapaRuta}</p>
                                           </div>
                                         </div>
+                                      ))}
+                                      {row.tipoEvento === 'chatbot_session' && row.consultasResumen?.map((q: string, idx: number) => (
+                                        <div key={idx} className="bg-white p-4 rounded-2xl border border-amber-100 shadow-sm flex items-start gap-3">
+                                          <Search className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                                          <p className="text-[11px] font-medium text-gray-600 leading-snug italic">"{q}"</p>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-4">
+                                    <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest">Próxima Acción Sugerida</p>
+                                    <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm space-y-4">
+                                      <p className="text-xs font-medium text-gray-500 leading-relaxed">
+                                        {row.resultadoDiagnosticoResumen || "Ciudadano requiere orientación integral en formalización MYPE."}
+                                      </p>
+                                      <div className="flex gap-2">
+                                        <Button className="bg-primary hover:bg-primary/90 text-[10px] font-black uppercase tracking-widest h-9 rounded-xl flex-1">Asignar Asesor</Button>
+                                        <Button variant="outline" className="border-gray-100 text-[10px] font-black uppercase tracking-widest h-9 rounded-xl flex-1">Perfil Completo</Button>
                                       </div>
-                                    ))}
+                                    </div>
                                   </div>
                                 </div>
-                              </motion.div>
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </AnimatePresence>
-                    </React.Fragment>
-                  ))}
-                </AnimatePresence>
+                              </div>
+                            </motion.div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </AnimatePresence>
+                  </React.Fragment>
+                ))}
               </TableBody>
             </Table>
-            
-            {filteredRows.length === 0 && !loading && (
-              <div className="py-20 flex flex-col items-center justify-center text-gray-300">
-                <AlertCircle className="w-12 h-12 mb-4 opacity-20" />
-                <p className="text-sm font-bold uppercase tracking-widest">Sin registros coincidentes</p>
-              </div>
-            )}
           </div>
         </section>
 

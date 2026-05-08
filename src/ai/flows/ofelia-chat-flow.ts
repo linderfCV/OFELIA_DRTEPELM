@@ -1,9 +1,9 @@
 'use server';
 /**
- * @fileOverview Flujo de chat de OFELIA con modelo híbrido de conocimiento.
+ * @fileOverview Flujo de chat de OFELIA con recuperación mejorada de documentos técnicos.
  * 
- * - Prioridad 1: Búsqueda selectiva en archivos locales (.md).
- * - Prioridad 2: Conocimiento complementario de la IA (orientación inicial).
+ * - Prioridad 1: Información técnica local (Límites, porcentajes, plataformas oficiales).
+ * - Prioridad 2: Conocimiento complementario (Orientación inicial).
  */
 
 import { ai } from '@/ai/genkit';
@@ -28,20 +28,19 @@ export type OfeliaChatOutput = {
 };
 
 /**
- * Busca de forma selectiva en los archivos .md de conocimiento.
- * Optimizado para no cargar toda la biblioteca y ahorrar tokens.
+ * Busca de forma profunda en los archivos .md de conocimiento.
+ * Optimizado para detectar términos técnicos clave y nombres de archivos.
  */
 function searchKnowledge(query: string): { content: string; filenames: string[] } {
-  const knowledgeDir = '/home/user/studio/knowledge';
+  const knowledgeDir = path.join(process.cwd(), 'knowledge');
   if (!fs.existsSync(knowledgeDir)) return { content: '', filenames: [] };
   
   const files = fs.readdirSync(knowledgeDir).filter(f => f.endsWith('.md'));
   const results: string[] = [];
   const foundFiles: string[] = [];
   
-  // Normalizar consulta para mejor coincidencia
   const normalizedQuery = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  const keywords = normalizedQuery.split(/\W+/).filter(k => k.length > 3);
+  const keywords = normalizedQuery.split(/\W+/).filter(k => k.length > 2);
 
   if (keywords.length === 0) return { content: '', filenames: [] };
 
@@ -50,30 +49,25 @@ function searchKnowledge(query: string): { content: string; filenames: string[] 
     const content = fs.readFileSync(filePath, 'utf-8');
     const normalizedContent = content.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     
-    // Coincidencia por nombre de archivo o contenido
-    const matches = keywords.some(k => normalizedContent.includes(k) || file.toLowerCase().includes(k));
+    // Coincidencia por nombre de archivo o contenido técnico
+    const matchesFileName = keywords.some(k => file.toLowerCase().includes(k));
+    const matchesContent = keywords.some(k => normalizedContent.includes(k));
     
-    if (matches) {
+    if (matchesFileName || matchesContent) {
       foundFiles.push(file);
-      // Extraer líneas relevantes para dar contexto específico
-      const lines = content.split('\n');
-      const matchingLines = lines.filter(line =>
-        keywords.some(k => line.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(k))
-      );
       
-      // Si no hay líneas que coincidan con keywords pero el archivo es relevante, tomar el inicio
-      const snippet = matchingLines.length > 0 
-        ? matchingLines.slice(0, 20).join('\n') 
-        : content.slice(0, 1000);
-
-      results.push(`[CONTEXTO DEL ARCHIVO: ${file}]:\n${snippet}`);
+      // Si el archivo es relevante, enviamos un bloque sustancial de texto 
+      // para que el LLM pueda extraer porcentajes y límites.
+      // Limitamos a 4000 caracteres por archivo para no saturar.
+      const snippet = content.slice(0, 4000);
+      results.push(`--- CONTENIDO TÉCNICO DE ${file} ---\n${snippet}\n--- FIN DE ${file} ---`);
     }
   }
 
-  // Limitar a los 3 archivos más relevantes para ahorrar tokens
+  // Tomamos los 2 archivos más relevantes para maximizar la calidad del contexto sin exceder límites de tokens.
   return {
-    content: results.slice(0, 3).join('\n\n'),
-    filenames: foundFiles.slice(0, 3)
+    content: results.slice(0, 2).join('\n\n'),
+    filenames: foundFiles.slice(0, 2)
   };
 }
 
@@ -82,43 +76,33 @@ export async function ofeliaChat(input: OfeliaChatInput): Promise<OfeliaChatOutp
     const searchResult = searchKnowledge(input.message);
 
     const systemPrompt = `Eres OFELIA, asistente técnica de la DRTPE Lima Metropolitana. 
-Tu objetivo es ser un orientador técnico inicial, asesor preventivo y guía de formalización.
+Tu objetivo es ser un orientador técnico inicial basado en DOCUMENTACIÓN OFICIAL.
 
-COMPORTAMIENTO:
-- Actúa como una guía técnica, amigable y profesional.
-- NO eres un abogado ni reemplazo oficial de los canales de atención presencial.
-- Sé directo y evita lenguaje excesivamente jurídico.
-
-PRIORIDAD DE FUENTES:
-1. INFORMACIÓN OFICIAL (Extractos proporcionados abajo): Usa esta información como fuente principal. Resúmela claramente.
-2. CONOCIMIENTO GENERAL (Complementario): Si la información local es insuficiente, complementa con conocimiento sobre portales oficiales peruanos (.gob.pe) para explicar requisitos básicos, entidades y obligaciones generales.
-
-REGLAS CRÍTICAS:
-- NUNCA inventes: multas, montos exactos de tasas, porcentajes no verificados o procedimientos inexistentes.
-- Si usas conocimiento general (no local), indica que es orientación inicial y sugiera verificar en portales oficiales.
+INSTRUCCIONES CRÍTICAS DE RESPUESTA:
+1. PRIORIDAD ABSOLUTA: Si el "CONTENIDO TÉCNICO" proporcionado abajo contiene información sobre la consulta, USALA OBLIGATORIAMENTE.
+2. EXTRACCIÓN DE DATOS: Busca y menciona explícitamente porcentajes (%), límites legales, nombres de plataformas (SIVICE, T-Registro, etc.) y requisitos específicos encontrados en el texto.
+3. NO GENERALIZAR: Si el documento dice "20%", no digas "una parte". Di "el límite es 20% según la normativa".
+4. CONOCIMIENTO IA: Solo úsalo si la información local es nula para dar una idea básica del portal oficial (.gob.pe).
 
 FORMATO DE RESPUESTA (Solo HTML estructurado):
 <div style="font-family: sans-serif; line-height: 1.6; color: #1a1a1a;">
-  <p>📌 <strong>Lo principal:</strong> Resumen amigable de la respuesta.</p>
+  <p>📌 <strong>Lo principal:</strong> Resumen técnico y directo que incluya cifras y puntos clave del manual.</p>
   
   <p>📋 <strong>Requisitos:</strong></p>
   <ul style="margin: 8px 0; padding-left: 20px;">
-    <li>Detalle relevante...</li>
+    <li>Listado de requisitos encontrados...</li>
   </ul>
 
-  <p>⚠️ <strong>Consideraciones:</strong> Notas preventivas o advertencias importantes.</p>
+  <p>⚠️ <strong>Consideraciones:</strong> Notas preventivas, excepciones o advertencias importantes del documento.</p>
   
-  <p>🏢 <strong>Entidad relacionada:</strong> <span style="color:#1a73e8; font-weight:bold;">Nombre de la Institución</span></p>
+  <p>🏢 <strong>Entidad relacionada:</strong> <span style="color:#1a73e8; font-weight:bold;">Institución oficial encargada</span></p>
   
   <p style="color:#757575; font-size:0.85em; margin-top: 15px; border-top: 1px solid #eee; pt: 10px;">
-    📎 <strong>Fuente utilizada:</strong> ${searchResult.filenames.length > 0 ? searchResult.filenames.join(', ') : 'Portales oficiales del Estado Peruano (.gob.pe)'}
+    📎 <strong>Fuente oficial consultada:</strong> ${searchResult.filenames.length > 0 ? searchResult.filenames.join(', ') : 'Orientación Técnica General'}
   </p>
 </div>
 
-MENSAJE DE SALUDO:
-Si el usuario solo saluda, responde exclusivamente con una invitación a consultar temas técnicos de formalización o laboral.
-
-${searchResult.content ? `EXTRACTOS DE MANUALES Y LEYES (PRIORIDAD MÁXIMA):\n${searchResult.content}` : 'No se encontró información local específica. Usa tu conocimiento sobre la normativa peruana para dar una orientación inicial amigable.'}`;
+${searchResult.content ? `BASE DE DATOS TÉCNICA (EXTRAER DATOS DE AQUÍ):\n${searchResult.content}` : 'No hay información local específica. Guía al usuario hacia los portales oficiales de forma amigable.'}`;
 
     const history = (input.history || []).map(h => ({
       role: h.role === 'model' ? 'model' as const : 'user' as const,
@@ -133,12 +117,12 @@ ${searchResult.content ? `EXTRACTOS DE MANUALES Y LEYES (PRIORIDAD MÁXIMA):\n${
 
     return {
       text: response.text || 'No se pudo generar una respuesta técnica en este momento.',
-      sources: searchResult.filenames.length > 0 ? searchResult.filenames : ['Orientación General .gob.pe'],
+      sources: searchResult.filenames.length > 0 ? searchResult.filenames : ['Base de Conocimiento General'],
     };
   } catch (error: any) {
-    console.error('[OFELIA HYBRID ERROR]', error);
+    console.error('[OFELIA RETRIEVAL ERROR]', error);
     return {
-      text: `<div style="color:#d32f2f;"><strong>Aviso Técnico:</strong> Tuve un problema al consultar mi base de datos. Por favor, intenta de nuevo o consulta directamente en <a href="https://www.gob.pe" style="color:#1a73e8;">www.gob.pe</a></div>`,
+      text: `<div style="color:#d32f2f;"><strong>Aviso Técnico:</strong> Tuve un problema al leer mis manuales. Por favor, intenta de nuevo o consulta en <a href="https://www.gob.pe" style="color:#1a73e8;">www.gob.pe</a></div>`,
       sources: [],
     };
   }

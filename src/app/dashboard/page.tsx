@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from "react";
+import dynamic from 'next/dynamic';
 import { 
   Users, 
   ClipboardCheck, 
@@ -60,6 +61,19 @@ import {
   TableRow 
 } from "@/components/ui/table";
 
+// Carga dinámica del mapa para evitar errores de Hydration/SSR con Leaflet
+const RealLimaMap = dynamic(() => import('@/components/RealLimaMap'), { 
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[450px] bg-gray-50 rounded-[40px] flex items-center justify-center border border-gray-100 animate-pulse">
+      <div className="flex flex-col items-center gap-3">
+        <RefreshCw className="w-8 h-8 text-primary/30 animate-spin" />
+        <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Cargando Mapa de Lima...</span>
+      </div>
+    </div>
+  )
+});
+
 // --- CONSTANTES DE ESTILO MTPE ---
 const COLORS = ['#D91E18', '#1a73e8', '#f59e0b', '#10b981', '#6366f1', '#8b5cf6', '#ec4899'];
 
@@ -103,70 +117,6 @@ const KPICard = ({ title, value, subvalue, icon: Icon, trend }: any) => (
   </motion.div>
 );
 
-const LimaMapPlaceholder = ({ dataByDistrict }: { dataByDistrict: any[] }) => {
-  return (
-    <div className="relative w-full h-[400px] bg-[#F8FAFC] rounded-[40px] border border-gray-100 overflow-hidden flex items-center justify-center">
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
-        <svg viewBox="0 0 800 600" className="w-full h-full fill-gray-400">
-          <path d="M100,500 Q 150,450 120,350 T 200,200 T 300,100 T 500,50" fill="none" stroke="currentColor" strokeWidth="2" />
-        </svg>
-      </div>
-      
-      {dataByDistrict.slice(0, 10).map((d, i) => (
-        <motion.div
-          key={d.name}
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: i * 0.1 }}
-          className="absolute flex flex-col items-center group cursor-pointer"
-          style={{ 
-            left: `${15 + (i * 8)}%`, 
-            top: `${20 + (Math.sin(i) * 30 + 30)}%` 
-          }}
-        >
-          <div className="relative">
-            <div className={cn(
-              "w-4 h-4 rounded-full border-2 border-white shadow-lg animate-pulse",
-              d.value > 10 ? "bg-primary" : d.value > 5 ? "bg-amber-500" : "bg-blue-500"
-            )} />
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50">
-              <div className="bg-[#1A1A1A] text-white px-3 py-2 rounded-xl text-[10px] font-bold whitespace-nowrap shadow-2xl">
-                <p className="uppercase tracking-tighter opacity-70">{d.name}</p>
-                <p className="text-sm font-black">{d.value} Casos</p>
-                <p className="text-[8px] text-primary mt-1">RUBRO: {d.rubro || 'Varios'}</p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      ))}
-      
-      <div className="absolute bottom-6 left-6 text-left">
-        <h4 className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Heatmap de Demanda</h4>
-        <div className="flex gap-4 mt-2">
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-            <span className="text-[9px] font-bold uppercase text-gray-500 tracking-tighter">Alta</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-            <span className="text-[9px] font-bold uppercase text-gray-500 tracking-tighter">Media</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-            <span className="text-[9px] font-bold uppercase text-gray-500 tracking-tighter">Baja</span>
-          </div>
-        </div>
-      </div>
-      
-      <div className="absolute top-6 right-6 flex flex-col gap-2">
-        <Button size="sm" variant="outline" className="bg-white rounded-xl shadow-sm h-8 w-8 p-0">
-          <RefreshCw className="w-3 h-3 text-gray-400" />
-        </Button>
-      </div>
-    </div>
-  );
-};
-
 export default function OfeliaDashboard() {
   const [events, setEvents] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -175,7 +125,7 @@ export default function OfeliaDashboard() {
 
   React.useEffect(() => {
     setMounted(true);
-    const q = query(collection(db, "ofelia_eventos"), orderBy("fechaHora", "desc"), limit(200));
+    const q = query(collection(db, "ofelia_eventos"), orderBy("fechaHora", "desc"), limit(300));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -228,12 +178,6 @@ export default function OfeliaDashboard() {
     events.forEach(e => { if (e.rubroNegocioLabel) rubros[e.rubroNegocioLabel] = (rubros[e.rubroNegocioLabel] || 0) + 1; });
     const rubroData = Object.entries(rubros).map(([name, value]) => ({ name, value }));
 
-    // Chart: Distritos
-    const districtData = Object.entries(districts)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 5);
-
     return {
       total,
       diagnostics,
@@ -245,9 +189,7 @@ export default function OfeliaDashboard() {
       entrepreneurPct: total > 0 ? Math.round((entrepreneurs / total) * 100) : 0,
       domesticPct: total > 0 ? Math.round((domestics / total) * 100) : 0,
       dailyData,
-      rubroData,
-      districtData,
-      districtsFull: Object.entries(districts).map(([name, value]) => ({ name, value }))
+      rubroData
     };
   }, [events, mounted]);
 
@@ -346,10 +288,10 @@ export default function OfeliaDashboard() {
               </h3>
               <div className="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-gray-500">
                 <Activity className="w-3 h-3" />
-                Actualizado ahora
+                Mapa Interactivo Real
               </div>
             </div>
-            <LimaMapPlaceholder dataByDistrict={stats.districtsFull} />
+            <RealLimaMap events={events} />
           </div>
 
           <div className="space-y-6">
@@ -362,21 +304,21 @@ export default function OfeliaDashboard() {
               <motion.div whileHover={{ x: 5 }} className="bg-white p-5 rounded-[28px] border-l-4 border-l-primary border border-gray-100 shadow-sm transition-all">
                 <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Hallazgo Crítico</p>
                 <p className="text-xs font-bold text-[#1A1A1A] leading-relaxed">
-                  El distrito de <span className="text-primary">{stats.topDistrict}</span> concentra el <span className="underline">28% de los diagnósticos</span> de esta semana.
+                  El distrito de <span className="text-primary">{stats.topDistrict}</span> concentra el mayor flujo de atenciones de esta semana.
                 </p>
               </motion.div>
 
               <motion.div whileHover={{ x: 5 }} className="bg-white p-5 rounded-[28px] border-l-4 border-l-amber-500 border border-gray-100 shadow-sm transition-all">
                 <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">Tendencia de Rubro</p>
                 <p className="text-xs font-bold text-[#1A1A1A] leading-relaxed">
-                  El rubro de <span className="text-amber-600">Gastronomía</span> lidera las necesidades de orientación en Licencias Municipales.
+                  El sector <span className="text-amber-600">Comercio y Gastronomía</span> lidera las consultas sobre Licencias Municipales.
                 </p>
               </motion.div>
 
               <motion.div whileHover={{ x: 5 }} className="bg-white p-5 rounded-[28px] border-l-4 border-l-blue-600 border border-gray-100 shadow-sm transition-all">
                 <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Uso de IA</p>
                 <p className="text-xs font-bold text-[#1A1A1A] leading-relaxed">
-                  <span className="text-blue-600 font-black">"{stats.topTheme}"</span> es el tema más consultado por los Empleadores del Hogar.
+                  <span className="text-blue-600 font-black">"{stats.topTheme}"</span> es la categoría técnica con más actividad en el chatbot.
                 </p>
               </motion.div>
               
@@ -438,7 +380,7 @@ export default function OfeliaDashboard() {
                     dataKey="name" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{fontSize: 10, fontWait: 900, fill: '#94A3B8'}}
+                    tick={{fontSize: 10, fontWeight: 900, fill: '#94A3B8'}}
                     dy={10}
                   />
                   <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 900, fill: '#94A3B8'}} />

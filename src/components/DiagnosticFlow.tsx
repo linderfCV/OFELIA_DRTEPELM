@@ -28,6 +28,20 @@ const SECTORS = [
   { id: "otros", label: "Otros Sectores", icon: "✨" },
 ];
 
+const SECTOR_MAPPING: Record<string, string> = {
+  "Gastronomía (Restaurantes, Cafés, Comida al paso)": "gastronomia",
+  "Educación (Nidos, Colegios, Academias, Capacitación)": "educacion",
+  "Comercio (Tiendas de ropa, Minimarkets, Abarrotes)": "comercio",
+  "Manufactura y Textil (Gamarra, Confecciones)": "manufactura_textil",
+  "Servicios Profesionales y Técnicos": "servicios_profesionales",
+  "Belleza y Cuidado Personal (Peluquerías, Spas)": "belleza_cuidado_personal",
+  "Transporte, Logística y Delivery)": "transporte_logistica_delivery",
+  "Tecnología, Apps y E-commerce": "tecnologia_apps_ecommerce",
+  "Salud y Bienestar (Boticas, Consultorios)": "salud_bienestar",
+  "Construcción y Ferretería": "construccion_ferreteria",
+  "Otros Sectores": "otros"
+};
+
 const DISTRICTS = [
   "Cercado de Lima", "Ate", "Barranco", "Breña", "Carabayllo", "Chaclacayo", "Chorrillos", "Cieneguilla", 
   "Comas", "El Agustino", "Independencia", "Jesús María", "La Molina", "La Victoria", "Lince", "Los Olivos", 
@@ -93,16 +107,98 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
     if (step < finalStep) {
       setStep(step + 1);
     } else {
-      // Registro de diagnóstico en Firestore
+      // Mapeo detallado para Firestore
+      const detail: any[] = [];
+      const detected: string[] = [];
+      const roadmap: string[] = [];
+      
+      const currentQuestions = routeQuestions[routeType as keyof typeof routeQuestions];
+      const startIdx = isDomestic ? 2 : 3;
+      
+      currentQuestions.forEach((q, index) => {
+        const answerStep = startIdx + index;
+        const val = nextAnswers[answerStep];
+        
+        let theme = "";
+        let stage = "";
+        
+        if (routeType === 'idea') {
+           const ideaMaps = [
+             {t: "sunarp_indecopi", s: "Reserva de Nombre Legal / Protección de Marca"},
+             {t: "constitucion_empresa", s: "Elaborar Acto Constitutivo"},
+             {t: "ruc_regimen_tributario", s: "RUC y Régimen Tributario"},
+             {t: "licencia_funcionamiento", s: "Licencia de Funcionamiento"}
+           ];
+           theme = ideaMaps[index]?.t || "otros";
+           stage = ideaMaps[index]?.s || "General";
+        } else if (routeType === 'active') {
+           const activeMaps = [
+             {t: "ruc_regimen_tributario", s: "Actualización de RUC"},
+             {t: "remype", s: "Registro en REMYPE"},
+             {t: "licencia_funcionamiento", s: "Regularización Municipal"}
+           ];
+           theme = activeMaps[index]?.t || "otros";
+           stage = activeMaps[index]?.s || "General";
+        } else if (routeType === 'domestic') {
+           const domesticMaps = [
+             {t: "ruc_empleador", s: "Inscripción en el RUC"},
+             {t: "t_registro", s: "Alta en el T-Registro"},
+             {t: "contrato_mtpe", s: "Contrato y Aplicativo"}
+           ];
+           theme = domesticMaps[index]?.t || "otros";
+           stage = domesticMaps[index]?.s || "General";
+        }
+
+        detail.push({
+          pregunta: q,
+          respuestaSeleccionada: val ? "Sí, lo tengo claro" : "No, necesito orientación",
+          necesitaOrientacion: !val,
+          temaRelacionado: theme,
+          etapaRuta: stage
+        });
+        
+        if (!val) {
+          detected.push(theme);
+        }
+      });
+
+      // Cálculo de Hoja de Ruta mostrada (espejo del Dashboard)
+      if (routeType === 'idea') {
+        if (nextAnswers[3] === false) roadmap.push("Reserva de Nombre Legal (SUNARP)");
+        if (nextAnswers[4] === false) { roadmap.push("Protección de Marca (INDECOPI)"); roadmap.push("Elaborar Acto Constitutivo (Minuta)"); }
+        if (nextAnswers[5] === false) roadmap.push("RUC y Régimen Tributario (SUNAT)");
+        if (nextAnswers[6] === false) roadmap.push("Licencia de Funcionamiento");
+        roadmap.push("Beneficios de tu Formalización MYPE");
+      } else if (routeType === 'active') {
+        if (nextAnswers[3] === false) roadmap.push("Actualización de RUC (SUNAT)");
+        if (nextAnswers[4] === false) roadmap.push("Registro en REMYPE (MTPE)");
+        if (nextAnswers[5] === false) roadmap.push("Regularización Municipal");
+        roadmap.push("Beneficios de tu Formalización MYPE");
+      } else if (routeType === 'domestic') {
+        if (nextAnswers[2] === false) roadmap.push("Inscripción en el RUC (SUNAT)");
+        if (nextAnswers[3] === false) roadmap.push("Alta en el T-Registro (SUNAT)");
+        if (nextAnswers[4] === false) roadmap.push("Contrato y Aplicativo (MTPE)");
+        roadmap.push("Obligaciones del Empleador y Derechos");
+      }
+
+      const rubroSlug = sector ? (SECTOR_MAPPING[sector] || "otros") : "hogar";
+      const summary = `El ciudadano es ${isDomestic ? 'empleador del hogar' : 'emprendedor'} ${!isDomestic ? `en etapa de ${routeType === 'idea' ? 'idea de negocio' : 'negocio en marcha'}, rubro ${sector}` : ''}, ubicado en ${district}. ${detected.length > 0 ? `Requiere orientación en: ${detected.join(', ')}.` : 'Cuenta con formalidad base.'}`;
+
+      // Registro de diagnóstico enriquecido en Firestore
       await logOfeliaEvent({
         tipoEvento: "diagnostico_usuario",
         numeroDocumento: userData?.docNumber || "N/A",
         nombresApellidos: userData?.fullName || "N/A",
-        tipoUsuario: routeType,
-        sector: sector || "Hogar",
+        tipoUsuario: isDomestic ? 'empleador_hogar' : 'emprendedor',
+        etapaEmprendimiento: routeType === 'idea' ? 'idea_negocio' : routeType === 'active' ? 'negocio_en_marcha' : 'n_a',
+        rubroNegocio: rubroSlug,
+        rubroNegocioLabel: sector || "Trabajadores del Hogar",
         distrito: district,
         referencia: zone,
-        respuestasDiagnostico: nextAnswers,
+        respuestasDiagnosticoDetalle: detail,
+        temasDetectados: detected,
+        hojaRutaMostrada: roadmap,
+        resultadoDiagnosticoResumen: summary,
         canal: "diagnostico_inicial"
       });
 
@@ -137,7 +233,7 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
           </button>
 
           <button
-            onClick={() => { setProfile('domestic'); setRouteType('domestic'); setSector('Trabajadores(as) del Hogar'); setStep(1); }}
+            onClick={() => { setProfile('domestic'); setRouteType('domestic'); setSector('Trabajadores del Hogar'); setStep(1); }}
             className="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-2xl text-left hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all group"
           >
             <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 shrink-0">

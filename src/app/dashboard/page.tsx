@@ -224,29 +224,21 @@ export default function OfeliaDashboard() {
     const diagnosticEvents = events.filter(e => e.tipoEvento === 'diagnostico_usuario');
     const chatbotEvents = events.filter(e => e.tipoEvento === 'consulta_chatbot');
     
-    // Diccionario de mapeo ejecutivo para evitar términos técnicos internos
+    // Mapeo refinado para etiquetas ejecutivas
     const mapping: Record<string, string> = {
-      "autoriz_sectoriales": "Autorizaciones Sectoriales",
-      "constituye_empresa": "Constitución de Empresa",
-      "contratacion_extranjeros": "Trabajadores Extranjeros",
-      "contiene_trabajo_hogar": "Trabajo del Hogar",
-      "contratos_hogar": "Contratos del Hogar",
-      "formalizacion_empleadores": "Formalización Laboral",
-      "frecuentes_remype": "Consultas REMYPE",
-      "junta_propietarios": "Junta de Propietarios",
-      "ley_extranjeros": "Ley de Extranjeros",
+      "autoriz_sectoriales": "Autorizaciones sectoriales",
+      "constitucion_empresa": "Constitución de empresa",
+      "contratacion_extranjeros": "Trabajadores extranjeros",
+      "licencia_funcionamiento": "Licencia de funcionamiento",
+      "ruc_regimen_tributario": "Régimen tributario",
+      "remype": "REMYPE",
+      "sunarp_indecopi": "SUNARP e INDECOPI",
+      "ruc_trabajador_hogar": "RUC empleador hogar",
+      "t_registro_trabajador_hogar": "T-Registro",
+      "contrato_trabajador_hogar": "Contrato de trabajador del hogar",
       "ley_mype": "Ley MYPE",
-      "obligaciones_empleador": "Obligaciones del Empleador",
-      "registro_mype_remype": "Registro REMYPE",
-      "sgsstt_mypes": "Seguridad y Salud (SST)",
-      "constitucion_empresa": "Constitución Legal",
-      "ruc_regimen_tributario": "RUC / Tributación",
-      "licencia_funcionamiento": "Licencia Municipal",
-      "remype": "Acreditación REMYPE",
-      "ruc_trabajador_hogar": "RUC Empleador Hogar",
-      "t_registro_trabajador_hogar": "T-Registro (SUNAT)",
-      "contrato_trabajador_hogar": "Contrato Laboral Hogar",
-      "sunarp_indecopi": "SUNARP / INDECOPI"
+      "obligaciones_empleador": "Obligaciones del empleador",
+      "sgsstt_mypes": "Seguridad y Salud (SST)"
     };
 
     const formatThemeLabel = (theme: string) => {
@@ -254,31 +246,29 @@ export default function OfeliaDashboard() {
       return mapping[key] || theme.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     };
 
-    // Motor de detección de palabras clave en la pregunta del ciudadano
-    const detectThemeFromQuery = (query: string) => {
-      const text = query.toLowerCase();
-      if (text.includes("extranjero")) return "Trabajadores Extranjeros";
-      if (text.includes("marca") || text.includes("indecopi")) return "Registro de Marca";
-      if (text.includes("licencia") || text.includes("funcionamiento")) return "Licencia Municipal";
-      if (text.includes("remype") || text.includes("acredita")) return "Acreditación REMYPE";
-      if (text.includes("hogar") || text.includes("domestico")) return "Trabajadoras del Hogar";
-      if (text.includes("contrato")) return "Contrato Laboral";
-      if (text.includes("sunarp") || text.includes("constitu")) return "Constitución de Empresa";
-      if (text.includes("ruc") || text.includes("sunat")) return "RUC / Tributación";
-      if (text.includes("sectorial") || text.includes("minedu") || text.includes("digesa")) return "Autorizaciones Sectoriales";
-      return null;
-    };
-
     const generateSummary = (themesSet: Set<string>, fallback: string) => {
       const themes = Array.from(themesSet) as string[];
       // Filtrar categorías genéricas que no aportan valor ejecutivo
-      const filteredThemes = themes.filter(t => !['Manuales Drtpe', 'Manuales Internos', 'Orientacion General'].includes(t));
+      const filteredThemes = themes.filter(t => !['Manuales Drtpe', 'Manuales Internos', 'Orientacion General', 'Base De Conocimiento General'].includes(t));
       
       if (filteredThemes.length === 0) return fallback;
       if (filteredThemes.length === 1) return filteredThemes[0];
       if (filteredThemes.length === 2) return filteredThemes.join(' y ');
       const last = filteredThemes.pop();
       return filteredThemes.join(', ') + ' y ' + last;
+    };
+
+    const detectThemeFromQuery = (query: string) => {
+      const text = query.toLowerCase();
+      if (text.includes("extranjero")) return "Trabajadores extranjeros";
+      if (text.includes("marca") || text.includes("indecopi")) return "Registro de marca";
+      if (text.includes("licencia") || text.includes("funcionamiento")) return "Licencia de funcionamiento";
+      if (text.includes("remype") || text.includes("acredita")) return "Acreditación REMYPE";
+      if (text.includes("hogar") || text.includes("domestico")) return "Trabajadoras del hogar";
+      if (text.includes("contrato")) return "Contrato laboral";
+      if (text.includes("sunarp") || text.includes("constitu")) return "Constitución de empresa";
+      if (text.includes("ruc") || text.includes("sunat")) return "RUC / Tributación";
+      return null;
     };
 
     // Agrupación por sesión de chatbot
@@ -303,13 +293,9 @@ export default function OfeliaDashboard() {
         };
       }
       
-      // 1. Detectar desde tags de Firestore
       if (e.temasDetectados?.length) {
         e.temasDetectados.forEach((t: string) => chatbotGroups[key].uniqueThemes.add(formatThemeLabel(t)));
       }
-      if (e.fuenteUsada) chatbotGroups[key].uniqueThemes.add(formatThemeLabel(e.fuenteUsada));
-      
-      // 2. Detectar desde la pregunta real si los tags son insuficientes o genéricos
       const detectedFromText = detectThemeFromQuery(e.textoConsulta || "");
       if (detectedFromText) chatbotGroups[key].uniqueThemes.add(detectedFromText);
 
@@ -320,15 +306,17 @@ export default function OfeliaDashboard() {
     const chatbotRows = Object.values(chatbotGroups).map(g => ({
       ...g,
       temasDetectados: Array.from(g.uniqueThemes),
-      resultadoDiagnosticoResumen: generateSummary(g.uniqueThemes, "Consulta Técnica General")
+      resultadoDiagnosticoResumen: generateSummary(g.uniqueThemes, "Consulta técnica general")
     }));
 
     const processedDiagnostics = diagnosticEvents.map(e => {
+      // Priorizamos los temas donde el usuario dijo "No, necesito orientación"
       const diagThemes = new Set((e.temasDetectados || []).map((t: string) => formatThemeLabel(t)));
       return {
         ...e,
+        canal: 'Diagnóstico',
         temasDetectados: Array.from(diagThemes),
-        resultadoDiagnosticoResumen: generateSummary(diagThemes, "Perfil de Formalización Base")
+        resultadoDiagnosticoResumen: generateSummary(diagThemes, "Sin brechas críticas detectadas")
       };
     });
 
@@ -554,7 +542,7 @@ export default function OfeliaDashboard() {
           </div>
         </section>
 
-        {/* Tabla Ejecutiva Refinada */}
+        {/* Tabla Ejecutiva */}
         <section className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden mb-12">
           <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="space-y-1">
@@ -674,7 +662,7 @@ export default function OfeliaDashboard() {
                                   <div className="space-y-4">
                                     <p className="text-[9px] font-black text-primary uppercase tracking-widest">Brechas Identificadas</p>
                                     <div className="space-y-3">
-                                      {row.tipoEvento === 'diagnostico_usuario' && (row.respuestasDiagnosticoDetalle || []).filter((d: any) => d.necesitaOrientacion).map((d: any, idx: number) => (
+                                      {row.canal === 'Diagnóstico' && (row.respuestasDiagnosticoDetalle || []).filter((d: any) => d.necesitaOrientacion).map((d: any, idx: number) => (
                                         <div key={idx} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-start gap-3">
                                           <AlertCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                                           <div>
@@ -683,7 +671,7 @@ export default function OfeliaDashboard() {
                                           </div>
                                         </div>
                                       ))}
-                                      {row.tipoEvento === 'chatbot_session' && row.consultasResumen?.map((q: string, idx: number) => (
+                                      {row.canal === 'Chatbot' && row.consultasResumen?.map((q: string, idx: number) => (
                                         <div key={idx} className="bg-white p-4 rounded-2xl border border-amber-100 shadow-sm flex items-start gap-3">
                                           <Search className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                                           <p className="text-[11px] font-medium text-gray-600 leading-snug italic">"{q}"</p>

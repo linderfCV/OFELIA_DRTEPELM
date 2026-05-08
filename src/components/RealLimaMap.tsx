@@ -5,23 +5,23 @@ import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { cn } from "@/lib/utils";
 
-// Diccionario exhaustivo de coordenadas para Lima Metropolitana
-// Basado en los nombres exactos usados en DiagnosticFlow.tsx
+// --- DICCIONARIO COMPLETO: 43 DISTRITOS DE LIMA METROPOLITANA ---
 const DISTRICT_COORDS: Record<string, [number, number]> = {
   "Ancón": [-11.7733, -77.1758],
-  "Ate": [-12.0464, -76.9000],
+  "Ate": [-12.0244, -76.9114],
   "Barranco": [-12.1492, -77.0211],
   "Breña": [-12.0583, -77.0458],
   "Carabayllo": [-11.8903, -77.0269],
   "Chaclacayo": [-11.9708, -76.7694],
   "Chorrillos": [-12.1724, -77.0247],
-  "Cieneguilla": [-12.1000, -76.7667],
+  "Cieneguilla": [-12.1122, -76.7725],
   "Comas": [-11.9572, -77.0496],
   "El Agustino": [-12.0453, -77.0036],
   "Independencia": [-11.9922, -77.0536],
   "Jesús María": [-12.0764, -77.0486],
   "La Molina": [-12.0875, -76.9286],
   "La Victoria": [-12.0653, -77.0286],
+  "Cercado de Lima": [-12.0464, -77.0428],
   "Lince": [-12.0833, -77.0333],
   "Los Olivos": [-11.9914, -77.0708],
   "Lurigancho-Chosica": [-11.9383, -76.7094],
@@ -49,9 +49,86 @@ const DISTRICT_COORDS: Record<string, [number, number]> = {
   "Santiago de Surco": [-12.1450, -76.9911],
   "Surquillo": [-12.1153, -77.0211],
   "Villa El Salvador": [-12.2133, -76.9369],
-  "Villa María del Triunfo": [-12.1625, -76.9436],
-  "Cercado de Lima": [-12.0464, -77.0428]
+  "Villa María del Triunfo": [-12.1625, -76.9436]
 };
+
+// --- UTILIDADES DE NORMALIZACIÓN Y SIMILITUD ---
+
+function normalizeText(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Quitar tildes
+    .replace(/[.,]/g, "") // Quitar puntuación
+    .trim()
+    .replace(/\s+/g, " "); // Colapsar espacios
+}
+
+function getLevenshteinDistance(a: string, b: string): number {
+  const matrix = Array.from({ length: b.length + 1 }, (_, i) => [i]);
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
+function getSimilarity(a: string, b: string): number {
+  const maxLength = Math.max(a.length, b.length);
+  if (maxLength === 0) return 1.0;
+  return (maxLength - getLevenshteinDistance(a, b)) / maxLength;
+}
+
+// Mapa de alias comunes
+const ALIASES: Record<string, string> = {
+  "surco": "Santiago de Surco",
+  "sjl": "San Juan de Lurigancho",
+  "smp": "San Martín de Porres",
+  "vmt": "Villa María del Triunfo",
+  "ves": "Villa El Salvador",
+  "lima": "Cercado de Lima",
+  "cercado lima": "Cercado de Lima",
+  "chosica": "Lurigancho-Chosica",
+  "san martin": "San Martín de Porres",
+  "san juan": "San Juan de Lurigancho",
+  "v maria": "Villa María del Triunfo",
+  "v salvador": "Villa El Salvador"
+};
+
+function getCorrectDistrictName(rawInput: string): string | null {
+  const normalizedInput = normalizeText(rawInput);
+  
+  // 1. Verificar Alias directos
+  if (ALIASES[normalizedInput]) return ALIASES[normalizedInput];
+
+  // 2. Verificar coincidencia exacta en el diccionario
+  const districtNames = Object.keys(DISTRICT_COORDS);
+  for (const name of districtNames) {
+    if (normalizeText(name) === normalizedInput) return name;
+  }
+
+  // 3. Coincidencia difusa (Tolerancia a errores)
+  let bestMatch: { name: string; score: number } | null = null;
+  for (const name of districtNames) {
+    const score = getSimilarity(normalizedInput, normalizeText(name));
+    if (score > 0.8 && (!bestMatch || score > bestMatch.score)) {
+      bestMatch = { name, score };
+    }
+  }
+
+  return bestMatch ? bestMatch.name : null;
+}
 
 interface DistrictStats {
   name: string;
@@ -70,14 +147,25 @@ interface RealLimaMapProps {
 export default function RealLimaMap({ events }: RealLimaMapProps) {
   const districtData = React.useMemo(() => {
     const stats: Record<string, DistrictStats> = {};
+    let matchedCount = 0;
+    let unmatchedCount = 0;
 
     events.forEach(event => {
-      const dName = event.distrito;
-      if (!dName || !DISTRICT_COORDS[dName]) return;
+      const rawDistrict = event.distrito;
+      if (!rawDistrict) return;
 
-      if (!stats[dName]) {
-        stats[dName] = {
-          name: dName,
+      const correctedName = getCorrectDistrictName(rawDistrict);
+      
+      if (!correctedName) {
+        unmatchedCount++;
+        return;
+      }
+
+      matchedCount++;
+
+      if (!stats[correctedName]) {
+        stats[correctedName] = {
+          name: correctedName,
           total: 0,
           diagnostics: 0,
           queries: 0,
@@ -87,23 +175,21 @@ export default function RealLimaMap({ events }: RealLimaMapProps) {
         };
       }
 
-      stats[dName].total += 1;
+      stats[correctedName].total += 1;
       
-      // Clasificación por tipo de evento
-      if (event.tipoEvento === 'diagnostico_usuario') stats[dName].diagnostics += 1;
-      if (event.tipoEvento === 'consulta_chatbot') stats[dName].queries += 1;
+      if (event.tipoEvento === 'diagnostico_usuario') stats[correctedName].diagnostics += 1;
+      if (event.tipoEvento === 'consulta_chatbot') stats[correctedName].queries += 1;
       
-      // Clasificación por tipo de usuario
-      if (event.tipoUsuario === 'emprendedor') stats[dName].entrepreneurs += 1;
-      if (event.tipoUsuario === 'empleador_hogar') stats[dName].domestic += 1;
+      if (event.tipoUsuario === 'emprendedor') stats[correctedName].entrepreneurs += 1;
+      if (event.tipoUsuario === 'empleador_hogar') stats[correctedName].domestic += 1;
       
-      // Colección de temas para el popup
       if (event.temasDetectados && Array.isArray(event.temasDetectados)) {
-        const uniqueThemes = new Set([...stats[dName].topThemes, ...event.temasDetectados]);
-        stats[dName].topThemes = Array.from(uniqueThemes).slice(0, 3);
+        const uniqueThemes = new Set([...stats[correctedName].topThemes, ...event.temasDetectados]);
+        stats[correctedName].topThemes = Array.from(uniqueThemes).slice(0, 3);
       }
     });
 
+    console.log(`[MAP GEODATA] Procesados: ${matchedCount} | No reconocidos: ${unmatchedCount} | Marcadores: ${Object.keys(stats).length}`);
     return Object.values(stats);
   }, [events]);
 
@@ -122,11 +208,12 @@ export default function RealLimaMap({ events }: RealLimaMapProps) {
         
         {districtData.map((d) => {
           const coords = DISTRICT_COORDS[d.name];
+          if (!coords) return null;
           
-          // Cálculo dinámico del tamaño: mínimo 8px, máximo 40px
+          // Radio dinámico basado en volumen (min 8, max 40)
           const radius = Math.min(8 + (d.total * 2), 40);
           
-          // Color institucional según volumen de datos
+          // Color institucional según volumen
           const color = d.total > 15 ? '#D91E18' : d.total > 5 ? '#f59e0b' : '#1a73e8';
 
           return (
@@ -137,7 +224,7 @@ export default function RealLimaMap({ events }: RealLimaMapProps) {
               pathOptions={{
                 fillColor: color,
                 color: 'white',
-                weight: 2.5,
+                weight: 2,
                 fillOpacity: 0.8,
                 className: "drop-shadow-xl animate-pulse"
               }}
@@ -201,7 +288,7 @@ export default function RealLimaMap({ events }: RealLimaMapProps) {
         })}
       </MapContainer>
       
-      {/* Leyenda flotante premium */}
+      {/* Leyenda flotante */}
       <div className="absolute bottom-6 left-6 z-[1000] pointer-events-none transition-transform group-hover:scale-105">
         <div className="bg-white/95 backdrop-blur-md p-4 rounded-[28px] border border-gray-100 shadow-2xl space-y-3">
           <div className="flex items-center gap-2 mb-1">

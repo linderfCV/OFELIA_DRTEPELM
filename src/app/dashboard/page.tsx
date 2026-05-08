@@ -33,7 +33,10 @@ import {
   Clock,
   ExternalLink,
   Target,
-  ListFilter
+  ListFilter,
+  CheckCircle2,
+  Filter,
+  Database
 } from "lucide-react";
 import { 
   BarChart, 
@@ -67,6 +70,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 // Carga dinámica del mapa para evitar errores de Hydration/SSR con Leaflet
 const RealLimaMap = dynamic(() => import('@/components/RealLimaMap'), { 
@@ -85,13 +89,18 @@ const RealLimaMap = dynamic(() => import('@/components/RealLimaMap'), {
 const COLORS = ['#D91E18', '#1a73e8', '#f59e0b', '#10b981', '#6366f1', '#8b5cf6', '#ec4899'];
 const DONUT_COLORS = ['#D91E18', '#1a73e8', '#f59e0b'];
 
+type Section = 'resumen' | 'diagnosticos' | 'chatbot' | 'demanda' | 'necesidades' | 'gestion' | 'reportes' | 'configuracion';
+
 // --- COMPONENTES INTERNOS ---
 
-const SidebarItem = ({ icon: Icon, label, active = false }: { icon: any, label: string, active?: boolean }) => (
-  <button className={cn(
-    "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
-    active ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-gray-500 hover:bg-gray-100"
-  )}>
+const SidebarItem = ({ icon: Icon, label, active = false, onClick }: { icon: any, label: string, active?: boolean, onClick: () => void }) => (
+  <button 
+    onClick={onClick}
+    className={cn(
+      "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
+      active ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-gray-500 hover:bg-gray-100"
+    )}
+  >
     <Icon className={cn("w-5 h-5", active ? "text-white" : "group-hover:text-primary")} />
     <span className={cn("text-sm font-bold", active ? "text-white" : "text-gray-600")}>{label}</span>
   </button>
@@ -126,6 +135,7 @@ const KPICard = ({ title, value, subvalue, icon: Icon, trend }: any) => (
 );
 
 export default function OfeliaDashboard() {
+  const [activeSection, setActiveSection] = React.useState<Section>('resumen');
   const [events, setEvents] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -187,12 +197,15 @@ export default function OfeliaDashboard() {
     });
     const themeRanking = Object.entries(themeCounts)
       .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 10);
+      .sort((a, b) => b.value - a.value);
 
-    const districts: Record<string, number> = {};
-    events.forEach(e => { if (e.distrito) districts[e.distrito] = (districts[e.distrito] || 0) + 1; });
-    const topDistrict = Object.entries(districts).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
+    const districtCounts: Record<string, number> = {};
+    events.forEach(e => { if (e.distrito) districtCounts[e.distrito] = (districtCounts[e.distrito] || 0) + 1; });
+    const districtRanking = Object.entries(districtCounts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+    
+    const topDistrict = districtRanking[0]?.name || "N/A";
 
     const dailyData: any[] = [];
     if (mounted) {
@@ -211,6 +224,7 @@ export default function OfeliaDashboard() {
       queries: chatbotEvents.length,
       uniqueUsers,
       topDistrict,
+      districtRanking,
       userTypeData,
       stageData,
       rubroData,
@@ -219,12 +233,11 @@ export default function OfeliaDashboard() {
     };
   }, [events, mounted]);
 
-  // --- AGRUPACIÓN DE FILAS PARA LA TABLA (REFINADA - RESULTADO DIAGNÓSTICO EJECUTIVO) ---
+  // --- AGRUPACIÓN DE FILAS PARA LA TABLA ---
   const tableRows = React.useMemo(() => {
     const diagnosticEvents = events.filter(e => e.tipoEvento === 'diagnostico_usuario');
     const chatbotEvents = events.filter(e => e.tipoEvento === 'consulta_chatbot');
     
-    // Mapeo refinado para etiquetas ejecutivas
     const mapping: Record<string, string> = {
       "autoriz_sectoriales": "Autorizaciones sectoriales",
       "constitucion_empresa": "Constitución de empresa",
@@ -248,9 +261,7 @@ export default function OfeliaDashboard() {
 
     const generateSummary = (themesSet: Set<string>, fallback: string) => {
       const themes = Array.from(themesSet) as string[];
-      // Filtrar categorías genéricas que no aportan valor ejecutivo
       const filteredThemes = themes.filter(t => !['Manuales Drtpe', 'Manuales Internos', 'Orientacion General', 'Base De Conocimiento General'].includes(t));
-      
       if (filteredThemes.length === 0) return fallback;
       if (filteredThemes.length === 1) return filteredThemes[0];
       if (filteredThemes.length === 2) return filteredThemes.join(' y ');
@@ -271,7 +282,6 @@ export default function OfeliaDashboard() {
       return null;
     };
 
-    // Agrupación por sesión de chatbot
     const chatbotGroups: Record<string, any> = {};
     chatbotEvents.forEach(e => {
       const key = e.numeroDocumento && e.numeroDocumento !== 'N/A' && e.numeroDocumento !== 'Anónimo' 
@@ -298,7 +308,6 @@ export default function OfeliaDashboard() {
       }
       const detectedFromText = detectThemeFromQuery(e.textoConsulta || "");
       if (detectedFromText) chatbotGroups[key].uniqueThemes.add(detectedFromText);
-
       chatbotGroups[key].consultasResumen.push(e.textoConsulta);
       if (e.fechaHora > chatbotGroups[key].fechaHora) chatbotGroups[key].fechaHora = e.fechaHora;
     });
@@ -310,7 +319,6 @@ export default function OfeliaDashboard() {
     }));
 
     const processedDiagnostics = diagnosticEvents.map(e => {
-      // Priorizamos los temas donde el usuario dijo "No, necesito orientación"
       const diagThemes = new Set((e.temasDetectados || []).map((t: string) => formatThemeLabel(t)));
       return {
         ...e,
@@ -331,6 +339,595 @@ export default function OfeliaDashboard() {
 
   if (!mounted) return null;
 
+  // --- RENDERIZADO DE VISTAS ---
+
+  const renderResumen = () => (
+    <div className="space-y-12">
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KPICard title="Ciudadanos Atendidos" value={stats.uniqueUsers} subvalue="Total perfiles registrados" icon={UserCircle} trend={+12} />
+        <KPICard title="Diagnósticos MYPE" value={stats.diagnostics} subvalue="Tests de formalidad completados" icon={ClipboardCheck} trend={+5} />
+        <KPICard title="Consultas Chatbot" value={stats.queries} subvalue="Interacciones con la IA" icon={MessageSquare} trend={-2} />
+        <KPICard title="Distrito Líder" value={stats.topDistrict} subvalue="Mayor demanda geográfica" icon={MapIcon} />
+      </section>
+
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-4">
+          <div className="flex justify-between items-center px-2">
+            <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
+              <MapIcon className="w-5 h-5 text-primary" />
+              Mapa de Demanda Territorial
+            </h3>
+            <div className="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-gray-500">
+              <Activity className="w-3 h-3" />
+              Datos en Vivo
+            </div>
+          </div>
+          <RealLimaMap events={events} />
+        </div>
+
+        <div className="space-y-6">
+          <div className="flex items-center gap-2 px-2">
+            <Sparkles className="w-5 h-5 text-amber-500" />
+            <h3 className="text-lg font-black uppercase tracking-tight">Insights Críticos</h3>
+          </div>
+          <div className="space-y-4">
+            <motion.div whileHover={{ x: 5 }} className="bg-white p-5 rounded-[28px] border-l-4 border-l-primary border border-gray-100 shadow-sm transition-all">
+              <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Zona Prioritaria</p>
+              <p className="text-xs font-bold text-[#1A1A1A] leading-relaxed">
+                <span className="text-primary">{stats.topDistrict}</span> concentra el mayor flujo de atenciones preventivas.
+              </p>
+            </motion.div>
+            <motion.div whileHover={{ x: 5 }} className="bg-white p-5 rounded-[28px] border-l-4 border-l-amber-500 border border-gray-100 shadow-sm transition-all">
+              <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">Necesidad Técnica</p>
+              <p className="text-xs font-bold text-[#1A1A1A] leading-relaxed">
+                El tema <span className="text-amber-600 font-black">"{stats.themeRanking[0]?.name || "General"}"</span> es la brecha legal más frecuente.
+              </p>
+            </motion.div>
+            <div className="bg-[#1A1A1A] text-white p-6 rounded-[32px] shadow-2xl h-[220px] flex flex-col justify-between">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Actividad de la Semana</h4>
+              <div className="h-32 mt-2">
+                 <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={stats.dailyData}>
+                    <Area type="monotone" dataKey="valor" stroke="#D91E18" strokeWidth={3} fill="#D91E18" fillOpacity={0.1} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
+          <div className="flex items-center gap-2 mb-6">
+            <Users className="w-4 h-4 text-primary" />
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#1A1A1A]">Tipo de Usuario</h3>
+          </div>
+          <div className="h-[200px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={stats.userTypeData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                  {stats.userTypeData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={DONUT_COLORS[index % DONUT_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '9px', fontWeight: '900', textTransform: 'uppercase' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
+          <div className="flex items-center gap-2 mb-6">
+            <Layers className="w-4 h-4 text-blue-600" />
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#1A1A1A]">Etapa del Negocio</h3>
+          </div>
+          <div className="h-[200px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={stats.stageData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                  {stats.stageData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[(index + 1) % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '9px', fontWeight: '900', textTransform: 'uppercase' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
+          <div className="flex items-center gap-2 mb-6">
+            <BarChart3 className="w-4 h-4 text-amber-500" />
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#1A1A1A]">Rubros Top</h3>
+          </div>
+          <div className="h-[200px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={stats.rubroData} layout="vertical">
+                <XAxis type="number" hide />
+                <YAxis dataKey="name" type="category" width={80} axisLine={false} tickLine={false} tick={{fontSize: 8, fontWeight: 900}} />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={10} fill="#1a73e8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
+          <div className="flex items-center gap-2 mb-6">
+            <Lightbulb className="w-4 h-4 text-primary" />
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#1A1A1A]">Necesidades Críticas</h3>
+          </div>
+          <ScrollArea className="h-[200px]">
+            <div className="space-y-3">
+              {stats.themeRanking.slice(0, 8).map((theme, idx) => (
+                <div key={idx} className="flex items-center justify-between text-[9px] font-black uppercase text-gray-500">
+                  <span className="truncate pr-4">{theme.name}</span>
+                  <span className="text-[#1A1A1A]">{theme.value}</span>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
+      </section>
+
+      {renderTable()}
+    </div>
+  );
+
+  const renderDiagnosticos = () => (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <KPICard title="Total Diagnósticos" value={stats.diagnostics} subvalue="Tests de formalidad base" icon={ClipboardCheck} />
+        <KPICard title="Idea de Negocio" value={stats.stageData[0].value} subvalue="Emprendedores por formalizar" icon={Lightbulb} />
+        <KPICard title="Negocio en Marcha" value={stats.stageData[1].value} subvalue="Regularizaciones pendientes" icon={Briefcase} />
+      </div>
+
+      <div className="bg-white rounded-[40px] border border-gray-100 p-8 shadow-sm">
+        <h3 className="text-lg font-black uppercase tracking-tight mb-6">Desglose de Diagnósticos por Distrito</h3>
+        <div className="h-[400px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={stats.districtRanking.slice(0, 15)}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f1f1" />
+              <XAxis dataKey="name" tick={{fontSize: 9, fontWeight: 900}} />
+              <YAxis tick={{fontSize: 10}} />
+              <Tooltip />
+              <Bar dataKey="value" fill="#D91E18" radius={[8, 8, 0, 0]} barSize={40} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {renderTable('diagnostico_inicial')}
+    </div>
+  );
+
+  const renderChatbot = () => (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <KPICard title="Consultas Totales" value={stats.queries} subvalue="Mensajes técnicos procesados" icon={MessageSquare} />
+        <KPICard title="Temas Detectados" value={stats.themeRanking.length} subvalue="Categorías legales únicas" icon={ListFilter} />
+        <KPICard title="Fuentes Consultadas" value="18 Manuales" subvalue="Biblioteca técnica OFELIA" icon={FileText} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="bg-white rounded-[40px] border border-gray-100 p-8 shadow-sm">
+          <h3 className="text-lg font-black uppercase tracking-tight mb-6 text-primary">Top Temas de Consulta</h3>
+          <div className="space-y-4">
+            {stats.themeRanking.slice(0, 10).map((t, idx) => (
+              <div key={idx} className="flex items-center gap-4">
+                <span className="text-xs font-black text-gray-300 w-6">#{idx+1}</span>
+                <div className="flex-1 space-y-1">
+                  <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-tight">
+                    <span>{t.name}</span>
+                    <span>{t.value} consultas</span>
+                  </div>
+                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(t.value / stats.queries) * 100}%` }}
+                      className="h-full bg-primary"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-[#1A1A1A] rounded-[40px] p-8 shadow-2xl text-white">
+          <h3 className="text-lg font-black uppercase tracking-tight mb-6">Eficiencia de Respuesta IA</h3>
+          <div className="flex flex-col items-center justify-center h-[300px] space-y-4">
+             <div className="relative w-48 h-48 flex items-center justify-center">
+               <svg className="w-full h-full transform -rotate-90">
+                 <circle cx="96" cy="96" r="88" stroke="#333" strokeWidth="16" fill="transparent" />
+                 <circle cx="96" cy="96" r="88" stroke="#D91E18" strokeWidth="16" fill="transparent" strokeDasharray="552" strokeDashoffset="55" />
+               </svg>
+               <div className="absolute flex flex-col items-center">
+                 <span className="text-4xl font-black italic">90%</span>
+                 <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Precisión Técnica</span>
+               </div>
+             </div>
+             <p className="text-center text-xs font-medium text-gray-400 max-w-[240px]">
+               Porcentaje de consultas resueltas utilizando la base de conocimiento interna sin alucinaciones detectadas.
+             </p>
+          </div>
+        </div>
+      </div>
+
+      {renderTable('chatbot_session')}
+    </div>
+  );
+
+  const renderDemanda = () => (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-3">
+            <MapIcon className="w-7 h-7 text-primary" />
+            Análisis de Demanda Territorial
+          </h2>
+          <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white font-black px-4 py-1">DATOS GEOREFERENCIADOS</Badge>
+       </div>
+
+       <div className="rounded-[40px] overflow-hidden border border-gray-100 shadow-2xl">
+          <RealLimaMap events={events} />
+       </div>
+
+       <div className="bg-white rounded-[40px] border border-gray-100 p-8 shadow-sm">
+         <h3 className="text-lg font-black uppercase tracking-tight mb-6">Ranking de Distritos con Mayor Interés</h3>
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {stats.districtRanking.slice(0, 12).map((d, idx) => (
+              <div key={idx} className="bg-gray-50 rounded-2xl p-4 flex items-center justify-between group hover:bg-primary transition-colors cursor-default">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center font-black text-xs text-primary group-hover:bg-white/20 group-hover:text-white">
+                    {idx + 1}
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black uppercase tracking-tight group-hover:text-white">{d.name}</h4>
+                    <p className="text-[10px] font-bold text-gray-400 group-hover:text-white/60">{d.value} ciudadanos</p>
+                  </div>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-gray-300 group-hover:text-white" />
+              </div>
+            ))}
+         </div>
+       </div>
+    </div>
+  );
+
+  const renderNecesidades = () => (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="bg-white rounded-[40px] border border-gray-100 p-8 shadow-sm">
+             <h3 className="text-lg font-black uppercase tracking-tight mb-8">Brechas por Tipo de Usuario</h3>
+             <div className="space-y-6">
+                <div className="space-y-3">
+                   <div className="flex items-center gap-2">
+                     <Briefcase className="w-4 h-4 text-primary" />
+                     <span className="text-xs font-black uppercase tracking-widest">Emprendedores</span>
+                   </div>
+                   <div className="flex flex-wrap gap-2">
+                      {['SUNARP', 'INDECOPI', 'REMYPE', 'Licencia'].map(t => (
+                        <Badge key={t} variant="outline" className="text-[9px] font-black border-primary/20 text-primary uppercase">{t}</Badge>
+                      ))}
+                   </div>
+                </div>
+                <div className="space-y-3">
+                   <div className="flex items-center gap-2">
+                     <Home className="w-4 h-4 text-blue-600" />
+                     <span className="text-xs font-black uppercase tracking-widest text-blue-600">Empleadores Hogar</span>
+                   </div>
+                   <div className="flex flex-wrap gap-2">
+                      {['T-Registro', 'RUC Empleador', 'Contrato MTPE', 'Boletas'].map(t => (
+                        <Badge key={t} variant="outline" className="text-[9px] font-black border-blue-200 text-blue-600 uppercase">{t}</Badge>
+                      ))}
+                   </div>
+                </div>
+             </div>
+          </div>
+
+          <div className="bg-white rounded-[40px] border border-gray-100 p-8 shadow-sm">
+             <h3 className="text-lg font-black uppercase tracking-tight mb-8">Ranking de Manuales Técnicos</h3>
+             <ScrollArea className="h-[200px]">
+               <div className="space-y-4">
+                  {stats.themeRanking.map((t, i) => (
+                    <div key={i} className="flex items-center justify-between border-b border-gray-50 pb-2">
+                      <div className="flex items-center gap-3">
+                        <FileText className="w-3.5 h-3.5 text-gray-400" />
+                        <span className="text-[10px] font-bold uppercase text-gray-600">{t.name}</span>
+                      </div>
+                      <span className="text-[10px] font-black">{t.value} usos</span>
+                    </div>
+                  ))}
+               </div>
+             </ScrollArea>
+          </div>
+       </div>
+
+       <div className="bg-white rounded-[40px] border border-gray-100 p-8 shadow-sm">
+          <h3 className="text-lg font-black uppercase tracking-tight mb-6">Necesidades por Rubro Económico</h3>
+          <div className="h-[400px]">
+             <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.rubroData}>
+                  <XAxis dataKey="name" tick={{fontSize: 8, fontWeight: 900}} />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                </BarChart>
+             </ResponsiveContainer>
+          </div>
+       </div>
+    </div>
+  );
+
+  const renderConfig = () => (
+    <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+       <header className="text-center space-y-2">
+          <div className="w-20 h-20 bg-gray-100 rounded-3xl mx-auto flex items-center justify-center">
+            <Settings className="w-10 h-10 text-gray-400" />
+          </div>
+          <h2 className="text-3xl font-black tracking-tight">Configuración del Sistema</h2>
+          <p className="text-sm text-muted-foreground font-medium">Auditoría y estado técnico de OFELIA Dashboard</p>
+       </header>
+
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm space-y-4">
+             <div className="flex items-center gap-3">
+                <Database className="w-5 h-5 text-primary" />
+                <h4 className="text-sm font-black uppercase tracking-tight">Estado de Datos</h4>
+             </div>
+             <div className="space-y-2">
+                <div className="flex justify-between text-xs font-bold text-gray-500">
+                   <span>Firebase Firestore</span>
+                   <span className="text-emerald-500 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> ONLINE</span>
+                </div>
+                <div className="flex justify-between text-xs font-bold text-gray-500">
+                   <span>Total Eventos</span>
+                   <span className="text-[#1A1A1A]">{stats.total} registros</span>
+                </div>
+                <div className="flex justify-between text-xs font-bold text-gray-500">
+                   <span>Último Sinc</span>
+                   <span className="text-[#1A1A1A]">{format(new Date(), 'HH:mm:ss')}</span>
+                </div>
+             </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm space-y-4">
+             <div className="flex items-center gap-3">
+                <Activity className="w-5 h-5 text-blue-600" />
+                <h4 className="text-sm font-black uppercase tracking-tight">Performance</h4>
+             </div>
+             <div className="space-y-2">
+                <div className="flex justify-between text-xs font-bold text-gray-500">
+                   <span>Latencia API</span>
+                   <span className="text-[#1A1A1A]">120ms</span>
+                </div>
+                <div className="flex justify-between text-xs font-bold text-gray-500">
+                   <span>Uso de Memoria</span>
+                   <span className="text-[#1A1A1A]">42MB</span>
+                </div>
+                <div className="flex justify-between text-xs font-bold text-gray-500">
+                   <span>Versión App</span>
+                   <span className="text-[#1A1A1A]">v2.1.0-exec</span>
+                </div>
+             </div>
+          </div>
+       </div>
+
+       <div className="bg-primary/5 rounded-[32px] p-8 border border-primary/10 flex flex-col items-center text-center space-y-4">
+          <Sparkles className="w-8 h-8 text-primary" />
+          <h4 className="text-lg font-black uppercase tracking-tight text-primary">Innova Región 2026</h4>
+          <p className="text-xs font-medium text-gray-600 max-w-sm">
+            Este panel ha sido desarrollado como una herramienta estratégica de la DRTPELM Lima Metropolitana para modernizar la formalización laboral mediante inteligencia artificial.
+          </p>
+          <Button className="bg-primary hover:bg-primary/90 text-xs font-black uppercase tracking-widest rounded-xl px-8">ACTUALIZAR SOFTWARE</Button>
+       </div>
+    </div>
+  );
+
+  const renderTable = (filterType?: string) => {
+    const rowsToShow = filterType ? filteredRows.filter(r => r.tipoEvento === filterType || r.canal === (filterType === 'chatbot_session' ? 'Chatbot' : 'Diagnóstico')) : filteredRows;
+
+    return (
+      <section className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden mb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="space-y-1">
+            <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
+              <ListFilter className="w-5 h-5 text-primary" />
+              {filterType === 'chatbot_session' ? 'Auditoría de Consultas Chatbot' : filterType === 'diagnostico_inicial' ? 'Auditoría de Diagnósticos Base' : 'Monitoreo de Impacto por Ciudadano'}
+            </h3>
+            <p className="text-xs font-bold text-gray-400 italic">Datos actualizados cada 10 segundos.</p>
+          </div>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="relative flex-1 md:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input 
+                placeholder="DNI, Nombre o Distrito..." 
+                className="pl-10 h-11 rounded-xl border-gray-100 bg-gray-50 font-medium"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <Button variant="outline" className="h-11 rounded-xl border-gray-100 gap-2 font-black text-[10px] uppercase tracking-widest">
+              <Download className="w-4 h-4" />
+              EXCEL
+            </Button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader className="bg-gray-50/50">
+              <TableRow className="border-none">
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6 pl-8">Último Evento</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Ciudadano</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Canal</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Distrito</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Resultado del Diagnóstico</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6 pr-8 text-right">Acción</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rowsToShow.slice(0, 50).map((row) => (
+                <React.Fragment key={row.id}>
+                  <TableRow className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                    <TableCell className="pl-8 py-5">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-black text-[#1A1A1A]">{format(row.fechaHora, "dd/MM/yyyy")}</span>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase">{format(row.fechaHora, "HH:mm")}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-black text-[#1A1A1A] capitalize">{row.nombresApellidos || "Anónimo"}</span>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="text-[9px] font-bold text-gray-400">{row.numeroDocumento || "Sin DOC"}</span>
+                          <div className={cn(
+                            "px-1.5 py-0.5 rounded text-[8px] font-black uppercase",
+                            row.tipoUsuario?.includes('hogar') ? "bg-blue-50 text-blue-600" : "bg-primary/10 text-primary"
+                          )}>
+                            {row.tipoUsuario?.replace(/_/g, ' ')}
+                          </div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className={cn(
+                        "text-[10px] font-black uppercase tracking-tighter px-2 py-0.5 rounded-full border",
+                        row.canal === 'Chatbot' ? "text-amber-600 border-amber-200 bg-amber-50" : "text-emerald-600 border-emerald-200 bg-emerald-50"
+                      )}>
+                        {row.canal}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-xs font-bold text-gray-600 flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-gray-300" />
+                        {row.distrito || "Lima"}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-[11px] font-black text-[#1A1A1A] leading-snug max-w-[300px]">
+                        {row.resultadoDiagnosticoResumen}
+                      </p>
+                    </TableCell>
+                    <TableCell className="pr-8 text-right">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-[10px] font-black uppercase gap-1.5 hover:text-primary transition-all"
+                        onClick={() => setExpandedRow(expandedRow === row.id ? null : row.id)}
+                      >
+                        {expandedRow === row.id ? "Cerrar" : "Ver Detalle"}
+                        {expandedRow === row.id ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                  
+                  <AnimatePresence>
+                    {expandedRow === row.id && (
+                      <TableRow className="bg-gray-50/50 border-none">
+                        <TableCell colSpan={6} className="p-0">
+                          <motion.div 
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="px-12 py-8 space-y-6">
+                              <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 bg-white rounded-xl shadow-sm flex items-center justify-center">
+                                    <Clock className="w-4 h-4 text-primary" />
+                                  </div>
+                                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1A1A1A]">Análisis Técnico de Necesidades</h4>
+                                </div>
+                                <span className="text-[9px] font-bold text-gray-400 uppercase italic">Registro ID: {row.id}</span>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-4">
+                                  <p className="text-[9px] font-black text-primary uppercase tracking-widest">Brechas Identificadas</p>
+                                  <div className="space-y-3">
+                                    {(row.canal === 'Diagnóstico' || row.tipoEvento === 'diagnostico_usuario') && (row.respuestasDiagnosticoDetalle || []).filter((d: any) => d.necesitaOrientacion).map((d: any, idx: number) => (
+                                      <div key={idx} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-start gap-3">
+                                        <AlertCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                                        <div>
+                                          <p className="text-[11px] font-bold text-[#1A1A1A] leading-snug">{d.pregunta}</p>
+                                          <p className="text-[9px] font-black text-primary uppercase mt-1">Acción: {d.etapaRuta}</p>
+                                        </div>
+                                      </div>
+                                    ))}
+                                    {row.canal === 'Chatbot' && row.consultasResumen?.map((q: string, idx: number) => (
+                                      <div key={idx} className="bg-white p-4 rounded-2xl border border-amber-100 shadow-sm flex items-start gap-3">
+                                        <Search className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                                        <p className="text-[11px] font-medium text-gray-600 leading-snug italic">"{q}"</p>
+                                      </div>
+                                    ))}
+                                    {(!row.temasDetectados || row.temasDetectados.length === 0) && (
+                                      <p className="text-[11px] font-bold text-emerald-600 uppercase">Sin brechas críticas detectadas.</p>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                  <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest">Acción Sugerida para DRTPELM</p>
+                                  <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm space-y-4">
+                                    <p className="text-xs font-medium text-gray-500 leading-relaxed">
+                                      El ciudadano requiere orientación prioritaria en {row.resultadoDiagnosticoResumen.toLowerCase()}. Se recomienda agendar una asesoría técnica personalizada.
+                                    </p>
+                                    <div className="flex gap-2">
+                                      <Button 
+                                        onClick={() => window.open('https://extranet.trabajo.gob.pe/extranet/web/citas', '_blank')}
+                                        className="bg-primary hover:bg-primary/90 text-[10px] font-black uppercase tracking-widest h-9 rounded-xl flex-1"
+                                      >
+                                        Asignar Asesor
+                                      </Button>
+                                      <Button variant="outline" className="border-gray-100 text-[10px] font-black uppercase tracking-widest h-9 rounded-xl flex-1">Perfil Completo</Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </AnimatePresence>
+                </React.Fragment>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </section>
+    );
+  };
+
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'resumen': return renderResumen();
+      case 'diagnosticos': return renderDiagnosticos();
+      case 'chatbot': return renderChatbot();
+      case 'demanda': return renderDemanda();
+      case 'necesidades': return renderNecesidades();
+      case 'gestion': return renderTable();
+      case 'reportes': return (
+        <div className="flex flex-col items-center justify-center min-h-[400px] space-y-6">
+           <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-600">
+             <FileText className="w-8 h-8" />
+           </div>
+           <div className="text-center space-y-2">
+             <h3 className="text-xl font-black uppercase tracking-tight">Generador de Reportes PDF</h3>
+             <p className="text-sm text-muted-foreground font-medium">Exporta un consolidado técnico de la formalización en Lima.</p>
+           </div>
+           <div className="flex gap-4">
+              <Button variant="outline" className="gap-2 font-black uppercase text-[10px] tracking-widest h-12 px-6 rounded-xl border-gray-100"><Filter className="w-4 h-4" /> Aplicar Filtros</Button>
+              <Button className="bg-primary hover:bg-primary/90 gap-2 font-black uppercase text-[10px] tracking-widest h-12 px-8 rounded-xl shadow-lg shadow-primary/20"><Download className="w-4 h-4" /> Exportar Reporte Ejecutivo</Button>
+           </div>
+        </div>
+      );
+      case 'configuracion': return renderConfig();
+      default: return renderResumen();
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-[#FDFDFD] font-body text-[#1A1A1A]">
       {/* --- SIDEBAR IZQUIERDO --- */}
@@ -345,26 +942,24 @@ export default function OfeliaDashboard() {
         </div>
 
         <nav className="flex-1 space-y-2">
-          <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest px-4 mb-4">Menú Principal</p>
-          <SidebarItem icon={LayoutDashboard} label="Resumen Ejecutivo" active />
-          <SidebarItem icon={ClipboardCheck} label="Diagnósticos" />
-          <SidebarItem icon={MessageSquare} label="Consultas Chatbot" />
-          <SidebarItem icon={MapIcon} label="Demanda por Distrito" />
-          <SidebarItem icon={TrendingUp} label="Temas y Necesidades" />
-          <SidebarItem icon={UserCircle} label="Gestión Ciudadana" />
+          <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest px-4 mb-4">Módulos Estratégicos</p>
+          <SidebarItem icon={LayoutDashboard} label="Resumen Ejecutivo" active={activeSection === 'resumen'} onClick={() => setActiveSection('resumen')} />
+          <SidebarItem icon={ClipboardCheck} label="Diagnósticos" active={activeSection === 'diagnosticos'} onClick={() => setActiveSection('diagnosticos')} />
+          <SidebarItem icon={MessageSquare} label="Consultas Chatbot" active={activeSection === 'chatbot'} onClick={() => setActiveSection('chatbot')} />
+          <SidebarItem icon={MapIcon} label="Demanda Territorial" active={activeSection === 'demanda'} onClick={() => setActiveSection('demanda')} />
+          <SidebarItem icon={TrendingUp} label="Brechas y Temas" active={activeSection === 'necesidades'} onClick={() => setActiveSection('necesidades')} />
+          <SidebarItem icon={UserCircle} label="Gestión Ciudadana" active={activeSection === 'gestion'} onClick={() => setActiveSection('gestion')} />
           
           <div className="pt-8">
-            <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest px-4 mb-4">Otros</p>
-            <SidebarItem icon={FileText} label="Reportes PDF" />
-            <SidebarItem icon={Settings} label="Configuración" />
+            <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest px-4 mb-4">Herramientas</p>
+            <SidebarItem icon={FileText} label="Reportes PDF" active={activeSection === 'reportes'} onClick={() => setActiveSection('reportes')} />
+            <SidebarItem icon={Settings} label="Configuración" active={activeSection === 'configuracion'} onClick={() => setActiveSection('configuracion')} />
           </div>
         </nav>
 
         <div className="mt-auto">
           <div className="bg-primary/5 rounded-[24px] p-5 border border-primary/10 relative overflow-hidden group cursor-pointer">
-            <div className="absolute -right-2 -top-2 w-16 h-16 bg-primary/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
-            <h4 className="font-black text-xs text-primary uppercase italic tracking-tight">Oficina Digital</h4>
-            <p className="text-[10px] font-bold text-gray-500 mt-1 leading-tight">Asigna un asesor de la DRTPELM para casios críticos.</p>
+            <h4 className="font-black text-xs text-primary uppercase italic tracking-tight">Soporte DRTPELM</h4>
             <Button 
               onClick={() => window.open('https://extranet.trabajo.gob.pe/extranet/web/citas', '_blank')}
               className="w-full mt-4 bg-primary hover:bg-primary/90 rounded-xl h-9 text-[10px] font-black uppercase tracking-widest"
@@ -383,8 +978,10 @@ export default function OfeliaDashboard() {
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <p className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em]">Monitoreo en Tiempo Real</p>
             </div>
-            <h1 className="text-4xl font-black tracking-tight text-[#1A1A1A]">Dashboard Ejecutivo</h1>
-            <p className="text-sm text-muted-foreground font-medium italic">Inteligencia de Atención y Formalización Laboral - OFELIA</p>
+            <h1 className="text-4xl font-black tracking-tight text-[#1A1A1A] capitalize">
+               {activeSection.replace(/_/g, ' ')}
+            </h1>
+            <p className="text-sm text-muted-foreground font-medium italic">Inteligencia de Formalización Laboral - Innova Región 2026</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -401,327 +998,13 @@ export default function OfeliaDashboard() {
           </div>
         </header>
 
-        {/* KPIs Principales */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <KPICard title="Ciudadanos Atendidos" value={stats.uniqueUsers} subvalue="Total perfiles registrados" icon={UserCircle} trend={+12} />
-          <KPICard title="Diagnósticos MYPE" value={stats.diagnostics} subvalue="Tests de formalidad completados" icon={ClipboardCheck} trend={+5} />
-          <KPICard title="Consultas Chatbot" value={stats.queries} subvalue="Interacciones con la IA" icon={MessageSquare} trend={-2} />
-          <KPICard title="Distrito Líder" value={stats.topDistrict} subvalue="Mayor demanda geográfica" icon={MapIcon} />
-        </section>
+        {renderContent()}
 
-        {/* Mapa e Insights */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex justify-between items-center px-2">
-              <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
-                <MapIcon className="w-5 h-5 text-primary" />
-                Mapa de Demanda en Lima Metropolitana
-              </h3>
-              <div className="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-gray-500">
-                <Activity className="w-3 h-3" />
-                Datos Georeferenciados
-              </div>
-            </div>
-            <RealLimaMap events={events} />
-          </div>
-
-          <div className="space-y-6">
-            <div className="flex items-center gap-2 px-2">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              <h3 className="text-lg font-black uppercase tracking-tight">Insights Críticos</h3>
-            </div>
-            
-            <div className="space-y-4">
-              <motion.div whileHover={{ x: 5 }} className="bg-white p-5 rounded-[28px] border-l-4 border-l-primary border border-gray-100 shadow-sm transition-all">
-                <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Zona Prioritaria</p>
-                <p className="text-xs font-bold text-[#1A1A1A] leading-relaxed">
-                  <span className="text-primary">{stats.topDistrict}</span> concentra el mayor flujo de atenciones preventivas.
-                </p>
-              </motion.div>
-
-              <motion.div whileHover={{ x: 5 }} className="bg-white p-5 rounded-[28px] border-l-4 border-l-amber-500 border border-gray-100 shadow-sm transition-all">
-                <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">Necesidad Técnica</p>
-                <p className="text-xs font-bold text-[#1A1A1A] leading-relaxed">
-                  El tema <span className="text-amber-600 font-black">"{stats.themeRanking[0]?.name || "General"}"</span> es la brecha legal más frecuente.
-                </p>
-              </motion.div>
-
-              <div className="bg-[#1A1A1A] text-white p-6 rounded-[32px] shadow-2xl relative overflow-hidden h-[240px] flex flex-col justify-between">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full -mr-16 -mt-16 blur-3xl" />
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Volumen Semanal</h4>
-                <div className="h-40 mt-2">
-                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={stats.dailyData}>
-                      <Area type="monotone" dataKey="valor" stroke="#D91E18" strokeWidth={3} fill="#D91E18" fillOpacity={0.1} />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Bloques Analíticos */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
-            <div className="flex items-center gap-2 mb-6">
-              <Users className="w-4 h-4 text-primary" />
-              <h3 className="text-[11px] font-black uppercase tracking-widest text-[#1A1A1A]">Tipo de Usuario</h3>
-            </div>
-            <div className="h-[200px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={stats.userTypeData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                    {stats.userTypeData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={DONUT_COLORS[index % DONUT_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ borderRadius: '12px', fontSize: '10px', fontWeight: 'bold' }} />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '9px', fontWeight: '900', textTransform: 'uppercase' }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
-            <div className="flex items-center gap-2 mb-6">
-              <Layers className="w-4 h-4 text-blue-600" />
-              <h3 className="text-[11px] font-black uppercase tracking-widest text-[#1A1A1A]">Etapa Emprendedora</h3>
-            </div>
-            <div className="h-[200px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={stats.stageData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                    {stats.stageData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[(index + 1) % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ borderRadius: '12px', fontSize: '10px', fontWeight: 'bold' }} />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '9px', fontWeight: '900', textTransform: 'uppercase' }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm lg:col-span-1">
-            <div className="flex items-center gap-2 mb-6">
-              <BarChart3 className="w-4 h-4 text-amber-500" />
-              <h3 className="text-[11px] font-black uppercase tracking-widest text-[#1A1A1A]">Principales Rubros</h3>
-            </div>
-            <div className="h-[200px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.rubroData} layout="vertical">
-                  <XAxis type="number" hide />
-                  <YAxis dataKey="name" type="category" width={80} axisLine={false} tickLine={false} tick={{fontSize: 8, fontWeight: 900, fill: '#64748B'}} />
-                  <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '12px', border: 'none' }} />
-                  <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={12}>
-                    {stats.rubroData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
-            <div className="flex items-center gap-2 mb-6">
-              <Lightbulb className="w-4 h-4 text-primary" />
-              <h3 className="text-[11px] font-black uppercase tracking-widest text-[#1A1A1A]">Brechas de Formalidad</h3>
-            </div>
-            <ScrollArea className="h-[200px] pr-2">
-              <div className="space-y-3">
-                {stats.themeRanking.map((theme, idx) => (
-                  <div key={idx} className="flex items-center justify-between group">
-                    <div className="flex items-center gap-3">
-                      <span className="text-[10px] font-black text-gray-300 w-4">{idx + 1}</span>
-                      <p className="text-[9px] font-black text-gray-600 uppercase tracking-tighter group-hover:text-primary transition-colors">{theme.name}</p>
-                    </div>
-                    <span className="bg-gray-100 text-[#1A1A1A] text-[9px] font-black px-2 py-0.5 rounded-full">{theme.value}</span>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-        </section>
-
-        {/* Tabla Ejecutiva */}
-        <section className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden mb-12">
-          <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="space-y-1">
-              <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
-                <ListFilter className="w-5 h-5 text-primary" />
-                Monitoreo de Impacto por Ciudadano
-              </h3>
-              <p className="text-xs font-bold text-gray-400 italic">Análisis consolidado de brechas y necesidades técnicas.</p>
-            </div>
-            <div className="flex items-center gap-3 w-full md:w-auto">
-              <div className="relative flex-1 md:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input 
-                  placeholder="DNI, Nombre o Distrito..." 
-                  className="pl-10 h-11 rounded-xl border-gray-100 bg-gray-50 font-medium"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <Button variant="outline" className="h-11 rounded-xl border-gray-100 gap-2 font-black text-[10px] uppercase tracking-widest">
-                <Download className="w-4 h-4" />
-                EXCEL
-              </Button>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-gray-50/50">
-                <TableRow className="border-none">
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6 pl-8">Último Evento</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Ciudadano</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Canal</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Distrito</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Resultado del Diagnóstico</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6 pr-8 text-right">Acción</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredRows.map((row) => (
-                  <React.Fragment key={row.id}>
-                    <TableRow className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                      <TableCell className="pl-8 py-5">
-                        <div className="flex flex-col">
-                          <span className="text-xs font-black text-[#1A1A1A]">{format(row.fechaHora, "dd/MM/yyyy")}</span>
-                          <span className="text-[10px] font-bold text-gray-400 uppercase">{format(row.fechaHora, "HH:mm")}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="text-xs font-black text-[#1A1A1A] capitalize">{row.nombresApellidos || "Anónimo"}</span>
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-[9px] font-bold text-gray-400">{row.numeroDocumento || "Sin DOC"}</span>
-                            <div className={cn(
-                              "px-1.5 py-0.5 rounded text-[8px] font-black uppercase",
-                              row.tipoUsuario?.includes('hogar') ? "bg-blue-50 text-blue-600" : "bg-primary/10 text-primary"
-                            )}>
-                              {row.tipoUsuario?.replace(/_/g, ' ')}
-                            </div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className={cn(
-                          "text-[10px] font-black uppercase tracking-tighter px-2 py-0.5 rounded-full border",
-                          row.canal === 'Chatbot' ? "text-amber-600 border-amber-200 bg-amber-50" : "text-emerald-600 border-emerald-200 bg-emerald-50"
-                        )}>
-                          {row.canal}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-xs font-bold text-gray-600 flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-gray-300" />
-                          {row.distrito || "Lima"}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <p className="text-[11px] font-black text-[#1A1A1A] leading-snug max-w-[300px]">
-                          {row.resultadoDiagnosticoResumen}
-                        </p>
-                      </TableCell>
-                      <TableCell className="pr-8 text-right">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="text-[10px] font-black uppercase gap-1.5 hover:text-primary transition-all"
-                          onClick={() => setExpandedRow(expandedRow === row.id ? null : row.id)}
-                        >
-                          {expandedRow === row.id ? "Cerrar" : "Ver Detalle"}
-                          {expandedRow === row.id ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                    
-                    <AnimatePresence>
-                      {expandedRow === row.id && (
-                        <TableRow className="bg-gray-50/50 border-none">
-                          <TableCell colSpan={6} className="p-0">
-                            <motion.div 
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              className="overflow-hidden"
-                            >
-                              <div className="px-12 py-8 space-y-6">
-                                <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-white rounded-xl shadow-sm flex items-center justify-center">
-                                      <Clock className="w-4 h-4 text-primary" />
-                                    </div>
-                                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1A1A1A]">Resumen Técnico de Necesidades</h4>
-                                  </div>
-                                  <span className="text-[9px] font-bold text-gray-400 uppercase italic">ID: {row.id}</span>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                  <div className="space-y-4">
-                                    <p className="text-[9px] font-black text-primary uppercase tracking-widest">Brechas Identificadas</p>
-                                    <div className="space-y-3">
-                                      {row.canal === 'Diagnóstico' && (row.respuestasDiagnosticoDetalle || []).filter((d: any) => d.necesitaOrientacion).map((d: any, idx: number) => (
-                                        <div key={idx} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-start gap-3">
-                                          <AlertCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                                          <div>
-                                            <p className="text-[11px] font-bold text-[#1A1A1A] leading-snug">{d.pregunta}</p>
-                                            <p className="text-[9px] font-black text-primary uppercase mt-1">Acción: {d.etapaRuta}</p>
-                                          </div>
-                                        </div>
-                                      ))}
-                                      {row.canal === 'Chatbot' && row.consultasResumen?.map((q: string, idx: number) => (
-                                        <div key={idx} className="bg-white p-4 rounded-2xl border border-amber-100 shadow-sm flex items-start gap-3">
-                                          <Search className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                                          <p className="text-[11px] font-medium text-gray-600 leading-snug italic">"{q}"</p>
-                                        </div>
-                                      ))}
-                                      {(!row.temasDetectados || row.temasDetectados.length === 0) && (
-                                        <p className="text-[11px] font-bold text-emerald-600 uppercase">Sin brechas críticas detectadas.</p>
-                                      )}
-                                    </div>
-                                  </div>
-
-                                  <div className="space-y-4">
-                                    <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest">Próxima Acción Sugerida</p>
-                                    <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm space-y-4">
-                                      <p className="text-xs font-medium text-gray-500 leading-relaxed">
-                                        {row.resultadoDiagnosticoResumen ? `El ciudadano requiere orientación prioritaria en ${row.resultadoDiagnosticoResumen.toLowerCase()}.` : "Ciudadano requiere orientación integral en formalización MYPE."}
-                                      </p>
-                                      <div className="flex gap-2">
-                                        <Button 
-                                          onClick={() => window.open('https://extranet.trabajo.gob.pe/extranet/web/citas', '_blank')}
-                                          className="bg-primary hover:bg-primary/90 text-[10px] font-black uppercase tracking-widest h-9 rounded-xl flex-1"
-                                        >
-                                          Asignar Asesor
-                                        </Button>
-                                        <Button variant="outline" className="border-gray-100 text-[10px] font-black uppercase tracking-widest h-9 rounded-xl flex-1">Perfil Completo</Button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </motion.div>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </AnimatePresence>
-                  </React.Fragment>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </section>
-
-        <footer className="text-center pb-8">
+        <footer className="text-center py-12">
           <div className="inline-flex items-center gap-4 px-6 py-3 bg-white border border-gray-100 rounded-full shadow-sm">
-            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sistema Oficial de Monitoreo</span>
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sistema Oficial DRTPELM</span>
             <div className="h-4 w-[1px] bg-gray-200" />
-            <span className="text-[10px] font-black text-primary uppercase tracking-widest italic">DRTPELM 2026</span>
+            <span className="text-[10px] font-black text-primary uppercase tracking-widest italic">LIMA METROPOLITANA 2026</span>
           </div>
         </footer>
       </main>

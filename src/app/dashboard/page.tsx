@@ -364,8 +364,11 @@ export default function OfeliaDashboard() {
           <div className="bg-primary/5 rounded-[24px] p-5 border border-primary/10 relative overflow-hidden group cursor-pointer">
             <div className="absolute -right-2 -top-2 w-16 h-16 bg-primary/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
             <h4 className="font-black text-xs text-primary uppercase italic tracking-tight">Oficina Digital</h4>
-            <p className="text-[10px] font-bold text-gray-500 mt-1 leading-tight">Asigna un asesor de la DRTPELM para casos críticos.</p>
-            <Button className="w-full mt-4 bg-primary hover:bg-primary/90 rounded-xl h-9 text-[10px] font-black uppercase tracking-widest">
+            <p className="text-[10px] font-bold text-gray-500 mt-1 leading-tight">Asigna un asesor de la DRTPELM para casios críticos.</p>
+            <Button 
+              onClick={() => window.open('https://extranet.trabajo.gob.pe/extranet/web/citas', '_blank')}
+              className="w-full mt-4 bg-primary hover:bg-primary/90 rounded-xl h-9 text-[10px] font-black uppercase tracking-widest"
+            >
               AGENDAR ASESORÍA
             </Button>
           </div>
@@ -690,7 +693,12 @@ export default function OfeliaDashboard() {
                                         {row.resultadoDiagnosticoResumen ? `El ciudadano requiere orientación prioritaria en ${row.resultadoDiagnosticoResumen.toLowerCase()}.` : "Ciudadano requiere orientación integral en formalización MYPE."}
                                       </p>
                                       <div className="flex gap-2">
-                                        <Button className="bg-primary hover:bg-primary/90 text-[10px] font-black uppercase tracking-widest h-9 rounded-xl flex-1">Asignar Asesor</Button>
+                                        <Button 
+                                          onClick={() => window.open('https://extranet.trabajo.gob.pe/extranet/web/citas', '_blank')}
+                                          className="bg-primary hover:bg-primary/90 text-[10px] font-black uppercase tracking-widest h-9 rounded-xl flex-1"
+                                        >
+                                          Asignar Asesor
+                                        </Button>
                                         <Button variant="outline" className="border-gray-100 text-[10px] font-black uppercase tracking-widest h-9 rounded-xl flex-1">Perfil Completo</Button>
                                       </div>
                                     </div>

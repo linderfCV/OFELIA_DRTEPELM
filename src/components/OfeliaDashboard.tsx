@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -542,7 +543,10 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
               <p className="text-xs font-medium opacity-90 leading-tight">Un asesor de la DRTPELM revisará tu perfil para contactarte.</p>
             </div>
           </div>
-          <Button className="w-full bg-white text-primary hover:bg-gray-50 font-black h-12 rounded-xl text-xs uppercase tracking-widest">
+          <Button 
+            onClick={() => window.open('https://extranet.trabajo.gob.pe/extranet/web/citas', '_blank')}
+            className="w-full bg-white text-primary hover:bg-gray-50 font-black h-12 rounded-xl text-xs uppercase tracking-widest"
+          >
             AGENDAR ASESORÍA GRATUITA
           </Button>
         </div>

@@ -27,7 +27,11 @@ import {
   Sparkles,
   RefreshCw,
   MoreVertical,
-  MapPin
+  MapPin,
+  PieChart as PieChartIcon,
+  BarChart3,
+  Layers,
+  Lightbulb
 } from "lucide-react";
 import { 
   BarChart, 
@@ -76,6 +80,7 @@ const RealLimaMap = dynamic(() => import('@/components/RealLimaMap'), {
 
 // --- CONSTANTES DE ESTILO MTPE ---
 const COLORS = ['#D91E18', '#1a73e8', '#f59e0b', '#10b981', '#6366f1', '#8b5cf6', '#ec4899'];
+const DONUT_COLORS = ['#D91E18', '#1a73e8', '#f59e0b'];
 
 // --- COMPONENTES INTERNOS ---
 
@@ -120,12 +125,12 @@ const KPICard = ({ title, value, subvalue, icon: Icon, trend }: any) => (
 export default function OfeliaDashboard() {
   const [events, setEvents] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const [searchTerm, setSearchSearchTerm] = React.useState("");
+  const [searchTerm, setSearchTerm] = React.useState("");
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
-    const q = query(collection(db, "ofelia_eventos"), orderBy("fechaHora", "desc"), limit(300));
+    const q = query(collection(db, "ofelia_eventos"), orderBy("fechaHora", "desc"), limit(500));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -143,25 +148,55 @@ export default function OfeliaDashboard() {
     const total = events.length;
     const diagnostics = events.filter(e => e.tipoEvento === 'diagnostico_usuario').length;
     const queries = events.filter(e => e.tipoEvento === 'consulta_chatbot').length;
-    const registrations = events.filter(e => e.tipoEvento === 'registro_usuario' || e.tipoEvento === 'registro_chatbot').length;
     const uniqueUsers = new Set(events.map(e => e.numeroDocumento)).size;
     
-    const entrepreneurs = events.filter(e => e.tipoUsuario?.includes('emprendedor') || e.tipoUsuario === 'entrepreneur').length;
-    const domestics = events.filter(e => e.tipoUsuario?.includes('hogar') || e.tipoUsuario === 'domestic').length;
+    // 1. Diagnósticos por Tipo de Usuario
+    const diagEvents = events.filter(e => e.tipoEvento === 'diagnostico_usuario');
+    const userTypeCounts = {
+      'Emprendedores': diagEvents.filter(e => e.tipoUsuario === 'emprendedor').length,
+      'Empleadores Hogar': diagEvents.filter(e => e.tipoUsuario === 'empleador_hogar').length
+    };
+    const userTypeData = Object.entries(userTypeCounts).map(([name, value]) => ({ name, value }));
 
-    // Distritos
+    // 2. Diagnósticos por Etapa (Solo Emprendedores)
+    const entrepreneurDiags = diagEvents.filter(e => e.tipoUsuario === 'emprendedor');
+    const stageCounts = {
+      'Idea de Negocio': entrepreneurDiags.filter(e => e.etapaEmprendimiento === 'idea_negocio').length,
+      'Negocio en Marcha': entrepreneurDiags.filter(e => e.etapaEmprendimiento === 'negocio_en_marcha').length,
+      'Otro': entrepreneurDiags.filter(e => !['idea_negocio', 'negocio_en_marcha'].includes(e.etapaEmprendimiento)).length
+    };
+    const stageData = Object.entries(stageCounts).map(([name, value]) => ({ name, value }));
+
+    // 3. Diagnósticos por Rubro (Emprendedores)
+    const rubroCounts: Record<string, number> = {};
+    entrepreneurDiags.forEach(e => {
+      const label = e.rubroNegocioLabel || "Otros";
+      rubroCounts[label] = (rubroCounts[label] || 0) + 1;
+    });
+    const rubroData = Object.entries(rubroCounts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 8);
+
+    // 4. Temas con Mayor Necesidad de Orientación
+    const themeCounts: Record<string, number> = {};
+    diagEvents.forEach(e => {
+      e.temasDetectados?.forEach((t: string) => {
+        const readable = t.replace(/_/g, ' ').toUpperCase();
+        themeCounts[readable] = (themeCounts[readable] || 0) + 1;
+      });
+    });
+    const themeRanking = Object.entries(themeCounts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 10);
+
+    // Distritos para mapa y KPI
     const districts: Record<string, number> = {};
     events.forEach(e => { if (e.distrito) districts[e.distrito] = (districts[e.distrito] || 0) + 1; });
     const topDistrict = Object.entries(districts).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
-    
-    // Temas mas detectados
-    const themes: Record<string, number> = {};
-    events.forEach(e => {
-      e.temasDetectados?.forEach((t: string) => { themes[t] = (themes[t] || 0) + 1; });
-    });
-    const topTheme = Object.entries(themes).sort((a, b) => b[1] - a[1])[0]?.[0]?.replace(/_/g, ' ').toUpperCase() || "N/A";
 
-    // Chart: Eventos por día (últimos 7 días)
+    // Tráfico Semanal
     const dailyData: any[] = [];
     if (mounted) {
       for(let i=6; i>=0; i--) {
@@ -173,23 +208,17 @@ export default function OfeliaDashboard() {
       }
     }
 
-    // Chart: Rubros
-    const rubros: Record<string, number> = {};
-    events.forEach(e => { if (e.rubroNegocioLabel) rubros[e.rubroNegocioLabel] = (rubros[e.rubroNegocioLabel] || 0) + 1; });
-    const rubroData = Object.entries(rubros).map(([name, value]) => ({ name, value }));
-
     return {
       total,
       diagnostics,
       queries,
-      registrations,
       uniqueUsers,
       topDistrict,
-      topTheme,
-      entrepreneurPct: total > 0 ? Math.round((entrepreneurs / total) * 100) : 0,
-      domesticPct: total > 0 ? Math.round((domestics / total) * 100) : 0,
-      dailyData,
-      rubroData
+      userTypeData,
+      stageData,
+      rubroData,
+      themeRanking,
+      dailyData
     };
   }, [events, mounted]);
 
@@ -199,7 +228,6 @@ export default function OfeliaDashboard() {
     e.distrito?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Evitar hydration error bloqueando renderizado de fechas hasta el mount
   if (!mounted) return null;
 
   return (
@@ -264,7 +292,7 @@ export default function OfeliaDashboard() {
               </div>
               <Calendar className="w-5 h-5 text-primary" />
             </div>
-            <Button size="icon" variant="outline" className="h-11 w-11 rounded-2xl bg-white shadow-sm border-gray-100">
+            <Button size="icon" variant="outline" className="h-11 w-11 rounded-2xl bg-white shadow-sm border-gray-100" onClick={() => window.location.reload()}>
               <RefreshCw className="w-4 h-4 text-gray-400" />
             </Button>
           </div>
@@ -272,13 +300,13 @@ export default function OfeliaDashboard() {
 
         {/* KPIs Principales */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <KPICard title="Ciudadanos Atendidos" value={stats.registrations} subvalue="Total de perfiles únicos" icon={UserCircle} trend={+12} />
-          <KPICard title="Diagnósticos MYPE" value={stats.diagnostics} subvalue="Tests de formalidad realizados" icon={ClipboardCheck} trend={+5} />
+          <KPICard title="Ciudadanos Atendidos" value={stats.uniqueUsers} subvalue="Total perfiles registrados" icon={UserCircle} trend={+12} />
+          <KPICard title="Diagnósticos MYPE" value={stats.diagnostics} subvalue="Tests de formalidad completados" icon={ClipboardCheck} trend={+5} />
           <KPICard title="Consultas Chatbot" value={stats.queries} subvalue="Interacciones con la IA" icon={MessageSquare} trend={-2} />
-          <KPICard title="Distrito Líder" value={stats.topDistrict} subvalue="Mayor concentración de demanda" icon={MapIcon} />
+          <KPICard title="Distrito Líder" value={stats.topDistrict} subvalue="Mayor demanda geográfica" icon={MapIcon} />
         </section>
 
-        {/* Sección Media: Mapa e Insights */}
+        {/* Sección Mapa e Insights */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
           <div className="lg:col-span-2 space-y-4">
             <div className="flex justify-between items-center px-2">
@@ -288,7 +316,7 @@ export default function OfeliaDashboard() {
               </h3>
               <div className="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-gray-500">
                 <Activity className="w-3 h-3" />
-                Mapa Interactivo Real
+                Datos Georeferenciados
               </div>
             </div>
             <RealLimaMap events={events} />
@@ -297,128 +325,124 @@ export default function OfeliaDashboard() {
           <div className="space-y-6">
             <div className="flex items-center gap-2 px-2">
               <Sparkles className="w-5 h-5 text-amber-500" />
-              <h3 className="text-lg font-black uppercase tracking-tight">Insights Clave</h3>
+              <h3 className="text-lg font-black uppercase tracking-tight">Insights Críticos</h3>
             </div>
             
             <div className="space-y-4">
               <motion.div whileHover={{ x: 5 }} className="bg-white p-5 rounded-[28px] border-l-4 border-l-primary border border-gray-100 shadow-sm transition-all">
-                <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Hallazgo Crítico</p>
+                <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Zona Prioritaria</p>
                 <p className="text-xs font-bold text-[#1A1A1A] leading-relaxed">
-                  El distrito de <span className="text-primary">{stats.topDistrict}</span> concentra el mayor flujo de atenciones de esta semana.
+                  <span className="text-primary">{stats.topDistrict}</span> concentra el mayor flujo de atenciones preventivas.
                 </p>
               </motion.div>
 
               <motion.div whileHover={{ x: 5 }} className="bg-white p-5 rounded-[28px] border-l-4 border-l-amber-500 border border-gray-100 shadow-sm transition-all">
-                <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">Tendencia de Rubro</p>
+                <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">Necesidad Técnica</p>
                 <p className="text-xs font-bold text-[#1A1A1A] leading-relaxed">
-                  El sector <span className="text-amber-600">Comercio y Gastronomía</span> lidera las consultas sobre Licencias Municipales.
+                  El tema <span className="text-amber-600 font-black">"{stats.themeRanking[0]?.name || "General"}"</span> es la brecha legal más frecuente.
                 </p>
               </motion.div>
 
               <motion.div whileHover={{ x: 5 }} className="bg-white p-5 rounded-[28px] border-l-4 border-l-blue-600 border border-gray-100 shadow-sm transition-all">
-                <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Uso de IA</p>
+                <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Composición</p>
                 <p className="text-xs font-bold text-[#1A1A1A] leading-relaxed">
-                  <span className="text-blue-600 font-black">"{stats.topTheme}"</span> es la categoría técnica con más actividad en el chatbot.
+                  La mayoría de usuarios se encuentran en etapa de <span className="text-blue-600">{stats.stageData[0]?.name || "N/A"}</span>.
                 </p>
               </motion.div>
               
-              <div className="bg-[#1A1A1A] text-white p-6 rounded-[32px] shadow-2xl relative overflow-hidden">
+              <div className="bg-[#1A1A1A] text-white p-6 rounded-[32px] shadow-2xl relative overflow-hidden h-[180px] flex flex-col justify-between">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full -mr-16 -mt-16 blur-3xl" />
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Distribución de Usuarios</h4>
-                <div className="mt-6 flex items-end justify-between">
-                  <div className="space-y-4 flex-1">
-                    <div className="space-y-1">
-                      <div className="flex justify-between items-end mb-1">
-                        <span className="text-[9px] font-black uppercase tracking-tighter text-white">Emprendedores</span>
-                        <span className="text-xl font-black text-white">{stats.entrepreneurPct}%</span>
-                      </div>
-                      <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-primary h-full rounded-full" style={{ width: `${stats.entrepreneurPct}%` }} />
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex justify-between items-end mb-1">
-                        <span className="text-[9px] font-black uppercase tracking-tighter text-white">Empleadores Hogar</span>
-                        <span className="text-xl font-black text-white">{stats.domesticPct}%</span>
-                      </div>
-                      <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-blue-500 h-full rounded-full" style={{ width: `${stats.domesticPct}%` }} />
-                      </div>
-                    </div>
-                  </div>
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Tráfico Semanal</h4>
+                <div className="h-24 mt-2">
+                   <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={stats.dailyData}>
+                      <Area type="monotone" dataKey="valor" stroke="#D91E18" strokeWidth={3} fill="#D91E18" fillOpacity={0.1} />
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Gráficos Analíticos */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {/* Tendencia Semanal */}
-          <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-primary" />
-                Tráfico Semanal de Ciudadanos
-              </h3>
-              <div className="flex gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-primary/20" />
-                <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-              </div>
+        {/* --- BLOQUES ANALÍTICOS OBLIGATORIOS --- */}
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          
+          {/* 1. Diagnósticos por Tipo de Usuario */}
+          <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
+            <div className="flex items-center gap-2 mb-6">
+              <Users className="w-4 h-4 text-primary" />
+              <h3 className="text-[11px] font-black uppercase tracking-widest text-[#1A1A1A]">Tipo de Usuario</h3>
             </div>
-            <div className="h-[280px]">
+            <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={stats.dailyData}>
-                  <defs>
-                    <linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#D91E18" stopOpacity={0.2}/>
-                      <stop offset="95%" stopColor="#D91E18" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                  <XAxis 
-                    dataKey="name" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{fontSize: 10, fontWeight: 900, fill: '#94A3B8'}}
-                    dy={10}
-                  />
-                  <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 900, fill: '#94A3B8'}} />
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '12px' }}
-                    labelStyle={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: '#D91E18' }}
-                  />
-                  <Area type="monotone" dataKey="valor" stroke="#D91E18" strokeWidth={4} fillOpacity={1} fill="url(#colorVal)" />
-                </AreaChart>
+                <PieChart>
+                  <Pie
+                    data={stats.userTypeData}
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {stats.userTypeData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={DONUT_COLORS[index % DONUT_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ borderRadius: '12px', fontSize: '10px', fontWeight: 'bold' }} />
+                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '9px', fontWeight: '900', textTransform: 'uppercase' }} />
+                </PieChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Sectores / Rubros */}
-          <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                <Briefcase className="w-4 h-4 text-primary" />
-                Categorización por Rubro
-              </h3>
-              <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4 text-gray-400" /></Button>
+          {/* 2. Diagnósticos por Etapa (Emprendedores) */}
+          <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
+            <div className="flex items-center gap-2 mb-6">
+              <Layers className="w-4 h-4 text-blue-600" />
+              <h3 className="text-[11px] font-black uppercase tracking-widest text-[#1A1A1A]">Etapa Emprendedora</h3>
             </div>
-            <div className="h-[280px]">
+            <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.rubroData.slice(0, 6)} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F1F5F9" />
+                <PieChart>
+                  <Pie
+                    data={stats.stageData}
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {stats.stageData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[(index + 1) % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ borderRadius: '12px', fontSize: '10px', fontWeight: 'bold' }} />
+                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '9px', fontWeight: '900', textTransform: 'uppercase' }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* 3. Diagnósticos por Rubro (Emprendedores) */}
+          <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm lg:col-span-1">
+            <div className="flex items-center gap-2 mb-6">
+              <BarChart3 className="w-4 h-4 text-amber-500" />
+              <h3 className="text-[11px] font-black uppercase tracking-widest text-[#1A1A1A]">Principales Rubros</h3>
+            </div>
+            <div className="h-[200px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.rubroData} layout="vertical">
                   <XAxis type="number" hide />
                   <YAxis 
                     dataKey="name" 
                     type="category" 
-                    width={100} 
+                    width={80} 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{fontSize: 9, fontWeight: 800, fill: '#64748B'}}
+                    tick={{fontSize: 8, fontWeight: 900, fill: '#64748B'}}
                   />
-                  <Tooltip cursor={{fill: '#F8FAFC'}} contentStyle={{ borderRadius: '12px', border: 'none', shadow: 'xl' }} />
-                  <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={20}>
-                    {stats.rubroData.map((entry, index) => (
+                  <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '12px', border: 'none', shadow: 'xl' }} />
+                  <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={12}>
+                    {stats.rubroData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Bar>
@@ -426,14 +450,36 @@ export default function OfeliaDashboard() {
               </ResponsiveContainer>
             </div>
           </div>
+
+          {/* 4. Temas con Mayor Necesidad de Orientación */}
+          <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
+            <div className="flex items-center gap-2 mb-6">
+              <Lightbulb className="w-4 h-4 text-primary" />
+              <h3 className="text-[11px] font-black uppercase tracking-widest text-[#1A1A1A]">Brechas de Formalidad</h3>
+            </div>
+            <ScrollArea className="h-[200px] pr-2">
+              <div className="space-y-3">
+                {stats.themeRanking.map((theme, idx) => (
+                  <div key={idx} className="flex items-center justify-between group">
+                    <div className="flex items-center gap-3">
+                      <span className="text-[10px] font-black text-gray-300 w-4">{idx + 1}</span>
+                      <p className="text-[9px] font-black text-gray-600 uppercase tracking-tighter group-hover:text-primary transition-colors">{theme.name}</p>
+                    </div>
+                    <span className="bg-gray-100 text-[#1A1A1A] text-[9px] font-black px-2 py-0.5 rounded-full">{theme.value}</span>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+
         </section>
 
         {/* Tabla de Eventos Recientes */}
         <section className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden mb-12">
           <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="space-y-1">
-              <h3 className="text-lg font-black uppercase tracking-tight">Últimos Eventos Registrados</h3>
-              <p className="text-xs font-bold text-gray-400">Detalle granular de las interacciones en tiempo real.</p>
+              <h3 className="text-lg font-black uppercase tracking-tight">Registro de Eventos en Vivo</h3>
+              <p className="text-xs font-bold text-gray-400">Auditoría granular de interacciones ciudadanas.</p>
             </div>
             <div className="flex items-center gap-3 w-full md:w-auto">
               <div className="relative flex-1 md:w-64">
@@ -442,12 +488,12 @@ export default function OfeliaDashboard() {
                   placeholder="Buscar por DNI o Nombre..." 
                   className="pl-10 h-11 rounded-xl border-gray-100 bg-gray-50"
                   value={searchTerm}
-                  onChange={(e) => setSearchSearchTerm(e.target.value)}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
               <Button variant="outline" className="h-11 rounded-xl border-gray-100 gap-2 font-bold text-xs uppercase">
                 <Download className="w-4 h-4" />
-                CSV
+                Exportar CSV
               </Button>
             </div>
           </div>
@@ -458,10 +504,10 @@ export default function OfeliaDashboard() {
                 <TableRow className="border-none">
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5 pl-8">Fecha / Hora</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5">Ciudadano</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5">Tipo Usuario</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5">Evento / Canal</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5">Perfil</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5">Canal</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5">Distrito</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5 pr-8">Resumen Diagnóstico</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5 pr-8">Resultado del Diagnóstico</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -496,12 +542,9 @@ export default function OfeliaDashboard() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[10px] font-black text-[#1A1A1A] uppercase tracking-tighter">
-                            {event.tipoEvento?.replace(/_/g, ' ')}
-                          </span>
-                          <span className="text-[9px] font-bold text-gray-400 italic">vía {event.canal || "Desconocido"}</span>
-                        </div>
+                        <span className="text-[10px] font-black text-[#1A1A1A] uppercase tracking-tighter">
+                          {event.canal || "Desconocido"}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <span className="text-xs font-bold text-gray-600 flex items-center gap-1">
@@ -509,9 +552,9 @@ export default function OfeliaDashboard() {
                           {event.distrito || "Lima"}
                         </span>
                       </TableCell>
-                      <TableCell className="pr-8 max-w-[200px]">
+                      <TableCell className="pr-8 max-w-[250px]">
                         <p className="text-[10px] font-medium text-gray-500 line-clamp-2 leading-relaxed">
-                          {event.resultadoDiagnosticoResumen || event.textoConsulta || "Sin detalle"}
+                          {event.resultadoDiagnosticoResumen || event.textoConsulta || "Sin detalle registrado"}
                         </p>
                       </TableCell>
                     </motion.tr>
@@ -523,7 +566,7 @@ export default function OfeliaDashboard() {
             {filteredEvents.length === 0 && !loading && (
               <div className="py-20 flex flex-col items-center justify-center text-gray-300">
                 <AlertCircle className="w-12 h-12 mb-4 opacity-20" />
-                <p className="text-sm font-bold uppercase tracking-widest">No se encontraron eventos coincidentes</p>
+                <p className="text-sm font-bold uppercase tracking-widest">Sin registros coincidentes</p>
               </div>
             )}
           </div>
@@ -531,7 +574,7 @@ export default function OfeliaDashboard() {
 
         <footer className="text-center pb-8">
           <div className="inline-flex items-center gap-4 px-6 py-3 bg-white border border-gray-100 rounded-full shadow-sm">
-            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sistema Oficial</span>
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sistema Oficial de Monitoreo</span>
             <div className="h-4 w-[1px] bg-gray-200" />
             <span className="text-[10px] font-black text-primary uppercase tracking-widest italic">DRTPELM 2026</span>
           </div>

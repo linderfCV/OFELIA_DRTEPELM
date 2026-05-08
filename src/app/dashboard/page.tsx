@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from "react";
@@ -11,27 +12,26 @@ import {
   TrendingUp, 
   Activity, 
   Calendar,
-  Filter,
   Search,
   Download,
   AlertCircle,
   LayoutDashboard,
   FileText,
-  HelpCircle,
   Settings,
   ChevronDown,
+  ChevronRight,
   ArrowUpRight,
   ArrowDownRight,
   Briefcase,
   Home,
   Sparkles,
   RefreshCw,
-  MoreVertical,
   MapPin,
-  PieChart as PieChartIcon,
   BarChart3,
   Layers,
-  Lightbulb
+  Lightbulb,
+  Clock,
+  ExternalLink
 } from "lucide-react";
 import { 
   BarChart, 
@@ -65,6 +65,12 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 // Carga dinámica del mapa para evitar errores de Hydration/SSR con Leaflet
 const RealLimaMap = dynamic(() => import('@/components/RealLimaMap'), { 
@@ -128,10 +134,11 @@ export default function OfeliaDashboard() {
   const [loading, setLoading] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [mounted, setMounted] = React.useState(false);
+  const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     setMounted(true);
-    const q = query(collection(db, "ofelia_eventos"), orderBy("fechaHora", "desc"), limit(500));
+    const q = query(collection(db, "ofelia_eventos"), orderBy("fechaHora", "desc"), limit(1000));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -151,7 +158,6 @@ export default function OfeliaDashboard() {
     const queries = events.filter(e => e.tipoEvento === 'consulta_chatbot').length;
     const uniqueUsers = new Set(events.map(e => e.numeroDocumento)).size;
     
-    // 1. Diagnósticos por Tipo de Usuario
     const diagEvents = events.filter(e => e.tipoEvento === 'diagnostico_usuario');
     const userTypeCounts = {
       'Emprendedores': diagEvents.filter(e => e.tipoUsuario === 'emprendedor').length,
@@ -159,7 +165,6 @@ export default function OfeliaDashboard() {
     };
     const userTypeData = Object.entries(userTypeCounts).map(([name, value]) => ({ name, value }));
 
-    // 2. Diagnósticos por Etapa (Solo Emprendedores)
     const entrepreneurDiags = diagEvents.filter(e => e.tipoUsuario === 'emprendedor');
     const stageCounts = {
       'Idea de Negocio': entrepreneurDiags.filter(e => e.etapaEmprendimiento === 'idea_negocio').length,
@@ -168,7 +173,6 @@ export default function OfeliaDashboard() {
     };
     const stageData = Object.entries(stageCounts).map(([name, value]) => ({ name, value }));
 
-    // 3. Diagnósticos por Rubro (Emprendedores)
     const rubroCounts: Record<string, number> = {};
     entrepreneurDiags.forEach(e => {
       const label = e.rubroNegocioLabel || "Otros";
@@ -179,7 +183,6 @@ export default function OfeliaDashboard() {
       .sort((a, b) => b.value - a.value)
       .slice(0, 8);
 
-    // 4. Temas con Mayor Necesidad de Orientación
     const themeCounts: Record<string, number> = {};
     diagEvents.forEach(e => {
       e.temasDetectados?.forEach((t: string) => {
@@ -192,12 +195,10 @@ export default function OfeliaDashboard() {
       .sort((a, b) => b.value - a.value)
       .slice(0, 10);
 
-    // Distritos para mapa y KPI
     const districts: Record<string, number> = {};
     events.forEach(e => { if (e.distrito) districts[e.distrito] = (districts[e.distrito] || 0) + 1; });
     const topDistrict = Object.entries(districts).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
 
-    // Tráfico Semanal
     const dailyData: any[] = [];
     if (mounted) {
       for(let i=6; i>=0; i--) {
@@ -223,7 +224,62 @@ export default function OfeliaDashboard() {
     };
   }, [events, mounted]);
 
-  const filteredEvents = events.filter(e => 
+  // --- AGRUPACIÓN DE FILAS PARA LA TABLA ---
+  const tableRows = React.useMemo(() => {
+    const diagnosticEvents = events.filter(e => e.tipoEvento === 'diagnostico_usuario');
+    const chatbotEvents = events.filter(e => e.tipoEvento === 'consulta_chatbot');
+    
+    // Agrupar consultas chatbot por documento/sesión
+    const chatbotGroups: Record<string, any> = {};
+    chatbotEvents.forEach(e => {
+      const key = e.numeroDocumento && e.numeroDocumento !== 'N/A' && e.numeroDocumento !== 'Anónimo' 
+        ? e.numeroDocumento 
+        : (e.sessionId || `anon-${e.id}`);
+      
+      if (!chatbotGroups[key]) {
+        chatbotGroups[key] = {
+          id: `group-${key}`,
+          tipoEvento: 'chatbot_session',
+          fechaHora: e.fechaHora,
+          nombresApellidos: e.nombresApellidos,
+          numeroDocumento: e.numeroDocumento,
+          tipoUsuario: e.tipoUsuario,
+          distrito: e.distrito,
+          canal: 'Chatbot',
+          totalConsultas: 0,
+          temasConsultados: new Set(),
+          consultas: []
+        };
+      }
+      
+      chatbotGroups[key].totalConsultas += 1;
+      if (e.fuenteUsada) chatbotGroups[key].temasConsultados.add(e.fuenteUsada.replace(/\.md$/, '').replace(/_/g, ' '));
+      chatbotGroups[key].consultas.push({
+        hora: e.fechaHora,
+        pregunta: e.textoConsulta,
+        respuesta: e.respuestaGenerada,
+        fuente: e.fuenteUsada
+      });
+      
+      // Asegurar fecha más reciente para el grupo
+      if (e.fechaHora > chatbotGroups[key].fechaHora) {
+        chatbotGroups[key].fechaHora = e.fechaHora;
+      }
+    });
+
+    const chatbotRows = Object.values(chatbotGroups).map(g => ({
+      ...g,
+      temasDetectados: Array.from(g.temasConsultados),
+      resultadoDiagnosticoResumen: `${g.totalConsultas} consultas técnicas realizadas.`
+    }));
+
+    // Combinar con diagnósticos individuales
+    const allRows = [...diagnosticEvents, ...chatbotRows].sort((a, b) => b.fechaHora - a.fechaHora);
+
+    return allRows;
+  }, [events]);
+
+  const filteredRows = tableRows.filter(e => 
     e.nombresApellidos?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     e.numeroDocumento?.includes(searchTerm) ||
     e.distrito?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -366,10 +422,8 @@ export default function OfeliaDashboard() {
           </div>
         </section>
 
-        {/* --- BLOQUES ANALÍTICOS OBLIGATORIOS --- */}
+        {/* Bloques Analíticos */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          
-          {/* 1. Diagnósticos por Tipo de Usuario */}
           <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
               <Users className="w-4 h-4 text-primary" />
@@ -378,13 +432,7 @@ export default function OfeliaDashboard() {
             <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={stats.userTypeData}
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
+                  <Pie data={stats.userTypeData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                     {stats.userTypeData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={DONUT_COLORS[index % DONUT_COLORS.length]} />
                     ))}
@@ -396,7 +444,6 @@ export default function OfeliaDashboard() {
             </div>
           </div>
 
-          {/* 2. Diagnósticos por Etapa (Emprendedores) */}
           <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
               <Layers className="w-4 h-4 text-blue-600" />
@@ -405,13 +452,7 @@ export default function OfeliaDashboard() {
             <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={stats.stageData}
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
+                  <Pie data={stats.stageData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                     {stats.stageData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[(index + 1) % COLORS.length]} />
                     ))}
@@ -423,7 +464,6 @@ export default function OfeliaDashboard() {
             </div>
           </div>
 
-          {/* 3. Diagnósticos por Rubro (Emprendedores) */}
           <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm lg:col-span-1">
             <div className="flex items-center gap-2 mb-6">
               <BarChart3 className="w-4 h-4 text-amber-500" />
@@ -433,14 +473,7 @@ export default function OfeliaDashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stats.rubroData} layout="vertical">
                   <XAxis type="number" hide />
-                  <YAxis 
-                    dataKey="name" 
-                    type="category" 
-                    width={80} 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{fontSize: 8, fontWeight: 900, fill: '#64748B'}}
-                  />
+                  <YAxis dataKey="name" type="category" width={80} axisLine={false} tickLine={false} tick={{fontSize: 8, fontWeight: 900, fill: '#64748B'}} />
                   <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '12px', border: 'none', shadow: 'xl' }} />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={12}>
                     {stats.rubroData.map((_, index) => (
@@ -452,7 +485,6 @@ export default function OfeliaDashboard() {
             </div>
           </div>
 
-          {/* 4. Temas con Mayor Necesidad de Orientación */}
           <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
               <Lightbulb className="w-4 h-4 text-primary" />
@@ -472,15 +504,14 @@ export default function OfeliaDashboard() {
               </div>
             </ScrollArea>
           </div>
-
         </section>
 
-        {/* Tabla de Eventos Recientes */}
+        {/* Tabla de Eventos Consolidada */}
         <section className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden mb-12">
           <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="space-y-1">
-              <h3 className="text-lg font-black uppercase tracking-tight">Registro de Eventos en Vivo</h3>
-              <p className="text-xs font-bold text-gray-400">Auditoría granular de interacciones ciudadanas.</p>
+              <h3 className="text-lg font-black uppercase tracking-tight">Actividad Consolidada por Ciudadano</h3>
+              <p className="text-xs font-bold text-gray-400">Consultas agrupadas por sesión para un análisis más eficiente.</p>
             </div>
             <div className="flex items-center gap-3 w-full md:w-auto">
               <div className="relative flex-1 md:w-64">
@@ -503,68 +534,152 @@ export default function OfeliaDashboard() {
             <Table>
               <TableHeader className="bg-gray-50/50">
                 <TableRow className="border-none">
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5 pl-8">Fecha / Hora</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5 pl-8">Último Evento</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5">Ciudadano</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5">Perfil</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5">Canal</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5">Distrito</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5 pr-8">Resultado del Diagnóstico</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5">Actividad / Resumen</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-5 pr-8">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <AnimatePresence>
-                  {filteredEvents.map((event, idx) => (
-                    <motion.tr 
-                      key={event.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: idx * 0.05 }}
-                      className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
-                    >
-                      <TableCell className="pl-8 py-5">
-                        <div className="flex flex-col">
-                          <span className="text-xs font-black text-[#1A1A1A]">{format(event.fechaHora, "dd/MM/yyyy")}</span>
-                          <span className="text-[10px] font-bold text-gray-400">{format(event.fechaHora, "HH:mm")}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="text-xs font-black text-[#1A1A1A] truncate max-w-[140px] capitalize">{event.nombresApellidos || "Anónimo"}</span>
-                          <span className="text-[10px] font-bold text-gray-400">{event.numeroDocumento || "Sin DOC"}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className={cn(
-                          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase",
-                          event.tipoUsuario?.includes('hogar') ? "bg-blue-50 text-blue-600" : "bg-primary/10 text-primary"
-                        )}>
-                          {event.tipoUsuario?.includes('hogar') ? <Home className="w-3 h-3" /> : <Briefcase className="w-3 h-3" />}
-                          {event.tipoUsuario?.replace(/_/g, ' ') || "N/A"}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-[10px] font-black text-[#1A1A1A] uppercase tracking-tighter">
-                          {event.canal || "Desconocido"}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-xs font-bold text-gray-600 flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-gray-300" />
-                          {event.distrito || "Lima"}
-                        </span>
-                      </TableCell>
-                      <TableCell className="pr-8 max-w-[250px]">
-                        <p className="text-[10px] font-medium text-gray-500 line-clamp-2 leading-relaxed">
-                          {event.resultadoDiagnosticoResumen || event.textoConsulta || "Sin detalle registrado"}
-                        </p>
-                      </TableCell>
-                    </motion.tr>
+                  {filteredRows.map((row) => (
+                    <React.Fragment key={row.id}>
+                      <TableRow className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                        <TableCell className="pl-8 py-5">
+                          <div className="flex flex-col">
+                            <span className="text-xs font-black text-[#1A1A1A]">{format(row.fechaHora, "dd/MM/yyyy")}</span>
+                            <span className="text-[10px] font-bold text-gray-400">{format(row.fechaHora, "HH:mm")}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="text-xs font-black text-[#1A1A1A] truncate max-w-[140px] capitalize">{row.nombresApellidos || "Anónimo"}</span>
+                            <span className="text-[10px] font-bold text-gray-400">{row.numeroDocumento || "Sin DOC"}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className={cn(
+                            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase",
+                            row.tipoUsuario?.includes('hogar') ? "bg-blue-50 text-blue-600" : "bg-primary/10 text-primary"
+                          )}>
+                            {row.tipoUsuario?.includes('hogar') ? <Home className="w-3 h-3" /> : <Briefcase className="w-3 h-3" />}
+                            {row.tipoUsuario?.replace(/_/g, ' ') || "N/A"}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className={cn(
+                            "text-[10px] font-black uppercase tracking-tighter",
+                            row.canal === 'Chatbot' ? "text-amber-600" : "text-[#1A1A1A]"
+                          )}>
+                            {row.canal}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-xs font-bold text-gray-600 flex items-center gap-1">
+                            <MapPin className="w-3 h-3 text-gray-300" />
+                            {row.distrito || "Lima"}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col gap-1 max-w-[250px]">
+                            <p className="text-[10px] font-medium text-gray-500 line-clamp-1">
+                              {row.resultadoDiagnosticoResumen}
+                            </p>
+                            <div className="flex flex-wrap gap-1">
+                              {row.temasDetectados?.slice(0, 2).map((t: string, i: number) => (
+                                <span key={i} className="text-[8px] font-black uppercase bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded">
+                                  {t.replace(/_/g, ' ')}
+                                </span>
+                              ))}
+                              {(row.temasDetectados?.length || 0) > 2 && (
+                                <span className="text-[8px] font-black text-primary">+{row.temasDetectados.length - 2}</span>
+                              )}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="pr-8">
+                          {row.tipoEvento === 'chatbot_session' ? (
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-[10px] font-black uppercase gap-2 hover:text-primary"
+                              onClick={() => setExpandedRow(expandedRow === row.id ? null : row.id)}
+                            >
+                              {expandedRow === row.id ? "Cerrar" : "Ver Detalle"}
+                              {expandedRow === row.id ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                            </Button>
+                          ) : (
+                            <span className="text-[9px] font-bold text-gray-300 uppercase italic">Registro Fijo</span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                      
+                      {/* Fila Expandida de Consultas */}
+                      <AnimatePresence>
+                        {expandedRow === row.id && row.consultas && (
+                          <TableRow className="bg-gray-50/50 border-none">
+                            <TableCell colSpan={7} className="p-0">
+                              <motion.div 
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="p-8 space-y-6">
+                                  <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
+                                    <Clock className="w-4 h-4 text-amber-500" />
+                                    <h4 className="text-xs font-black uppercase tracking-widest text-[#1A1A1A]">Historial de Consultas Técnicas</h4>
+                                  </div>
+                                  <div className="grid gap-6">
+                                    {row.consultas.map((c: any, ci: number) => (
+                                      <div key={ci} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-3 relative group">
+                                        <div className="flex justify-between items-start">
+                                          <div className="flex items-center gap-2">
+                                            <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
+                                              <UserCircle className="w-3.5 h-3.5 text-primary" />
+                                            </div>
+                                            <p className="text-[11px] font-bold text-[#1A1A1A]">Pregunta del Ciudadano</p>
+                                          </div>
+                                          <span className="text-[9px] font-black text-gray-300 uppercase">{format(c.hora, "HH:mm:ss")}</span>
+                                        </div>
+                                        <p className="text-xs font-medium text-gray-600 pl-8 leading-relaxed">"{c.pregunta}"</p>
+                                        
+                                        <div className="flex items-start gap-2 pt-2 border-t border-gray-50">
+                                          <div className="w-6 h-6 bg-amber-50 rounded-full flex items-center justify-center shrink-0 mt-1">
+                                            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                                          </div>
+                                          <div className="space-y-2">
+                                            <p className="text-[10px] font-black text-amber-600 uppercase tracking-tight">Orientación de OFELIA</p>
+                                            <div className="text-[11px] font-medium text-gray-500 leading-relaxed max-w-[600px] italic">
+                                              {c.respuesta.replace(/<[^>]*>?/gm, '').substring(0, 200)}...
+                                            </div>
+                                            {c.fuente && (
+                                              <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded w-fit">
+                                                <FileText className="w-3 h-3 text-gray-400" />
+                                                <span className="text-[9px] font-black text-gray-400 uppercase">Fuente: {c.fuente}</span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </motion.div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </AnimatePresence>
+                    </React.Fragment>
                   ))}
                 </AnimatePresence>
               </TableBody>
             </Table>
             
-            {filteredEvents.length === 0 && !loading && (
+            {filteredRows.length === 0 && !loading && (
               <div className="py-20 flex flex-col items-center justify-center text-gray-300">
                 <AlertCircle className="w-12 h-12 mb-4 opacity-20" />
                 <p className="text-sm font-bold uppercase tracking-widest">Sin registros coincidentes</p>

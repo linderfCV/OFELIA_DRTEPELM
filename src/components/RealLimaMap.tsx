@@ -156,7 +156,7 @@ export default function RealLimaMap({ events }: RealLimaMapProps) {
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-primary" />
-              <span className="text-[9px] font-bold uppercase text-gray-600">Alta Concentración (>15)</span>
+              <span className="text-[9px] font-bold uppercase text-gray-600">Alta Concentración (&gt;15)</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-amber-500" />

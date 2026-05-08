@@ -25,7 +25,8 @@ import {
   Home,
   Sparkles,
   RefreshCw,
-  MoreVertical
+  MoreVertical,
+  MapPin
 } from "lucide-react";
 import { 
   BarChart, 
@@ -103,17 +104,14 @@ const KPICard = ({ title, value, subvalue, icon: Icon, trend }: any) => (
 );
 
 const LimaMapPlaceholder = ({ dataByDistrict }: { dataByDistrict: any[] }) => {
-  // Representación visual de Lima Metropolitana (Simplificada)
   return (
     <div className="relative w-full h-[400px] bg-[#F8FAFC] rounded-[40px] border border-gray-100 overflow-hidden flex items-center justify-center">
       <div className="absolute inset-0 opacity-10 pointer-events-none">
         <svg viewBox="0 0 800 600" className="w-full h-full fill-gray-400">
-          {/* Un placeholder abstracto de la costa de Lima */}
           <path d="M100,500 Q 150,450 120,350 T 200,200 T 300,100 T 500,50" fill="none" stroke="currentColor" strokeWidth="2" />
         </svg>
       </div>
       
-      {/* Marcadores simulados basados en datos reales */}
       {dataByDistrict.slice(0, 10).map((d, i) => (
         <motion.div
           key={d.name}
@@ -173,8 +171,10 @@ export default function OfeliaDashboard() {
   const [events, setEvents] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [searchTerm, setSearchSearchTerm] = React.useState("");
+  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
+    setMounted(true);
     const q = query(collection(db, "ofelia_eventos"), orderBy("fechaHora", "desc"), limit(200));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({
@@ -213,12 +213,14 @@ export default function OfeliaDashboard() {
 
     // Chart: Eventos por día (últimos 7 días)
     const dailyData: any[] = [];
-    for(let i=6; i>=0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      const dayLabel = format(date, 'EEE', { locale: es }).toUpperCase();
-      const count = events.filter(e => e.fechaHora.toDateString() === date.toDateString()).length;
-      dailyData.push({ name: dayLabel, valor: count });
+    if (mounted) {
+      for(let i=6; i>=0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dayLabel = format(date, 'EEE', { locale: es }).toUpperCase();
+        const count = events.filter(e => e.fechaHora.toDateString() === date.toDateString()).length;
+        dailyData.push({ name: dayLabel, valor: count });
+      }
     }
 
     // Chart: Rubros
@@ -247,13 +249,16 @@ export default function OfeliaDashboard() {
       districtData,
       districtsFull: Object.entries(districts).map(([name, value]) => ({ name, value }))
     };
-  }, [events]);
+  }, [events, mounted]);
 
   const filteredEvents = events.filter(e => 
     e.nombresApellidos?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     e.numeroDocumento?.includes(searchTerm) ||
     e.distrito?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Evitar hydration error bloqueando renderizado de fechas hasta el mount
+  if (!mounted) return null;
 
   return (
     <div className="flex min-h-screen bg-[#FDFDFD] font-body text-[#1A1A1A]">
@@ -433,7 +438,7 @@ export default function OfeliaDashboard() {
                     dataKey="name" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{fontSize: 10, fontWeight: 900, fill: '#94A3B8'}}
+                    tick={{fontSize: 10, fontWait: 900, fill: '#94A3B8'}}
                     dy={10}
                   />
                   <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 900, fill: '#94A3B8'}} />

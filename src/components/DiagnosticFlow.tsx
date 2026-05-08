@@ -141,9 +141,9 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
            stage = activeMaps[index]?.s || "General";
         } else if (routeType === 'domestic') {
            const domesticMaps = [
-             {t: "ruc_empleador", s: "Inscripción en el RUC"},
-             {t: "t_registro", s: "Alta en el T-Registro"},
-             {t: "contrato_mtpe", s: "Contrato y Aplicativo"}
+             {t: "ruc_trabajador_hogar", s: "Inscripción en el RUC (SUNAT)"},
+             {t: "t_registro_trabajador_hogar", s: "Alta en el T-Registro (SUNAT)"},
+             {t: "contrato_trabajador_hogar", s: "Contrato y Aplicativo (MTPE)"}
            ];
            theme = domesticMaps[index]?.t || "otros";
            stage = domesticMaps[index]?.s || "General";
@@ -182,7 +182,13 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
       }
 
       const rubroSlug = sector ? (SECTOR_MAPPING[sector] || "otros") : "hogar";
-      const summary = `El ciudadano es ${isDomestic ? 'empleador del hogar' : 'emprendedor'} ${!isDomestic ? `en etapa de ${routeType === 'idea' ? 'idea de negocio' : 'negocio en marcha'}, rubro ${sector}` : ''}, ubicado en ${district}. ${detected.length > 0 ? `Requiere orientación en: ${detected.join(', ')}.` : 'Cuenta con formalidad base.'}`;
+      
+      let summary = "";
+      if (isDomestic) {
+        summary = `El ciudadano es empleador de trabajador(a) del hogar, ubicado en ${district}. ${detected.length > 0 ? `Requiere orientación en: ${detected.join(', ')}.` : 'Cuenta con formalidad base.'}`;
+      } else {
+        summary = `El ciudadano es emprendedor en etapa de ${routeType === 'idea' ? 'idea de negocio' : 'negocio en marcha'}, rubro ${sector}, ubicado en ${district}. ${detected.length > 0 ? `Requiere orientación en: ${detected.join(', ')}.` : 'Cuenta con formalidad base.'}`;
+      }
 
       // Registro de diagnóstico enriquecido en Firestore
       await logOfeliaEvent({

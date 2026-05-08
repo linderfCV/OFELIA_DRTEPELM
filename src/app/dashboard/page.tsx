@@ -228,6 +228,48 @@ export default function OfeliaDashboard() {
     const diagnosticEvents = events.filter(e => e.tipoEvento === 'diagnostico_usuario');
     const chatbotEvents = events.filter(e => e.tipoEvento === 'consulta_chatbot');
     
+    // Función para limpiar nombres de temas a formato ejecutivo
+    const formatThemeLabel = (theme: string) => {
+      const mapping: Record<string, string> = {
+        "autoriz_sectoriales": "Autorizaciones Sectoriales",
+        "constituye_empresa": "Constitución de Empresa",
+        "contratacion_extranjeros": "Trabajadores Extranjeros",
+        "contiene_trabajo_hogar": "Trabajo del Hogar",
+        "contratos_hogar": "Contratos del Hogar",
+        "formalizacion_empleadores": "Formalización Laboral",
+        "frecuentes_remype": "Consultas REMYPE",
+        "junta_propietarios": "Junta de Propietarios",
+        "ley_extranjeros": "Ley de Extranjeros",
+        "ley_mype": "Ley MYPE",
+        "obligaciones_empleador": "Obligaciones del Empleador",
+        "registro_mype_remype": "Registro REMYPE",
+        "sgsstt_mypes": "Seguridad y Salud (SST)",
+        "sunarp_indecopi": "SUNARP / INDECOPI",
+        "constitucion_empresa": "Constitución Legal",
+        "ruc_regimen_tributario": "RUC / Tributación",
+        "licencia_funcionamiento": "Licencia Municipal",
+        "remype": "Acreditación REMYPE",
+        "ruc_trabajador_hogar": "RUC Empleador Hogar",
+        "t_registro_trabajador_hogar": "T-Registro (SUNAT)",
+        "contrato_trabajador_hogar": "Contrato Laboral Hogar"
+      };
+
+      const key = theme.replace(/\.md$/, '').toLowerCase().trim();
+      if (mapping[key]) return mapping[key];
+      
+      return theme.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    };
+
+    // Generar resumen gramaticalmente correcto
+    const generateSummary = (themesSet: Set<string>, fallback: string) => {
+      const themes = Array.from(themesSet) as string[];
+      if (themes.length === 0) return fallback;
+      if (themes.length === 1) return themes[0];
+      if (themes.length === 2) return themes.join(' y ');
+      const last = themes.pop();
+      return themes.join(', ') + ' y ' + last;
+    };
+
     const chatbotGroups: Record<string, any> = {};
     chatbotEvents.forEach(e => {
       const key = e.numeroDocumento && e.numeroDocumento !== 'N/A' && e.numeroDocumento !== 'Anónimo' 
@@ -249,7 +291,11 @@ export default function OfeliaDashboard() {
         };
       }
       
-      if (e.fuenteUsada) chatbotGroups[key].uniqueThemes.add(e.fuenteUsada.replace(/\.md$/, '').replace(/_/g, ' '));
+      if (e.fuenteUsada) chatbotGroups[key].uniqueThemes.add(formatThemeLabel(e.fuenteUsada));
+      if (e.temasDetectados?.length) {
+        e.temasDetectados.forEach((t: string) => chatbotGroups[key].uniqueThemes.add(formatThemeLabel(t)));
+      }
+      
       chatbotGroups[key].consultasResumen.push(e.textoConsulta);
       if (e.fechaHora > chatbotGroups[key].fechaHora) chatbotGroups[key].fechaHora = e.fechaHora;
     });
@@ -257,10 +303,19 @@ export default function OfeliaDashboard() {
     const chatbotRows = Object.values(chatbotGroups).map(g => ({
       ...g,
       temasDetectados: Array.from(g.uniqueThemes),
-      resultadoDiagnosticoResumen: Array.from(g.uniqueThemes).join(', ') || "Consulta Técnica General"
+      resultadoDiagnosticoResumen: generateSummary(g.uniqueThemes, "Consulta Técnica General")
     }));
 
-    const allRows = [...diagnosticEvents, ...chatbotRows].sort((a, b) => b.fechaHora - a.fechaHora);
+    const processedDiagnostics = diagnosticEvents.map(e => {
+      const diagThemes = new Set((e.temasDetectados || []).map((t: string) => formatThemeLabel(t)));
+      return {
+        ...e,
+        temasDetectados: Array.from(diagThemes),
+        resultadoDiagnosticoResumen: generateSummary(diagThemes, "Perfil de Formalización Base")
+      };
+    });
+
+    const allRows = [...processedDiagnostics, ...chatbotRows].sort((a, b) => b.fechaHora - a.fechaHora);
     return allRows;
   }, [events]);
 
@@ -561,19 +616,9 @@ export default function OfeliaDashboard() {
                         </span>
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-wrap gap-1.5 max-w-[400px]">
-                          {row.temasDetectados?.length > 0 ? (
-                            row.temasDetectados.map((t: string, i: number) => (
-                              <span key={i} className="text-[9px] font-black uppercase bg-white border border-gray-100 text-[#1A1A1A] px-2 py-1 rounded-lg shadow-sm">
-                                {t.replace(/_/g, ' ')}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-[10px] font-bold text-emerald-600 uppercase flex items-center gap-1">
-                              <Target className="w-3 h-3" /> Formalidad Base Detectada
-                            </span>
-                          )}
-                        </div>
+                        <p className="text-[11px] font-black text-[#1A1A1A] leading-snug max-w-[300px]">
+                          {row.resultadoDiagnosticoResumen}
+                        </p>
                       </TableCell>
                       <TableCell className="pr-8 text-right">
                         <Button 
@@ -613,7 +658,7 @@ export default function OfeliaDashboard() {
                                   <div className="space-y-4">
                                     <p className="text-[9px] font-black text-primary uppercase tracking-widest">Brechas Identificadas</p>
                                     <div className="space-y-3">
-                                      {(row.respuestasDiagnosticoDetalle || []).filter((d: any) => d.necesitaOrientacion).map((d: any, idx: number) => (
+                                      {row.tipoEvento === 'diagnostico_usuario' && (row.respuestasDiagnosticoDetalle || []).filter((d: any) => d.necesitaOrientacion).map((d: any, idx: number) => (
                                         <div key={idx} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-start gap-3">
                                           <AlertCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                                           <div>
@@ -628,6 +673,9 @@ export default function OfeliaDashboard() {
                                           <p className="text-[11px] font-medium text-gray-600 leading-snug italic">"{q}"</p>
                                         </div>
                                       ))}
+                                      {(!row.temasDetectados || row.temasDetectados.length === 0) && (
+                                        <p className="text-[11px] font-bold text-emerald-600 uppercase">Sin brechas críticas detectadas.</p>
+                                      )}
                                     </div>
                                   </div>
 
@@ -635,7 +683,7 @@ export default function OfeliaDashboard() {
                                     <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest">Próxima Acción Sugerida</p>
                                     <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm space-y-4">
                                       <p className="text-xs font-medium text-gray-500 leading-relaxed">
-                                        {row.resultadoDiagnosticoResumen || "Ciudadano requiere orientación integral en formalización MYPE."}
+                                        {row.resultadoDiagnosticoResumen ? `El ciudadano requiere orientación prioritaria en ${row.resultadoDiagnosticoResumen.toLowerCase()}.` : "Ciudadano requiere orientación integral en formalización MYPE."}
                                       </p>
                                       <div className="flex gap-2">
                                         <Button className="bg-primary hover:bg-primary/90 text-[10px] font-black uppercase tracking-widest h-9 rounded-xl flex-1">Asignar Asesor</Button>

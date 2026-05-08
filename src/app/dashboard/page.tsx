@@ -184,10 +184,6 @@ export default function OfeliaDashboard() {
           themeCounts[readable] = (themeCounts[readable] || 0) + 1;
         });
       }
-      if (e.fuenteUsada) {
-        const readable = e.fuenteUsada.replace(/\.md$/, '').replace(/_/g, ' ').toUpperCase();
-        themeCounts[readable] = (themeCounts[readable] || 0) + 1;
-      }
     });
     const themeRanking = Object.entries(themeCounts)
       .map(([name, value]) => ({ name, value }))
@@ -223,53 +219,69 @@ export default function OfeliaDashboard() {
     };
   }, [events, mounted]);
 
-  // --- AGRUPACIÓN DE FILAS PARA LA TABLA (REFINADA) ---
+  // --- AGRUPACIÓN DE FILAS PARA LA TABLA (REFINADA - RESULTADO DIAGNÓSTICO EJECUTIVO) ---
   const tableRows = React.useMemo(() => {
     const diagnosticEvents = events.filter(e => e.tipoEvento === 'diagnostico_usuario');
     const chatbotEvents = events.filter(e => e.tipoEvento === 'consulta_chatbot');
     
-    // Función para limpiar nombres de temas a formato ejecutivo
-    const formatThemeLabel = (theme: string) => {
-      const mapping: Record<string, string> = {
-        "autoriz_sectoriales": "Autorizaciones Sectoriales",
-        "constituye_empresa": "Constitución de Empresa",
-        "contratacion_extranjeros": "Trabajadores Extranjeros",
-        "contiene_trabajo_hogar": "Trabajo del Hogar",
-        "contratos_hogar": "Contratos del Hogar",
-        "formalizacion_empleadores": "Formalización Laboral",
-        "frecuentes_remype": "Consultas REMYPE",
-        "junta_propietarios": "Junta de Propietarios",
-        "ley_extranjeros": "Ley de Extranjeros",
-        "ley_mype": "Ley MYPE",
-        "obligaciones_empleador": "Obligaciones del Empleador",
-        "registro_mype_remype": "Registro REMYPE",
-        "sgsstt_mypes": "Seguridad y Salud (SST)",
-        "sunarp_indecopi": "SUNARP / INDECOPI",
-        "constitucion_empresa": "Constitución Legal",
-        "ruc_regimen_tributario": "RUC / Tributación",
-        "licencia_funcionamiento": "Licencia Municipal",
-        "remype": "Acreditación REMYPE",
-        "ruc_trabajador_hogar": "RUC Empleador Hogar",
-        "t_registro_trabajador_hogar": "T-Registro (SUNAT)",
-        "contrato_trabajador_hogar": "Contrato Laboral Hogar"
-      };
-
-      const key = theme.replace(/\.md$/, '').toLowerCase().trim();
-      if (mapping[key]) return mapping[key];
-      
-      return theme.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    // Diccionario de mapeo ejecutivo para evitar términos técnicos internos
+    const mapping: Record<string, string> = {
+      "autoriz_sectoriales": "Autorizaciones Sectoriales",
+      "constituye_empresa": "Constitución de Empresa",
+      "contratacion_extranjeros": "Trabajadores Extranjeros",
+      "contiene_trabajo_hogar": "Trabajo del Hogar",
+      "contratos_hogar": "Contratos del Hogar",
+      "formalizacion_empleadores": "Formalización Laboral",
+      "frecuentes_remype": "Consultas REMYPE",
+      "junta_propietarios": "Junta de Propietarios",
+      "ley_extranjeros": "Ley de Extranjeros",
+      "ley_mype": "Ley MYPE",
+      "obligaciones_empleador": "Obligaciones del Empleador",
+      "registro_mype_remype": "Registro REMYPE",
+      "sgsstt_mypes": "Seguridad y Salud (SST)",
+      "constitucion_empresa": "Constitución Legal",
+      "ruc_regimen_tributario": "RUC / Tributación",
+      "licencia_funcionamiento": "Licencia Municipal",
+      "remype": "Acreditación REMYPE",
+      "ruc_trabajador_hogar": "RUC Empleador Hogar",
+      "t_registro_trabajador_hogar": "T-Registro (SUNAT)",
+      "contrato_trabajador_hogar": "Contrato Laboral Hogar",
+      "sunarp_indecopi": "SUNARP / INDECOPI"
     };
 
-    // Generar resumen gramaticalmente correcto
+    const formatThemeLabel = (theme: string) => {
+      const key = theme.replace(/\.md$/, '').toLowerCase().trim();
+      return mapping[key] || theme.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    };
+
+    // Motor de detección de palabras clave en la pregunta del ciudadano
+    const detectThemeFromQuery = (query: string) => {
+      const text = query.toLowerCase();
+      if (text.includes("extranjero")) return "Trabajadores Extranjeros";
+      if (text.includes("marca") || text.includes("indecopi")) return "Registro de Marca";
+      if (text.includes("licencia") || text.includes("funcionamiento")) return "Licencia Municipal";
+      if (text.includes("remype") || text.includes("acredita")) return "Acreditación REMYPE";
+      if (text.includes("hogar") || text.includes("domestico")) return "Trabajadoras del Hogar";
+      if (text.includes("contrato")) return "Contrato Laboral";
+      if (text.includes("sunarp") || text.includes("constitu")) return "Constitución de Empresa";
+      if (text.includes("ruc") || text.includes("sunat")) return "RUC / Tributación";
+      if (text.includes("sectorial") || text.includes("minedu") || text.includes("digesa")) return "Autorizaciones Sectoriales";
+      return null;
+    };
+
     const generateSummary = (themesSet: Set<string>, fallback: string) => {
       const themes = Array.from(themesSet) as string[];
-      if (themes.length === 0) return fallback;
-      if (themes.length === 1) return themes[0];
-      if (themes.length === 2) return themes.join(' y ');
-      const last = themes.pop();
-      return themes.join(', ') + ' y ' + last;
+      // Filtrar categorías genéricas que no aportan valor ejecutivo
+      const filteredThemes = themes.filter(t => !['Manuales Drtpe', 'Manuales Internos', 'Orientacion General'].includes(t));
+      
+      if (filteredThemes.length === 0) return fallback;
+      if (filteredThemes.length === 1) return filteredThemes[0];
+      if (filteredThemes.length === 2) return filteredThemes.join(' y ');
+      const last = filteredThemes.pop();
+      return filteredThemes.join(', ') + ' y ' + last;
     };
 
+    // Agrupación por sesión de chatbot
     const chatbotGroups: Record<string, any> = {};
     chatbotEvents.forEach(e => {
       const key = e.numeroDocumento && e.numeroDocumento !== 'N/A' && e.numeroDocumento !== 'Anónimo' 
@@ -291,11 +303,16 @@ export default function OfeliaDashboard() {
         };
       }
       
-      if (e.fuenteUsada) chatbotGroups[key].uniqueThemes.add(formatThemeLabel(e.fuenteUsada));
+      // 1. Detectar desde tags de Firestore
       if (e.temasDetectados?.length) {
         e.temasDetectados.forEach((t: string) => chatbotGroups[key].uniqueThemes.add(formatThemeLabel(t)));
       }
+      if (e.fuenteUsada) chatbotGroups[key].uniqueThemes.add(formatThemeLabel(e.fuenteUsada));
       
+      // 2. Detectar desde la pregunta real si los tags son insuficientes o genéricos
+      const detectedFromText = detectThemeFromQuery(e.textoConsulta || "");
+      if (detectedFromText) chatbotGroups[key].uniqueThemes.add(detectedFromText);
+
       chatbotGroups[key].consultasResumen.push(e.textoConsulta);
       if (e.fechaHora > chatbotGroups[key].fechaHora) chatbotGroups[key].fechaHora = e.fechaHora;
     });
@@ -315,8 +332,7 @@ export default function OfeliaDashboard() {
       };
     });
 
-    const allRows = [...processedDiagnostics, ...chatbotRows].sort((a, b) => b.fechaHora - a.fechaHora);
-    return allRows;
+    return [...processedDiagnostics, ...chatbotRows].sort((a, b) => b.fechaHora - a.fechaHora);
   }, [events]);
 
   const filteredRows = tableRows.filter(e => 

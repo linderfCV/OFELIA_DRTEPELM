@@ -20,19 +20,44 @@ import {
 } from "@/components/ui/form"
 
 const formSchema = z.object({
-  docType: z.enum(["DNI", "RUC"]),
-  docNumber: z.string().min(8, "Mínimo 8 dígitos"),
-  fullName: z.string().min(3, "Campo requerido"),
-  email: z.string().email("Correo inválido"),
-  phone: z.string().min(9, "9 dígitos requeridos"),
-})
+  docType: z.enum(["DNI", "CE", "RUC"]),
+  docNumber: z.string()
+    .regex(/^\d+$/, "Solo se permiten números"),
+  fullName: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
+  email: z.string().email("Ingrese un correo electrónico válido"),
+  phone: z.string()
+    .length(9, "El celular debe tener 9 dígitos")
+    .regex(/^\d+$/, "El celular debe tener solo números"),
+}).superRefine((data, ctx) => {
+  if (data.docType === "DNI" && data.docNumber.length !== 8) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "El DNI debe tener 8 dígitos",
+      path: ["docNumber"],
+    });
+  }
+  if (data.docType === "CE" && data.docNumber.length !== 9) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "El CE debe tener 9 dígitos",
+      path: ["docNumber"],
+    });
+  }
+  if (data.docType === "RUC" && data.docNumber.length !== 11) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "El RUC debe tener 11 dígitos",
+      path: ["docNumber"],
+    });
+  }
+});
 
 interface OfeliaFormProps {
   onComplete: (data: z.infer<typeof formSchema>) => void;
 }
 
 export function OfeliaForm({ onComplete }: OfeliaFormProps) {
-  const [docType, setDocType] = React.useState<"DNI" | "RUC">("DNI")
+  const [docType, setDocType] = React.useState<"DNI" | "CE" | "RUC">("DNI")
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,10 +68,10 @@ export function OfeliaForm({ onComplete }: OfeliaFormProps) {
       email: "",
       phone: "",
     },
+    mode: "onChange"
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Registro de evento en Firestore
     await logOfeliaEvent({
       tipoEvento: "registro_usuario",
       tipoDocumento: values.docType,
@@ -60,14 +85,23 @@ export function OfeliaForm({ onComplete }: OfeliaFormProps) {
     onComplete(values);
   }
 
-  const handleDocTypeChange = (type: "DNI" | "RUC") => {
+  const handleDocTypeChange = (type: "DNI" | "CE" | "RUC") => {
     setDocType(type)
     form.setValue("docType", type)
     form.setValue("docNumber", "")
+    form.clearErrors("docNumber")
   }
 
-  const docNumberPlaceholder = docType === "DNI" ? "8 dígitos" : "11 dígitos"
-  const docNumberMaxLength = docType === "DNI" ? 8 : 11
+  const getDocConfig = () => {
+    switch(docType) {
+      case "DNI": return { placeholder: "8 dígitos", max: 8 };
+      case "CE": return { placeholder: "9 dígitos", max: 9 };
+      case "RUC": return { placeholder: "11 dígitos", max: 11 };
+      default: return { placeholder: "", max: 15 };
+    }
+  }
+
+  const docConfig = getDocConfig();
 
   return (
     <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.06)] overflow-hidden">
@@ -83,6 +117,13 @@ export function OfeliaForm({ onComplete }: OfeliaFormProps) {
                   onClick={() => handleDocTypeChange("DNI")}
                 >
                   DNI
+                </div>
+                <div
+                  className="segmented-control-item"
+                  data-active={docType === "CE"}
+                  onClick={() => handleDocTypeChange("CE")}
+                >
+                  CE
                 </div>
                 <div
                   className="segmented-control-item"
@@ -105,10 +146,14 @@ export function OfeliaForm({ onComplete }: OfeliaFormProps) {
                       <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
                         {...field}
-                        placeholder={docNumberPlaceholder}
-                        maxLength={docNumberMaxLength}
+                        placeholder={docConfig.placeholder}
+                        maxLength={docConfig.max}
                         type="text"
                         inputMode="numeric"
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "");
+                          field.onChange(val);
+                        }}
                         className="h-12 pl-11 rounded-xl bg-[#FAFAFA] border-border/60 placeholder:text-muted-foreground/50"
                       />
                     </div>
@@ -124,13 +169,13 @@ export function OfeliaForm({ onComplete }: OfeliaFormProps) {
               render={({ field }) => (
                 <FormItem className="space-y-1.5">
                   <FormLabel className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    {docType === "DNI" ? "Nombres y Apellidos" : "Razón Social"}
+                    {docType === "RUC" ? "Razón Social" : "Nombres y Apellidos"}
                   </FormLabel>
                   <FormControl>
                     <div className="relative">
                       <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input 
-                        placeholder={docType === "DNI" ? "Ej. María Pérez Quispe" : "Nombre de la empresa"} 
+                        placeholder={docType === "RUC" ? "Nombre de la empresa" : "Ej. María Pérez Quispe"} 
                         {...field} 
                         className="h-12 pl-11 rounded-xl bg-[#FAFAFA] border-border/60 placeholder:text-muted-foreground/50" 
                       />
@@ -175,7 +220,12 @@ export function OfeliaForm({ onComplete }: OfeliaFormProps) {
                       <Input 
                         placeholder="9XX XXX XXX" 
                         type="tel" 
+                        maxLength={9}
                         {...field} 
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "");
+                          field.onChange(val);
+                        }}
                         className="h-12 pl-11 rounded-xl bg-[#FAFAFA] border-border/60 placeholder:text-muted-foreground/50" 
                       />
                     </div>
@@ -186,7 +236,11 @@ export function OfeliaForm({ onComplete }: OfeliaFormProps) {
             />
 
             <div className="pt-2">
-              <Button type="submit" className="w-full h-14 text-sm font-bold bg-primary hover:bg-primary/90 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 group">
+              <Button 
+                type="submit" 
+                disabled={!form.formState.isValid}
+                className="w-full h-14 text-sm font-bold bg-primary hover:bg-primary/90 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:grayscale"
+              >
                 Crear mi Perfil / Ingresar
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Button>

@@ -1,11 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { MessageCircle, X, Send, Sparkles, Loader2, User, Home, Briefcase } from "lucide-react"
+import { MessageCircle, X, Send, Sparkles, Loader2, User, Home, Briefcase, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ofeliaChat } from "@/ai/flows/ofelia-chat-flow"
 import { cn } from "@/lib/utils"
 import { logOfeliaEvent } from "@/services/event-service"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface Message {
   role: 'user' | 'model';
@@ -38,9 +39,7 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
   const [onboardingStep, setOnboardingStep] = React.useState<OnboardingStep | null>(null);
   const [userData, setUserData] = React.useState<Partial<UserChatData>>({});
   
-  // Session ID para relacionar eventos de una misma sesión de chat
   const sessionId = React.useMemo(() => Math.random().toString(36).substring(2, 15), []);
-  
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
   
@@ -136,7 +135,6 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
     setUserData(finalUserData);
     setOnboardingStep('ready');
 
-    // Registro de evento de Onboarding completo en Firestore
     await logOfeliaEvent({
       tipoEvento: "registro_chatbot",
       sessionId,
@@ -180,7 +178,6 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
         }))
       });
 
-      // Registro de consulta en Firestore
       await logOfeliaEvent({
         tipoEvento: "consulta_chatbot",
         sessionId,
@@ -217,57 +214,56 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
   return (
     <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-4">
       {isOpen && (
-        <div className="w-[360px] h-[540px] bg-white rounded-[32px] shadow-2xl border border-gray-100 flex flex-col overflow-visible animate-in fade-in slide-in-from-bottom-8">
-          <header className="bg-primary px-5 py-3 text-white flex justify-between items-center relative rounded-t-[32px] shrink-0 min-h-[72px] overflow-visible">
-            <div className="flex items-center gap-2 relative">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center shrink-0">
-                <Sparkles className="w-6 h-6 text-white" />
+        <div className="w-[380px] h-[600px] bg-white rounded-[40px] shadow-2xl border border-gray-100 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-8">
+          <header className="bg-primary px-6 py-5 text-white flex justify-between items-center relative rounded-t-[40px] shrink-0 overflow-hidden">
+            {/* Imagen de fondo sutil para el header */}
+            <img src="/Fondo5.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-20 scale-150" />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
+
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center shrink-0 border border-white/30 shadow-inner">
+                <img src="/Ofelia_logo.png" alt="O" className="w-8 h-8 object-contain" />
               </div>
-              <div className="z-10 pr-2">
-                <h3 className="font-black text-[14px] tracking-tight leading-none uppercase">OFELIA</h3>
-                <p className="text-[9px] font-black opacity-90 uppercase mt-1 tracking-tighter">DRTPE LIMA METROPOLITANA</p>
-              </div>
-              
-              <div className="relative w-24 h-24 select-none pointer-events-none drop-shadow-xl z-20 -mt-10 -ml-2">
-                <img 
-                  src="/Ofelia_logo.png" 
-                  alt="Asistente OFELIA" 
-                  className="w-full h-full object-contain"
-                />
+              <div className="pr-2">
+                <div className="flex items-center gap-1.5">
+                  <h3 className="font-black text-[16px] tracking-tight leading-none uppercase">OFELIA</h3>
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                </div>
+                <p className="text-[8px] font-black opacity-80 uppercase mt-1 tracking-[0.1em]">Asistente IA · DRTPELM</p>
               </div>
             </div>
             
             <button 
               onClick={() => setIsOpen(false)} 
-              className="p-1.5 hover:bg-white/10 rounded-full transition-colors z-20"
+              className="p-2 hover:bg-white/20 rounded-2xl transition-all active:scale-90 z-10"
             >
               <X className="w-5 h-5" />
             </button>
           </header>
           
-          <div ref={scrollRef} className="flex-1 p-5 bg-[#F9FAFB] overflow-y-auto space-y-5 rounded-b-[32px] scroll-smooth">
+          <div ref={scrollRef} className="flex-1 p-6 bg-[#F9FAFB] overflow-y-auto space-y-6 scroll-smooth shadow-inner">
             {messages.map((msg, idx) => (
               <div 
                 key={idx} 
                 className={cn(
-                  "flex flex-col gap-1 max-w-[90%]",
+                  "flex flex-col gap-1.5 max-w-[92%]",
                   msg.role === 'user' ? "ml-auto items-end" : "items-start"
                 )}
               >
                 <div className={cn(
-                  "p-4 rounded-2xl text-[12.5px] font-medium leading-relaxed shadow-sm",
+                  "p-4 rounded-[24px] text-[13px] font-medium leading-relaxed shadow-sm",
                   msg.role === 'user' 
                     ? "bg-primary text-white rounded-tr-none" 
-                    : "bg-white text-[#1A1A1A] rounded-tl-none border border-gray-100"
+                    : "bg-white text-[#1A1A1A] rounded-tl-none border border-gray-100 border-b-2 border-b-gray-200/50"
                 )}>
                   {formatContent(msg.content)}
                 </div>
                 
                 {msg.isAction && onboardingStep === 'profile' && (
-                  <div className="flex flex-col gap-2 w-full mt-2 animate-in fade-in zoom-in-95">
+                  <div className="flex flex-col gap-2 w-full mt-3 animate-in fade-in zoom-in-95">
                     <Button 
                       variant="outline" 
-                      className="justify-start gap-3 h-12 rounded-xl border-blue-100 hover:bg-blue-50 text-blue-700 font-bold text-xs"
+                      className="justify-start gap-3 h-14 rounded-2xl border-blue-100 hover:bg-blue-50 text-blue-700 font-black text-[11px] uppercase tracking-wider shadow-sm transition-all active:scale-[0.98]"
                       onClick={() => selectProfile('entrepreneur')}
                     >
                       <Briefcase className="w-4 h-4" />
@@ -275,7 +271,7 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="justify-start gap-3 h-12 rounded-xl border-emerald-100 hover:bg-emerald-50 text-emerald-700 font-bold text-xs"
+                      className="justify-start gap-3 h-14 rounded-2xl border-emerald-100 hover:bg-emerald-50 text-emerald-700 font-black text-[11px] uppercase tracking-wider shadow-sm transition-all active:scale-[0.98]"
                       onClick={() => selectProfile('domestic')}
                     >
                       <Home className="w-4 h-4" />
@@ -287,33 +283,37 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
             ))}
             
             {isLoading && (
-              <div className="flex items-center gap-2 text-[10px] font-black text-primary animate-pulse px-2">
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                OFELIA está consultando fuentes oficiales...
+              <div className="flex items-center gap-3 text-[10px] font-black text-primary px-2">
+                <div className="flex gap-1">
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" />
+                </div>
+                OFELIA consultando manuales técnicos...
               </div>
             )}
           </div>
 
-          <div className="p-4 bg-white border-t border-gray-100 flex gap-2 rounded-b-[32px]">
+          <div className="p-4 bg-white border-t border-gray-100 flex gap-2">
             <input 
               type="text"
               inputMode={onboardingStep === 'id' ? "numeric" : "text"}
               placeholder={
                 onboardingStep === 'id' ? "Ingresa solo números..." : 
-                onboardingStep === 'profile' ? "Selecciona una opción arriba" :
-                "Escribe aquí..."
+                onboardingStep === 'profile' ? "Selecciona una opción" :
+                "Escribe tu consulta aquí..."
               }
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               disabled={isLoading || onboardingStep === 'profile'}
-              className="flex-1 bg-gray-50 border-none rounded-2xl px-5 py-3 text-[12.5px] font-medium focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50"
+              className="flex-1 bg-gray-50 border-none rounded-2xl px-5 py-4 text-[13px] font-bold focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50"
             />
             <Button 
               size="icon" 
               onClick={handleSend}
               disabled={isLoading || !input.trim() || onboardingStep === 'profile'}
-              className="h-11 w-11 rounded-2xl bg-primary shrink-0 transition-transform active:scale-90 shadow-md shadow-primary/20"
+              className="h-14 w-14 rounded-2xl bg-primary shrink-0 transition-all active:scale-90 shadow-xl shadow-primary/30"
             >
               <Send className="w-5 h-5" />
             </Button>
@@ -323,22 +323,38 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
 
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-18 h-18 bg-white rounded-full shadow-2xl shadow-primary/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-all group relative border-4 border-white overflow-visible p-0"
-        style={{ width: '72px', height: '72px' }}
+        className="w-20 h-20 bg-white rounded-full shadow-2xl shadow-primary/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-all group relative border-4 border-white p-0 overflow-visible"
       >
-        {isOpen ? (
-          <X className="w-8 h-8 text-primary" />
-        ) : (
-          <div className="w-full h-full relative">
-            <img 
-              src="/Ofelia_logo.png" 
-              alt="Asistente OFELIA" 
-              className="w-full h-full object-contain scale-125 -translate-y-1"
-            />
-          </div>
-        )}
+        <AnimatePresence mode="wait">
+          {isOpen ? (
+            <motion.div
+              key="close"
+              initial={{ opacity: 0, rotate: -90 }}
+              animate={{ opacity: 1, rotate: 0 }}
+              exit={{ opacity: 0, rotate: 90 }}
+            >
+              <X className="w-10 h-10 text-primary" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="logo"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              className="relative w-full h-full flex items-center justify-center"
+            >
+              <img 
+                src="/Ofelia_logo.png" 
+                alt="OFELIA" 
+                className="w-14 h-14 object-contain drop-shadow-lg"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
         {!isOpen && (
-          <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-4 border-white z-10" />
+          <div className="absolute top-0 right-0 w-6 h-6 bg-emerald-500 rounded-full border-4 border-white shadow-lg animate-bounce z-10 flex items-center justify-center">
+            <span className="w-1 h-1 bg-white rounded-full" />
+          </div>
         )}
       </button>
     </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Lightbulb, Briefcase, ChevronRight, Check, MapPin, Store, Search, ArrowRight, Home, UserCheck } from "lucide-react"
+import { Lightbulb, Briefcase, ChevronRight, Check, MapPin, Store, Search, ArrowRight, Home, UserCheck, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -107,6 +107,7 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
     if (step < finalStep) {
       setStep(step + 1);
     } else {
+      // Registro y lógica de guardado omitida por brevedad (se mantiene igual)
       // Mapeo detallado para Firestore
       const detail: any[] = [];
       const detected: string[] = [];
@@ -118,7 +119,6 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
       currentQuestions.forEach((q, index) => {
         const answerStep = startIdx + index;
         const val = nextAnswers[answerStep];
-        
         let theme = "";
         let stage = "";
         
@@ -156,13 +156,10 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
           temaRelacionado: theme,
           etapaRuta: stage
         });
-        
-        if (!val) {
-          detected.push(theme);
-        }
+        if (!val) detected.push(theme);
       });
 
-      // Cálculo de Hoja de Ruta mostrada (espejo del Dashboard)
+      // Cálculo de Hoja de Ruta
       if (routeType === 'idea') {
         if (nextAnswers[3] === false) roadmap.push("Reserva de Nombre Legal (SUNARP)");
         if (nextAnswers[4] === false) { roadmap.push("Protección de Marca (INDECOPI)"); roadmap.push("Elaborar Acto Constitutivo (Minuta)"); }
@@ -190,7 +187,6 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
         summary = `El ciudadano es emprendedor en etapa de ${routeType === 'idea' ? 'idea de negocio' : 'negocio en marcha'}, rubro ${sector}, ubicado en ${district}. ${detected.length > 0 ? `Requiere orientación en: ${detected.join(', ')}.` : 'Cuenta con formalidad base.'}`;
       }
 
-      // Registro de diagnóstico enriquecido en Firestore
       await logOfeliaEvent({
         tipoEvento: "diagnostico_usuario",
         numeroDocumento: userData?.docNumber || "N/A",
@@ -212,42 +208,56 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
     }
   };
 
+  const HeaderImage = ({ src }: { src: string }) => (
+    <div className="relative w-full h-40 rounded-[32px] overflow-hidden mb-8 shadow-xl">
+      <img src={src} alt="Banner" className="w-full h-full object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A] via-transparent to-transparent opacity-60" />
+      <div className="absolute bottom-4 left-6">
+        <div className="flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/30">
+          <Sparkles className="w-3.5 h-3.5 text-white" />
+          <span className="text-[10px] font-black text-white uppercase tracking-widest">Asesoría Preventiva</span>
+        </div>
+      </div>
+    </div>
+  );
+
   if (step === -1) {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div className="space-y-4">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">BIENVENIDO A OFELIA</p>
-          <h2 className="text-3xl font-black text-[#1A1A1A] leading-[1.1] tracking-tight">
+        <HeaderImage src="/Fondo3.png" />
+        <div className="space-y-3 px-2">
+          <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">IDENTIFICACIÓN</p>
+          <h2 className="text-4xl font-black text-[#1A1A1A] leading-[0.95] tracking-tighter">
             ¿Cómo te identificas hoy?
           </h2>
-          <p className="text-sm text-muted-foreground font-medium">Selecciona tu perfil para darte la asesoría correcta.</p>
+          <p className="text-sm text-gray-500 font-medium">Selecciona tu perfil para personalizar tu ruta legal.</p>
         </div>
 
         <div className="grid gap-4">
           <button
             onClick={() => { setProfile('entrepreneur'); setStep(0); }}
-            className="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-2xl text-left hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all group"
+            className="flex items-center gap-4 p-6 bg-white border border-gray-100 rounded-[32px] text-left hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5 transition-all group"
           >
-            <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 shrink-0">
-              <Briefcase className="w-6 h-6" />
+            <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 shrink-0">
+              <Briefcase className="w-7 h-7" />
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-[#1A1A1A]">Soy Emprendedor</h3>
-              <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-tight">Negocios y Proyectos</p>
+              <h3 className="font-black text-lg text-[#1A1A1A]">Soy Emprendedor</h3>
+              <p className="text-[10px] font-black uppercase text-gray-400 tracking-tight">Negocios y Proyectos</p>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
           </button>
 
           <button
             onClick={() => { setProfile('domestic'); setRouteType('domestic'); setSector('Trabajadores del Hogar'); setStep(1); }}
-            className="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-2xl text-left hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all group"
+            className="flex items-center gap-4 p-6 bg-white border border-gray-100 rounded-[32px] text-left hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5 transition-all group"
           >
-            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 shrink-0">
-              <Home className="w-6 h-6" />
+            <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 shrink-0">
+              <Home className="w-7 h-7" />
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-[#1A1A1A]">Soy Empleador de Trabajadores(as) del Hogar</h3>
-              <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-tight">Régimen Especial</p>
+              <h3 className="font-black text-lg text-[#1A1A1A]">Soy Empleador del Hogar</h3>
+              <p className="text-[10px] font-black uppercase text-gray-400 tracking-tight">Régimen Especial</p>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
           </button>
@@ -259,39 +269,40 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
   if (step === 0 && profile === 'entrepreneur') {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div className="space-y-4">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">PASO 1 DE {totalSteps}</p>
-          <h2 className="text-3xl font-black text-[#1A1A1A] leading-[1.1] tracking-tight">
-            ¿En qué etapa se encuentra tu emprendimiento?
+        <HeaderImage src="/Fondo4.jpg" />
+        <div className="space-y-3 px-2">
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">PASO 1 DE {totalSteps}</p>
+          <h2 className="text-4xl font-black text-[#1A1A1A] leading-[0.95] tracking-tighter">
+            ¿En qué etapa estás?
           </h2>
-          <p className="text-sm text-muted-foreground font-medium">Personalizaremos tu ruta de formalización municipal y laboral.</p>
+          <p className="text-sm text-gray-500 font-medium italic">Tu formalización depende del estado de tu proyecto.</p>
         </div>
 
         <div className="grid gap-4">
           <button
             onClick={() => { setRouteType('idea'); setStep(1); }}
-            className="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-2xl text-left hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all group"
+            className="flex items-center gap-4 p-6 bg-white border border-gray-100 rounded-[32px] text-left hover:border-primary/20 hover:shadow-2xl transition-all group"
           >
-            <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 shrink-0">
-              <Lightbulb className="w-6 h-6" />
+            <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 shrink-0">
+              <Lightbulb className="w-7 h-7" />
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-[#1A1A1A]">Tengo una idea de negocio</h3>
-              <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-tight">Ruta del Emprendedor</p>
+              <h3 className="font-black text-lg text-[#1A1A1A]">Idea de Negocio</h3>
+              <p className="text-[10px] font-black uppercase text-gray-400 tracking-tight">Incubación y Constitución</p>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
           </button>
 
           <button
             onClick={() => { setRouteType('active'); setStep(1); }}
-            className="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-2xl text-left hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all group"
+            className="flex items-center gap-4 p-6 bg-white border border-gray-100 rounded-[32px] text-left hover:border-primary/20 hover:shadow-2xl transition-all group"
           >
-            <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500 shrink-0">
-              <Briefcase className="w-6 h-6" />
+            <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 shrink-0">
+              <Briefcase className="w-7 h-7" />
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-[#1A1A1A]">Ya tengo un negocio en marcha</h3>
-              <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-tight">Ruta de la Regularización</p>
+              <h3 className="font-black text-lg text-[#1A1A1A]">Negocio en Marcha</h3>
+              <p className="text-[10px] font-black uppercase text-gray-400 tracking-tight">Regularización y REMYPE</p>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
           </button>
@@ -300,29 +311,32 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
     );
   }
 
+  // --- RESTO DE PASOS (SECTOR, DISTRITO, PREGUNTAS) ---
+  // Se mantienen con mejoras sutiles en espaciado y tipografía para coincidir con el nuevo estilo visual.
+
   if (step === 1 && profile === 'entrepreneur') {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-        <div className="space-y-4">
+        <div className="space-y-4 px-2">
           <div className="flex justify-between items-end">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">PASO 2 DE {totalSteps}</p>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">PASO 2 DE {totalSteps}</p>
             <p className="text-[10px] font-black text-primary uppercase">{Math.round(currentProgress)}%</p>
           </div>
           <Progress value={currentProgress} className="h-1.5 bg-gray-100" />
-          <h2 className="text-2xl font-black text-[#1A1A1A] pt-4 leading-[1.2] tracking-tight">
-            ¿Cuál es el rubro o sector de tu negocio?
+          <h2 className="text-3xl font-black text-[#1A1A1A] pt-4 leading-none tracking-tighter">
+            ¿Cuál es el rubro de tu negocio?
           </h2>
         </div>
 
-        <ScrollArea className="h-[400px] pr-2">
-          <div className="grid gap-2 pb-4">
+        <ScrollArea className="h-[440px] pr-4">
+          <div className="grid gap-2.5 pb-4">
             {SECTORS.map((s) => (
               <button
                 key={s.id}
                 onClick={() => { setSector(s.label); handleNext({ sector: s.label }); }}
-                className="flex items-center gap-4 p-4 bg-white border border-gray-100 rounded-xl text-left hover:border-primary/30 transition-all hover:bg-gray-50 group"
+                className="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-2xl text-left hover:border-primary/30 transition-all hover:bg-gray-50 group"
               >
-                <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-xl grayscale group-hover:grayscale-0 transition-all">
+                <div className="w-11 h-11 bg-gray-50 rounded-xl flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all">
                   {s.icon}
                 </div>
                 <span className="text-sm font-bold text-gray-700 flex-1">{s.label}</span>
@@ -339,66 +353,66 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
   if (isDistrictStep) {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-        <div className="space-y-4">
+        <div className="space-y-4 px-2">
           <div className="flex justify-between items-end">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">UBICACIÓN</p>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">UBICACIÓN</p>
             <p className="text-[10px] font-black text-primary uppercase">{Math.round(currentProgress)}%</p>
           </div>
           <Progress value={currentProgress} className="h-1.5 bg-gray-100" />
-          <h2 className="text-2xl font-black text-[#1A1A1A] pt-4 leading-[1.2] tracking-tight">
-            ¿En qué distrito se ubica el {isDomestic ? 'hogar' : 'negocio'}?
+          <h2 className="text-3xl font-black text-[#1A1A1A] pt-4 leading-none tracking-tighter">
+            ¿En qué distrito se ubica?
           </h2>
         </div>
 
         <div className="space-y-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input 
               placeholder="Busca tu distrito..." 
-              className="pl-10 h-12 rounded-xl border-gray-200"
+              className="pl-11 h-14 rounded-2xl border-gray-100 bg-white shadow-sm font-bold"
               value={districtSearch}
               onChange={(e) => setDistrictSearch(e.target.value)}
             />
           </div>
 
-          <ScrollArea className="h-[250px] border border-gray-100 rounded-2xl bg-white p-2">
+          <ScrollArea className="h-[280px] border border-gray-100 rounded-[32px] bg-white p-3 shadow-inner">
             <div className="grid gap-1">
               {DISTRICTS.filter(d => d.toLowerCase().includes(districtSearch.toLowerCase())).map((d) => (
                 <button
                   key={d}
                   onClick={() => setDistrict(d)}
                   className={cn(
-                    "w-full text-left px-4 py-3 text-sm font-medium rounded-lg transition-all flex items-center justify-between",
+                    "w-full text-left px-5 py-4 text-sm font-bold rounded-xl transition-all flex items-center justify-between",
                     district === d 
-                      ? "bg-primary text-white shadow-md shadow-primary/20" 
-                      : "hover:bg-primary/5 hover:text-primary"
+                      ? "bg-primary text-white shadow-xl shadow-primary/20" 
+                      : "hover:bg-gray-50 text-gray-600"
                   )}
                 >
                   {d}
-                  <MapPin className={cn("w-3.5 h-3.5", district === d ? "opacity-100" : "opacity-30")} />
+                  <MapPin className={cn("w-4 h-4", district === d ? "opacity-100" : "opacity-20")} />
                 </button>
               ))}
             </div>
           </ScrollArea>
 
           {district && (
-            <div className="animate-in fade-in slide-in-from-top-2 space-y-3 pt-2">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest px-1">
-                  Zona o lugar de referencia (Opcional)
+            <div className="animate-in fade-in slide-in-from-top-2 space-y-4 pt-2">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest px-2">
+                  Zona o referencia (Opcional)
                 </label>
                 <Input 
-                  placeholder="Ej: Mercado Central, Galería El Rey, Óvalo..." 
-                  className="h-12 rounded-xl bg-gray-50 border-none focus:ring-1 focus:ring-primary/30"
+                  placeholder="Ej: Mercado Central, Óvalo..." 
+                  className="h-14 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-primary/20 font-medium"
                   value={zone}
                   onChange={(e) => setZone(e.target.value)}
                 />
               </div>
               <Button 
-                className="w-full h-12 rounded-xl font-bold bg-primary hover:bg-primary/90 flex items-center justify-center gap-2"
+                className="w-full h-14 rounded-2xl font-black bg-primary hover:bg-primary/90 flex items-center justify-center gap-3 shadow-lg shadow-primary/20 uppercase tracking-widest text-xs"
                 onClick={() => handleNext({ district, zone })}
               >
-                Continuar
+                Continuar Diagnóstico
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
@@ -412,39 +426,40 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
   const currentQuestion = routeType ? routeQuestions[routeType as keyof typeof routeQuestions][routeStepIdx] : "";
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-      <div className="space-y-4">
+    <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-500">
+      <div className="space-y-5 px-2">
         <div className="flex justify-between items-end">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">PASO {step + 1} DE {totalSteps}</p>
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">PASO {step + 1} DE {totalSteps}</p>
           <p className="text-[10px] font-black text-primary uppercase">{Math.round(currentProgress)}%</p>
         </div>
         <Progress value={currentProgress} className="h-1.5 bg-gray-100" />
         
-        <h2 className="text-2xl font-black text-[#1A1A1A] pt-4 leading-[1.2] tracking-tight">
-          {currentQuestion}
+        <h2 className="text-3xl font-black text-[#1A1A1A] pt-4 leading-[1.1] tracking-tighter italic">
+          "{currentQuestion}"
         </h2>
       </div>
 
-      <div className="grid gap-3 pt-4">
-        <Button
-          variant="outline"
-          className="h-16 text-lg font-bold border-2 rounded-2xl hover:border-primary hover:text-primary transition-all flex justify-between px-6"
+      <div className="grid gap-4 pt-4">
+        <button
+          className="h-20 text-lg font-black bg-white border-2 border-gray-100 rounded-3xl hover:border-primary hover:text-primary transition-all flex items-center justify-between px-8 group shadow-sm hover:shadow-xl active:scale-95"
           onClick={() => handleNext({ [step]: true })}
         >
           Sí, lo tengo claro
-          <Check className="w-5 h-5 opacity-40" />
-        </Button>
-        <Button
-          variant="outline"
-          className="h-16 text-lg font-bold border-2 rounded-2xl hover:border-primary hover:text-primary transition-all flex justify-start px-6"
+          <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+            <Check className="w-5 h-5 text-gray-300 group-hover:text-primary" />
+          </div>
+        </button>
+        <button
+          className="h-20 text-lg font-black bg-white border-2 border-gray-100 rounded-3xl hover:border-primary hover:text-primary transition-all flex items-center justify-start px-8 group shadow-sm hover:shadow-xl active:scale-95"
           onClick={() => handleNext({ [step]: false })}
         >
           No, necesito orientación
-        </Button>
+        </button>
       </div>
 
-      <div className="pt-8 text-center">
-        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Información Confidencial (DRTPELM)</p>
+      <div className="pt-10 flex flex-col items-center gap-4">
+        <div className="h-[1px] w-20 bg-gray-200" />
+        <p className="text-[9px] text-gray-400 font-black uppercase tracking-[0.3em]">DRTPELM LIMA METROPOLITANA</p>
       </div>
     </div>
   );

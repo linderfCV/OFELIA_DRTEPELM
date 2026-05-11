@@ -391,7 +391,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                {isFormalUser ? "ESTADO: FORMALIZADO" : "ANÁLISIS DE FORMALIZACIÓN"}
              </p>
              <h2 className="text-xl font-black text-white tracking-tight leading-none italic uppercase">
-               {isFormalUser ? "¡Formalización Exitosa!" : "Hoja de Ruta Técnica"}
+               {isFormalUser ? "¡Formalización Exitosa!" : "Tu Hoja de Ruta para tu Formalización"}
              </h2>
           </div>
         </div>

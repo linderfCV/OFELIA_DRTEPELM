@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -367,50 +368,50 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                        ((routeType === 'idea' || routeType === 'active') && tasks.length === 1 && tasks[0].id === 'mype-benefits');
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
-      {/* Banner de Celebración / Estado */}
-      <div className="relative w-full rounded-[40px] overflow-hidden p-8 shadow-2xl group min-h-[180px] flex items-center">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-700">
+      {/* Banner Compacto e Institucional */}
+      <div className="relative w-full rounded-[32px] overflow-hidden p-6 shadow-xl group h-28 flex items-center">
         <motion.img 
-          initial={{ scale: 1.2 }}
+          initial={{ scale: 1.1 }}
           animate={{ scale: 1 }}
           src="/Fondo1.jfif" 
-          className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-1000" 
+          className="absolute inset-0 w-full h-full object-cover opacity-20" 
         />
         <div className={cn(
           "absolute inset-0 opacity-90",
-          isFormalUser ? "bg-gradient-to-r from-blue-600 to-blue-400" : "bg-gradient-to-r from-primary to-red-400"
+          isFormalUser ? "bg-gradient-to-r from-blue-700 to-blue-500" : "bg-gradient-to-r from-primary to-red-500"
         )} />
         
-        <div className="relative z-10 flex items-center gap-6">
-          <div className="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/30 shadow-inner">
-             {isFormalUser ? <Trophy className="w-8 h-8 text-white" /> : <ClipboardList className="w-8 h-8 text-white" />}
+        <div className="relative z-10 flex items-center gap-4">
+          <div className="w-12 h-12 bg-white/20 backdrop-blur-xl rounded-xl flex items-center justify-center border border-white/30">
+             {isFormalUser ? <Trophy className="w-6 h-6 text-white" /> : <ClipboardList className="w-6 h-6 text-white" />}
           </div>
-          <div className="space-y-1">
-             <p className="text-[10px] font-black text-white/70 uppercase tracking-[0.3em]">
-               {isFormalUser ? "ESTADO: FORMALIZADO" : "ANÁLISIS COMPLETADO"}
+          <div className="space-y-0.5">
+             <p className="text-[9px] font-black text-white/80 uppercase tracking-[0.2em]">
+               {isFormalUser ? "ESTADO: FORMALIZADO" : "ANÁLISIS DE FORMALIZACIÓN"}
              </p>
-             <h2 className="text-3xl font-black text-white tracking-tighter leading-none italic">
-               {isFormalUser ? "¡Excelente trabajo!" : "Tu Hoja de Ruta Técnica"}
+             <h2 className="text-xl font-black text-white tracking-tight leading-none italic uppercase">
+               {isFormalUser ? "¡Formalización Exitosa!" : "Hoja de Ruta Técnica"}
              </h2>
           </div>
         </div>
       </div>
 
-      <header className="space-y-3 px-2">
-        <h3 className="text-2xl font-black text-[#1A1A1A] tracking-tight">
+      <header className="space-y-1.5 px-2">
+        <h3 className="text-xl font-black text-[#1A1A1A] tracking-tight">
           {isFormalUser 
-            ? "Eres un actor clave en la economía formal de Lima" 
-            : "Tareas pendientes para tu formalización"}
+            ? "Gestión de Beneficios y Crecimiento" 
+            : "Tareas pendientes para tu formalidad"}
         </h3>
-        <p className="text-sm text-muted-foreground font-medium leading-relaxed">
+        <p className="text-[13px] text-muted-foreground font-medium leading-relaxed max-w-[440px]">
           {isFormalUser 
-            ? "Conoce los beneficios exclusivos que el Estado peruano tiene para tu crecimiento."
-            : "Sigue estos pasos basados en la normativa de SUNAT, MTPE y Gobiernos Locales."}
+            ? "Explora las ventajas del régimen formal y accede a soporte técnico especializado."
+            : "Sigue la secuencia técnica oficial de SUNAT y el MTPE para completar tu registro."}
         </p>
       </header>
 
-      <div className="space-y-4">
-        <Accordion type="single" collapsible className="w-full space-y-4" defaultValue={tasks[0]?.id}>
+      <div className="space-y-3">
+        <Accordion type="single" collapsible className="w-full space-y-3" defaultValue={tasks[0]?.id}>
           {tasks.map((task) => {
             const isInfoClave = task.step === "INFO CLAVE";
             const isSectoral = task.step === "AUTORIZACION SECTORIAL";
@@ -420,29 +421,29 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                 key={task.id} 
                 value={task.id}
                 className={cn(
-                  "border rounded-[32px] bg-white shadow-xl shadow-gray-200/40 overflow-hidden px-6 transition-all hover:shadow-2xl active:scale-[0.99]",
-                  isInfoClave ? "border-blue-400 bg-blue-50/10" : isSectoral ? "border-emerald-200 bg-emerald-50/10" : "border-gray-100"
+                  "border rounded-[24px] bg-white shadow-sm overflow-hidden px-5 transition-all hover:shadow-md",
+                  isInfoClave ? "border-blue-200 bg-blue-50/5" : isSectoral ? "border-emerald-200 bg-emerald-50/5" : "border-gray-100"
                 )}
               >
-                <AccordionTrigger className="hover:no-underline py-6">
-                  <div className="flex items-center gap-5 text-left">
+                <AccordionTrigger className="hover:no-underline py-4">
+                  <div className="flex items-center gap-4 text-left">
                     <div className={cn(
-                      "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg",
-                      isInfoClave ? "bg-blue-600 shadow-blue-200" : isSectoral ? "bg-emerald-600 shadow-emerald-200" : "bg-red-50 shadow-red-100"
+                      "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm",
+                      isInfoClave ? "bg-blue-600" : isSectoral ? "bg-emerald-600" : "bg-red-50"
                     )}>
                       {React.cloneElement(task.icon as React.ReactElement, { 
-                        className: cn("w-6 h-6", (isInfoClave || isSectoral) ? "text-white" : "text-primary") 
+                        className: cn("w-5 h-5", (isInfoClave || isSectoral) ? "text-white" : "text-primary") 
                       })}
                     </div>
                     <div className="space-y-0.5">
                       <p className={cn(
-                        "text-[9px] font-black uppercase tracking-[0.2em]",
+                        "text-[8px] font-black uppercase tracking-widest",
                         isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-muted-foreground"
                       )}>
                         {task.step}
                       </p>
                       <h3 className={cn(
-                        "font-black text-base tracking-tight",
+                        "font-black text-sm tracking-tight",
                         isInfoClave ? "text-blue-900" : isSectoral ? "text-emerald-900" : "text-[#1A1A1A]"
                       )}>
                         {task.title}
@@ -450,84 +451,82 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                     </div>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="pb-8 pt-2">
-                  <div className="space-y-8 text-[#1A1A1A]">
-                    <section className="space-y-3">
+                <AccordionContent className="pb-6 pt-1">
+                  <div className="space-y-6 text-[#1A1A1A]">
+                    <section className="space-y-2">
                       <h4 className={cn(
-                        "text-[10px] font-black uppercase tracking-widest",
+                        "text-[9px] font-black uppercase tracking-widest",
                         isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-gray-500"
                       )}>
                         {task.description}
                       </h4>
-                      <p className="text-sm font-medium leading-relaxed text-gray-600 italic bg-gray-50/50 p-4 rounded-2xl border border-gray-100/50">
+                      <p className="text-[13px] font-medium leading-relaxed text-gray-600 bg-gray-50/50 p-3.5 rounded-xl border border-gray-100">
                         {task.details}
                       </p>
                       {task.link && (
                         <Button variant="link" className={cn(
-                          "h-auto p-0 text-[11px] font-black uppercase gap-2 mt-2",
+                          "h-auto p-0 text-[10px] font-black uppercase gap-1.5 mt-1",
                           isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-primary"
                         )} onClick={() => window.open(task.link, '_blank')}>
-                          PLATAFORMA OFICIAL <ExternalLink className="w-3.5 h-3.5" />
+                          VER PORTAL OFICIAL <ExternalLink className="w-3 h-3" />
                         </Button>
                       )}
                     </section>
 
                     {task.options && (
-                      <section className="bg-blue-50/20 p-5 rounded-[32px] border border-blue-100/50 space-y-4">
-                        <h4 className="text-[10px] font-black text-blue-800/60 uppercase tracking-widest px-1">MODELOS Y RECURSOS</h4>
-                        <div className="grid gap-2.5">
+                      <section className="bg-blue-50/20 p-4 rounded-[24px] border border-blue-100/50 space-y-3">
+                        <h4 className="text-[9px] font-black text-blue-800/60 uppercase tracking-widest">RECURSOS DESCARGABLES</h4>
+                        <div className="grid gap-2">
                           {task.options.map((opt, idx) => (
                             <button
                               key={idx}
                               onClick={() => window.open(opt.url, '_blank')}
-                              className="w-full flex items-center justify-between gap-4 p-4 bg-white border border-gray-200 rounded-2xl hover:border-blue-400 hover:bg-blue-50/50 transition-all group text-left shadow-sm active:scale-95"
+                              className="w-full flex items-center justify-between gap-3 p-3 bg-white border border-gray-100 rounded-xl hover:border-blue-400 transition-all text-left shadow-sm active:scale-[0.98]"
                             >
-                              <span className="text-[12px] font-black italic text-blue-600 leading-tight group-hover:underline">
+                              <span className="text-[11px] font-black italic text-blue-600 leading-tight">
                                 {opt.label}
                               </span>
-                              <div className="w-8 h-8 bg-blue-50 rounded-xl flex items-center justify-center text-blue-400 group-hover:text-blue-600 transition-colors">
-                                <Download className="w-4 h-4" />
-                              </div>
+                              <Download className="w-3.5 h-3.5 text-blue-400" />
                             </button>
                           ))}
                         </div>
                       </section>
                     )}
 
-                    <section className="space-y-4">
+                    <section className="space-y-3">
                       <h4 className={cn(
-                        "text-[10px] font-black uppercase tracking-widest",
+                        "text-[9px] font-black uppercase tracking-widest",
                         isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-gray-500"
                       )}>
-                        {task.id === 'mype-benefits' ? 'VENTAJAS COMPETITIVAS' : 'REQUISITOS / OBLIGACIONES'}
+                        {task.id === 'mype-benefits' ? 'VENTAJAS ESTRATÉGICAS' : 'REQUISITOS / OBLIGACIONES'}
                       </h4>
-                      <div className="grid gap-3">
+                      <div className="grid gap-2">
                         {task.requirements.map((req, idx) => (
-                          <div key={idx} className="flex items-start gap-3 bg-gray-50/30 p-3 rounded-xl">
-                            <CheckCircle2 className={cn("w-4 h-4 shrink-0 mt-0.5", isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-primary")} />
-                            <p className="text-xs font-bold text-gray-700">{req}</p>
+                          <div key={idx} className="flex items-start gap-2.5 bg-gray-50/20 p-2.5 rounded-lg border border-gray-100/50">
+                            <CheckCircle2 className={cn("w-3.5 h-3.5 shrink-0 mt-0.5", isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-primary")} />
+                            <p className="text-[12px] font-bold text-gray-700 leading-snug">{req}</p>
                           </div>
                         ))}
                       </div>
                     </section>
 
-                    <section className="space-y-5">
+                    <section className="space-y-4">
                       <h4 className={cn(
-                        "text-[10px] font-black uppercase tracking-widest",
+                        "text-[9px] font-black uppercase tracking-widest",
                         isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-gray-500"
                       )}>
-                        {task.id === 'mype-benefits' ? 'RECOMENDACIONES' : 'PROCESO TÉCNICO'}
+                        PASOS A SEGUIR
                       </h4>
-                      <div className="grid gap-4">
+                      <div className="grid gap-3.5">
                         {task.steps.map((step, idx) => (
-                          <div key={idx} className="flex gap-4 items-start relative group">
+                          <div key={idx} className="flex gap-3 items-start relative">
                             <div className={cn(
-                              "w-7 h-7 text-white rounded-full flex items-center justify-center text-[11px] font-black shrink-0 mt-0.5 shadow-lg",
+                              "w-6 h-6 text-white rounded-full flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5 shadow-sm",
                               isInfoClave ? "bg-blue-600" : isSectoral ? "bg-emerald-600" : "bg-primary"
                             )}>{idx + 1}</div>
-                            <p className="text-[13px] font-medium leading-relaxed text-gray-700 pt-1 group-hover:text-[#1A1A1A] transition-colors">{step}</p>
+                            <p className="text-[12px] font-medium leading-relaxed text-gray-700 pt-0.5">{step}</p>
                             {idx < task.steps.length - 1 && (
-                              <div className="absolute left-[13px] top-8 w-[1px] h-full bg-gray-100" />
+                              <div className="absolute left-[11px] top-7 w-[1px] h-[calc(100%-14px)] bg-gray-100" />
                             )}
                           </div>
                         ))}
@@ -535,24 +534,24 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                     </section>
 
                     <div onClick={onOpenChat} className={cn(
-                      "border border-dashed rounded-[32px] p-6 mt-6 flex items-center justify-between group cursor-pointer transition-all hover:scale-[1.02]",
-                      isInfoClave ? "bg-blue-50 border-blue-200 hover:bg-blue-100" : isSectoral ? "bg-emerald-50 border-emerald-200 hover:bg-emerald-100" : "bg-red-50/50 border-primary/20 hover:bg-red-50"
+                      "border border-dashed rounded-[24px] p-5 mt-4 flex items-center justify-between group cursor-pointer transition-all hover:bg-white",
+                      isInfoClave ? "bg-blue-50/50 border-blue-200 hover:border-blue-400" : isSectoral ? "bg-emerald-50/50 border-emerald-200 hover:border-emerald-400" : "bg-red-50/20 border-primary/10 hover:border-primary/40"
                     )}>
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
                         <div className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center shadow-sm",
+                          "w-9 h-9 rounded-lg flex items-center justify-center shadow-sm",
                           isInfoClave ? "bg-blue-600 text-white" : isSectoral ? "bg-emerald-600 text-white" : "bg-white text-primary"
                         )}>
-                          <MessageSquare className="w-5 h-5" />
+                          <MessageSquare className="w-4.5 h-4.5" />
                         </div>
                         <div className="text-left">
-                          <p className={cn("text-[11px] font-bold tracking-tight uppercase leading-none mb-1", isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-primary")}>
-                            ¿Dudas sobre este punto?
+                          <p className={cn("text-[10px] font-bold tracking-tight uppercase leading-none mb-1", isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-primary")}>
+                            ¿NECESITAS ORIENTACIÓN?
                           </p>
-                          <p className="text-[11px] font-black text-gray-400 group-hover:text-[#1A1A1A] transition-colors">Consulta a OFELIA por este tema específico</p>
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Consultar a OFELIA por este punto</p>
                         </div>
                       </div>
-                      <ChevronRight className={cn("w-5 h-5", isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-primary")} />
+                      <ChevronRight className={cn("w-4 h-4", isInfoClave ? "text-blue-600" : isSectoral ? "text-emerald-600" : "text-primary")} />
                     </div>
                   </div>
                 </AccordionContent>
@@ -562,25 +561,25 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         </Accordion>
       </div>
 
-      <footer className="pt-8 flex flex-col items-center gap-6">
-        <div className="flex gap-4">
+      <footer className="pt-6 flex flex-col items-center gap-4">
+        <div className="flex gap-3">
            <Button 
             variant="outline" 
             size="sm" 
             onClick={onRedoDiagnostic}
-            className="h-10 text-[10px] font-black text-muted-foreground hover:text-primary gap-2 uppercase tracking-widest rounded-2xl border-gray-100"
+            className="h-9 text-[9px] font-black text-muted-foreground hover:text-primary gap-1.5 uppercase tracking-widest rounded-xl border-gray-100"
           >
-            <RefreshCcw className="w-3.5 h-3.5" />
-            Reiniciar Diagnóstico
+            <RefreshCcw className="w-3 h-3" />
+            Reiniciar
           </Button>
            <Button 
-            className="h-10 bg-[#1A1A1A] hover:bg-[#333] text-white text-[10px] font-black uppercase tracking-widest gap-2 rounded-2xl px-6 shadow-xl"
-            onClick={() => window.open('https://www.gob.pe/mtpe', '_blank')}
+            className="h-9 bg-[#1A1A1A] hover:bg-[#333] text-white text-[9px] font-black uppercase tracking-widest gap-1.5 rounded-xl px-5 shadow-lg"
+            onClick={() => window.open('https://extranet.trabajo.gob.pe/extranet/web/citas', '_blank')}
           >
-            Portal MTPE <ExternalLink className="w-3 h-3" />
+            AGENDAR ASESORÍA <ExternalLink className="w-3 h-3" />
           </Button>
         </div>
-        <p className="text-[9px] font-black text-gray-300 uppercase tracking-[0.5em]">DRTPELM LIMA METROPOLITANA</p>
+        <p className="text-[8px] font-black text-gray-300 uppercase tracking-[0.4em]">DRTPELM LIMA METROPOLITANA</p>
       </footer>
     </div>
   );

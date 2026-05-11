@@ -391,22 +391,18 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                {isFormalUser ? "ESTADO: FORMALIZADO" : "ANÁLISIS DE FORMALIZACIÓN"}
              </p>
              <h2 className="text-xl font-black text-white tracking-tight leading-none italic uppercase">
-               {isFormalUser ? "¡Formalización Exitosa!" : "Tu Hoja de Ruta para tu Formalización"}
+               Tu Hoja de Ruta para tu Formalización
              </h2>
           </div>
         </div>
       </div>
 
-      <header className="space-y-1.5 px-2">
-        <h3 className="text-xl font-black text-[#1A1A1A] tracking-tight">
-          {isFormalUser 
-            ? "Gestión de Beneficios y Crecimiento" 
-            : "Tareas pendientes para tu formalidad"}
+      <header className="space-y-1 px-2">
+        <h3 className="text-2xl font-black text-[#1A1A1A] tracking-tight">
+          Tu Hoja de Ruta para tu Formalización
         </h3>
         <p className="text-[13px] text-muted-foreground font-medium leading-relaxed max-w-[440px]">
-          {isFormalUser 
-            ? "Explora las ventajas del régimen formal y accede a soporte técnico especializado."
-            : "Sigue la secuencia técnica oficial de SUNAT y el MTPE para completar tu registro."}
+          Información basada en portales oficiales como SUNAT, MTPE, SUNARP, INDECOPI y PRODUCE.
         </p>
       </header>
 

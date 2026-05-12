@@ -8,25 +8,12 @@ import { OfeliaChatbot } from "@/components/OfeliaChatbot";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
-const HERO_IMAGES = ["/Fondo1.jfif", "/Fondo2.jpg", "/Fondo4.jpg"];
-
 export default function Home() {
   const [step, setStep] = React.useState<'registration' | 'diagnostic' | 'dashboard'>('registration');
   const [userData, setUserData] = React.useState<any>(null);
   const [routeType, setRouteType] = React.useState<'idea' | 'active' | 'domestic' | null>(null);
   const [results, setResults] = React.useState<any>(null);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
-  const [currentHeroIdx, setCurrentHeroIdx] = React.useState(0);
-
-  // Lógica de carrusel automático para el Hero
-  React.useEffect(() => {
-    if (step === 'registration') {
-      const interval = setInterval(() => {
-        setCurrentHeroIdx((prev) => (prev + 1) % HERO_IMAGES.length);
-      }, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [step]);
 
   const handleRegistrationComplete = (data: any) => {
     setUserData(data);
@@ -93,67 +80,89 @@ export default function Home() {
                 </div>
               </header>
 
-              {/* El formulario mantiene su alineación interna normal */}
               <OfeliaForm onComplete={handleRegistrationComplete} />
             </div>
           </div>
 
-          {/* Lado Derecho: Carrusel Hero Premium */}
-          <div className="hidden lg:block lg:w-[45%] relative overflow-hidden bg-[#1A1A1A]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentHeroIdx}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1.2, ease: "easeOut" }}
-                className="absolute inset-0"
-              >
-                <img 
-                  src={HERO_IMAGES[currentHeroIdx]} 
-                  alt="Contexto MTPE" 
-                  className="w-full h-full object-cover select-none pointer-events-none"
-                  style={{ imageRendering: 'auto' }}
-                />
-              </motion.div>
-            </AnimatePresence>
+          {/* Lado Derecho: Composición Visual Moderna (Tipo SaaS) */}
+          <div className="hidden lg:flex lg:w-[45%] relative bg-[#F9FAFB] items-center justify-center overflow-hidden border-l border-gray-100">
+            {/* Fondo con textura sutil */}
+            <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#D91E18 1px, transparent 1px)', size: '24px 24px' }} />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10" />
 
-            {/* Overlays Institucionales */}
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent" />
-            <div className="absolute inset-0 bg-black/5" />
-            
-            <div className="absolute bottom-16 left-16 right-16 text-white space-y-6">
-              <div className="w-20 h-1.5 bg-white rounded-full mb-8 shadow-xl" />
-              <div className="space-y-2">
-                <h2 className="text-5xl font-black italic tracking-tighter leading-none">Formalizar es Crecer.</h2>
-                <p className="text-lg font-medium opacity-90 max-w-[380px] leading-relaxed text-blue-50">
-                  Accede a beneficios exclusivos del Ministerio de Trabajo y protege el futuro de tu negocio o tu hogar.
+            {/* Composición de imágenes con profundidad */}
+            <div className="relative w-full max-w-lg h-[600px] flex items-center justify-center">
+              
+              {/* Imagen Principal (Fondo 2) */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20, rotate: -2 }}
+                animate={{ opacity: 1, y: 0, rotate: -2 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="absolute z-10 w-[85%] h-[400px] rounded-[48px] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.12)] border-[12px] border-white"
+              >
+                <img src="/Fondo2.jpg" alt="Institucional" className="w-full h-full object-cover" style={{ imageRendering: 'auto' }} />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent mix-blend-overlay" />
+              </motion.div>
+
+              {/* Imagen Secundaria Circular (Fondo 1) */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.8, x: -40, y: 100 }}
+                animate={{ opacity: 1, scale: 1, x: -40, y: 100 }}
+                transition={{ delay: 0.3, duration: 0.8 }}
+                whileHover={{ scale: 1.05 }}
+                className="absolute z-20 left-0 w-56 h-56 rounded-full overflow-hidden border-[10px] border-white shadow-2xl"
+              >
+                <img src="/Fondo1.jfif" alt="Human" className="w-full h-full object-cover" style={{ imageRendering: 'auto' }} />
+              </motion.div>
+
+              {/* Elemento de Apoyo Rectangular (Fondo 4) */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.8, x: 120, y: -120 }}
+                animate={{ opacity: 1, scale: 1, x: 120, y: -120 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+                className="absolute z-0 w-44 h-56 rounded-[40px] overflow-hidden border-[8px] border-white shadow-xl opacity-80"
+              >
+                <img src="/Fondo4.jpg" alt="Support" className="w-full h-full object-cover grayscale-[0.2]" style={{ imageRendering: 'auto' }} />
+              </motion.div>
+
+              {/* Decoración: Badge flotante de éxito */}
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                className="absolute z-30 bottom-1/4 right-0 bg-white p-5 rounded-[32px] shadow-2xl border border-gray-100 flex items-center gap-4"
+              >
+                <div className="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Ruta Técnica</p>
+                  <p className="text-xs font-black text-[#1A1A1A] uppercase">Ciudadano Formalizado</p>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Texto y Branding Inferior */}
+            <div className="absolute bottom-20 left-16 right-16 z-40">
+              <div className="space-y-4">
+                <div className="w-20 h-2 bg-primary rounded-full shadow-lg shadow-primary/20" />
+                <h2 className="text-6xl font-black italic tracking-tighter leading-none text-[#1A1A1A] drop-shadow-sm">
+                  Formalizar es <span className="text-primary">Crecer.</span>
+                </h2>
+                <p className="text-xl font-bold text-gray-400 max-w-[420px] leading-relaxed">
+                  Protege tu futuro y el de tu negocio con la asesoría estratégica de la DRTPELM.
                 </p>
               </div>
               
-              <div className="flex items-center gap-4 pt-4">
-                <div className="flex -space-x-2">
+              <div className="flex items-center gap-4 mt-10">
+                <div className="flex -space-x-3">
                   {[1,2,3,4].map(i => (
-                    <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-200 overflow-hidden shadow-lg">
-                      <img src={`https://picsum.photos/seed/${i+10}/100/100`} alt="user" className="w-full h-full object-cover" />
+                    <div key={i} className="w-12 h-12 rounded-2xl border-4 border-white bg-gray-200 overflow-hidden shadow-xl">
+                      <img src={`https://picsum.photos/seed/${i+42}/100/100`} alt="user" className="w-full h-full object-cover" />
                     </div>
                   ))}
                 </div>
-                <p className="text-xs font-black uppercase tracking-widest">+5,000 CIUDADANOS ASESORADOS</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Impulsando el desarrollo regional</p>
               </div>
-            </div>
-            
-            {/* Indicadores del carrusel */}
-            <div className="absolute top-1/2 right-8 -translate-y-1/2 flex flex-col gap-2 z-20">
-              {HERO_IMAGES.map((_, idx) => (
-                <div 
-                  key={idx} 
-                  className={cn(
-                    "w-1 h-8 rounded-full transition-all duration-500",
-                    currentHeroIdx === idx ? "bg-white h-12" : "bg-white/30"
-                  )}
-                />
-              ))}
             </div>
           </div>
         </div>

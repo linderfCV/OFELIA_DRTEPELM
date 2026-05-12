@@ -87,7 +87,7 @@ export default function Home() {
                       Comienza tu ruta de crecimiento.
                     </p>
                     <p className="text-sm font-medium text-gray-400 mt-2">
-                      Ingresa tus datos para acceder a tu panel técnico.
+                      Accede a tu panel de formalización.
                     </p>
                   </div>
                 </div>

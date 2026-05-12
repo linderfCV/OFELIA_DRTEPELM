@@ -8,12 +8,25 @@ import { OfeliaChatbot } from "@/components/OfeliaChatbot";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
+const HERO_IMAGES = ["/Fondo1.jfif", "/Fondo2.jpg", "/Fondo4.jpg"];
+
 export default function Home() {
   const [step, setStep] = React.useState<'registration' | 'diagnostic' | 'dashboard'>('registration');
   const [userData, setUserData] = React.useState<any>(null);
   const [routeType, setRouteType] = React.useState<'idea' | 'active' | 'domestic' | null>(null);
   const [results, setResults] = React.useState<any>(null);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
+  const [currentHeroIdx, setCurrentHeroIdx] = React.useState(0);
+
+  // Lógica de carrusel automático para el Hero
+  React.useEffect(() => {
+    if (step === 'registration') {
+      const interval = setInterval(() => {
+        setCurrentHeroIdx((prev) => (prev + 1) % HERO_IMAGES.length);
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [step]);
 
   const handleRegistrationComplete = (data: any) => {
     setUserData(data);
@@ -80,16 +93,25 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Lado Derecho: Hero Contextual Premium */}
-          <div className="hidden lg:block lg:w-[45%] relative overflow-hidden">
-            <motion.img 
-              initial={{ scale: 1.1 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 1.5 }}
-              src="/Fondo4.jpg" 
-              alt="Contexto MTPE" 
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+          {/* Lado Derecho: Carrusel Hero Premium */}
+          <div className="hidden lg:block lg:w-[45%] relative overflow-hidden bg-primary">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentHeroIdx}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.5 }}
+                className="absolute inset-0"
+              >
+                <img 
+                  src={HERO_IMAGES[currentHeroIdx]} 
+                  alt="Contexto MTPE" 
+                  className="w-full h-full object-cover scale-105"
+                />
+              </motion.div>
+            </AnimatePresence>
+
             {/* Overlays Institucionales */}
             <div className="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/40 to-transparent" />
             <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
@@ -114,10 +136,23 @@ export default function Home() {
                 <p className="text-xs font-black uppercase tracking-widest">+5,000 CIUDADANOS ASESORADOS</p>
               </div>
             </div>
+            
+            {/* Indicadores del carrusel */}
+            <div className="absolute top-1/2 right-8 -translate-y-1/2 flex flex-col gap-2 z-20">
+              {HERO_IMAGES.map((_, idx) => (
+                <div 
+                  key={idx} 
+                  className={cn(
+                    "w-1 h-8 rounded-full transition-all duration-500",
+                    currentHeroIdx === idx ? "bg-white h-12" : "bg-white/30"
+                  )}
+                />
+              ))}
+            </div>
           </div>
         </div>
       ) : (
-        /* Layout para Diagnóstico y Dashboard (Centrado con Banners) */
+        /* Layout para Diagnóstico y Dashboard */
         <div className="flex flex-col items-center w-full min-h-screen bg-[#F9FAFB]">
           <header className="w-full bg-white/80 backdrop-blur-xl border-b border-gray-100 py-4 px-8 flex justify-between items-center sticky top-0 z-50 shadow-sm">
             <div className="flex items-center gap-4">

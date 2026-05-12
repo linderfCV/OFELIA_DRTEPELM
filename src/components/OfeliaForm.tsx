@@ -20,28 +20,23 @@ import {
 } from "@/components/ui/form"
 
 const formSchema = z.object({
-  docType: z.enum(["DNI", "CE", "RUC"]),
+  docType: z.enum(["DNI_CE", "RUC"]),
   docNumber: z.string()
     .regex(/^\d+$/, "Solo se permiten números"),
-  fullName: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
+  fullName: z.string().min(3, "El nombre o razón social debe tener al menos 3 caracteres"),
   email: z.string().email("Ingrese un correo electrónico válido"),
   phone: z.string()
     .length(9, "El celular debe tener 9 dígitos")
     .regex(/^\d+$/, "El celular debe tener solo números"),
 }).superRefine((data, ctx) => {
-  if (data.docType === "DNI" && data.docNumber.length !== 8) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "El DNI debe tener 8 dígitos",
-      path: ["docNumber"],
-    });
-  }
-  if (data.docType === "CE" && data.docNumber.length !== 9) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "El CE debe tener 9 dígitos",
-      path: ["docNumber"],
-    });
+  if (data.docType === "DNI_CE") {
+    if (data.docNumber.length !== 8 && data.docNumber.length !== 9) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Debe tener 8 (DNI) o 9 (CE) dígitos",
+        path: ["docNumber"],
+      });
+    }
   }
   if (data.docType === "RUC" && data.docNumber.length !== 11) {
     ctx.addIssue({
@@ -57,12 +52,12 @@ interface OfeliaFormProps {
 }
 
 export function OfeliaForm({ onComplete }: OfeliaFormProps) {
-  const [docType, setDocType] = React.useState<"DNI" | "CE" | "RUC">("DNI")
+  const [docType, setDocType] = React.useState<"DNI_CE" | "RUC">("DNI_CE")
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      docType: "DNI",
+      docType: "DNI_CE",
       docNumber: "",
       fullName: "",
       email: "",
@@ -72,9 +67,12 @@ export function OfeliaForm({ onComplete }: OfeliaFormProps) {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    // Detectar tipo específico para logs
+    let specificType = values.docType === "RUC" ? "RUC" : (values.docNumber.length === 8 ? "DNI" : "CE");
+
     await logOfeliaEvent({
       tipoEvento: "registro_usuario",
-      tipoDocumento: values.docType,
+      tipoDocumento: specificType,
       numeroDocumento: values.docNumber,
       nombresApellidos: values.fullName,
       correoElectronico: values.email,
@@ -85,23 +83,12 @@ export function OfeliaForm({ onComplete }: OfeliaFormProps) {
     onComplete(values);
   }
 
-  const handleDocTypeChange = (type: "DNI" | "CE" | "RUC") => {
+  const handleDocTypeChange = (type: "DNI_CE" | "RUC") => {
     setDocType(type)
     form.setValue("docType", type)
     form.setValue("docNumber", "")
     form.clearErrors("docNumber")
   }
-
-  const getDocConfig = () => {
-    switch(docType) {
-      case "DNI": return { placeholder: "8 dígitos", max: 8 };
-      case "CE": return { placeholder: "9 dígitos", max: 9 };
-      case "RUC": return { placeholder: "11 dígitos", max: 11 };
-      default: return { placeholder: "", max: 15 };
-    }
-  }
-
-  const docConfig = getDocConfig();
 
   return (
     <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.06)] overflow-hidden">
@@ -113,17 +100,10 @@ export function OfeliaForm({ onComplete }: OfeliaFormProps) {
               <div className="segmented-control">
                 <div
                   className="segmented-control-item"
-                  data-active={docType === "DNI"}
-                  onClick={() => handleDocTypeChange("DNI")}
+                  data-active={docType === "DNI_CE"}
+                  onClick={() => handleDocTypeChange("DNI_CE")}
                 >
-                  DNI
-                </div>
-                <div
-                  className="segmented-control-item"
-                  data-active={docType === "CE"}
-                  onClick={() => handleDocTypeChange("CE")}
-                >
-                  CE
+                  DNI / CE
                 </div>
                 <div
                   className="segmented-control-item"
@@ -140,14 +120,16 @@ export function OfeliaForm({ onComplete }: OfeliaFormProps) {
               name="docNumber"
               render={({ field }) => (
                 <FormItem className="space-y-1.5">
-                  <FormLabel className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Número de {docType}</FormLabel>
+                  <FormLabel className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    {docType === "RUC" ? "Número de RUC" : "Número de documento"}
+                  </FormLabel>
                   <FormControl>
                     <div className="relative">
                       <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
                         {...field}
-                        placeholder={docConfig.placeholder}
-                        maxLength={docConfig.max}
+                        placeholder={docType === "RUC" ? "11 dígitos" : "8 o 9 dígitos"}
+                        maxLength={docType === "RUC" ? 11 : 9}
                         type="text"
                         inputMode="numeric"
                         onChange={(e) => {

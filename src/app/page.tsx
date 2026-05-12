@@ -90,78 +90,90 @@ export default function Home() {
             <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#D91E18 1px, transparent 1px)', size: '24px 24px' }} />
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10" />
 
-            {/* Composición de imágenes con profundidad */}
-            <div className="relative w-full max-w-lg h-[600px] flex items-center justify-center">
+            {/* Composición de imágenes con profundidad - Centrada verticalmente */}
+            <div className="relative w-full max-w-lg h-[700px] flex flex-col items-center justify-center">
               
-              {/* Imagen Principal (Fondo 2) */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20, rotate: -2 }}
-                animate={{ opacity: 1, y: 0, rotate: -2 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="absolute z-10 w-[85%] h-[400px] rounded-[48px] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.12)] border-[12px] border-white"
-              >
-                <img src="/Fondo2.jpg" alt="Institucional" className="w-full h-full object-cover" style={{ imageRendering: 'auto' }} />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent mix-blend-overlay" />
-              </motion.div>
+              <div className="relative w-full h-[450px] flex items-center justify-center">
+                {/* Imagen Principal (Fondo 2) */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 20, rotate: -2 }}
+                  animate={{ opacity: 1, y: 0, rotate: -2 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  className="absolute z-10 w-[85%] h-[380px] rounded-[48px] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.12)] border-[12px] border-white"
+                >
+                  <img src="/Fondo2.jpg" alt="Institucional" className="w-full h-full object-cover" style={{ imageRendering: 'auto' }} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent mix-blend-overlay" />
+                </motion.div>
 
-              {/* Imagen Secundaria Circular (Fondo 1) */}
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.8, x: -40, y: 100 }}
-                animate={{ opacity: 1, scale: 1, x: -40, y: 100 }}
-                transition={{ delay: 0.3, duration: 0.8 }}
-                whileHover={{ scale: 1.05 }}
-                className="absolute z-20 left-0 w-56 h-56 rounded-full overflow-hidden border-[10px] border-white shadow-2xl"
-              >
-                <img src="/Fondo1.jfif" alt="Human" className="w-full h-full object-cover" style={{ imageRendering: 'auto' }} />
-              </motion.div>
+                {/* Imagen Secundaria Circular (Fondo 1) - Posición equilibrada */}
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.8, x: -60, y: -40 }}
+                  animate={{ opacity: 1, scale: 1, x: -60, y: -40 }}
+                  transition={{ delay: 0.3, duration: 0.8 }}
+                  whileHover={{ scale: 1.05 }}
+                  className="absolute z-20 left-0 top-1/4 w-52 h-52 rounded-full overflow-hidden border-[10px] border-white shadow-2xl"
+                >
+                  <img src="/Fondo1.jfif" alt="Human" className="w-full h-full object-cover" style={{ imageRendering: 'auto' }} />
+                </motion.div>
 
-              {/* Elemento de Apoyo Rectangular (Fondo 4) */}
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.8, x: 120, y: -120 }}
-                animate={{ opacity: 1, scale: 1, x: 120, y: -120 }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-                className="absolute z-0 w-44 h-56 rounded-[40px] overflow-hidden border-[8px] border-white shadow-xl opacity-80"
-              >
-                <img src="/Fondo4.jpg" alt="Support" className="w-full h-full object-cover grayscale-[0.2]" style={{ imageRendering: 'auto' }} />
-              </motion.div>
+                {/* Elemento de Apoyo Rectangular (Fondo 4) */}
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.8, x: 120, y: -140 }}
+                  animate={{ opacity: 1, scale: 1, x: 120, y: -140 }}
+                  transition={{ delay: 0.5, duration: 0.8 }}
+                  className="absolute z-0 w-44 h-56 rounded-[40px] overflow-hidden border-[8px] border-white shadow-xl opacity-80"
+                >
+                  <img src="/Fondo4.jpg" alt="Support" className="w-full h-full object-cover grayscale-[0.2]" style={{ imageRendering: 'auto' }} />
+                </motion.div>
 
-              {/* Decoración: Badge flotante de éxito */}
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                className="absolute z-30 bottom-1/4 right-0 bg-white p-5 rounded-[32px] shadow-2xl border border-gray-100 flex items-center gap-4"
-              >
-                <div className="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Ruta Técnica</p>
-                  <p className="text-xs font-black text-[#1A1A1A] uppercase">Ciudadano Formalizado</p>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Texto y Branding Inferior */}
-            <div className="absolute bottom-20 left-16 right-16 z-40">
-              <div className="space-y-4">
-                <div className="w-20 h-2 bg-primary rounded-full shadow-lg shadow-primary/20" />
-                <h2 className="text-6xl font-black italic tracking-tighter leading-none text-[#1A1A1A] drop-shadow-sm">
-                  Formalizar es <span className="text-primary">Crecer.</span>
-                </h2>
-                <p className="text-xl font-bold text-gray-400 max-w-[420px] leading-relaxed">
-                  Protege tu futuro y el de tu negocio con la asesoría estratégica de la DRTPELM.
-                </p>
+                {/* Decoración: Badge flotante de éxito - Reubicado para balance */}
+                <motion.div
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                  className="absolute z-30 bottom-10 right-4 bg-white p-5 rounded-[32px] shadow-2xl border border-gray-100 flex items-center gap-4"
+                >
+                  <div className="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Ruta Técnica</p>
+                    <p className="text-xs font-black text-[#1A1A1A] uppercase">Ciudadano Formalizado</p>
+                  </div>
+                </motion.div>
               </div>
-              
-              <div className="flex items-center gap-4 mt-10">
-                <div className="flex -space-x-3">
-                  {[1,2,3,4].map(i => (
-                    <div key={i} className="w-12 h-12 rounded-2xl border-4 border-white bg-gray-200 overflow-hidden shadow-xl">
-                      <img src={`https://picsum.photos/seed/${i+42}/100/100`} alt="user" className="w-full h-full object-cover" />
-                    </div>
-                  ))}
+
+              {/* Branding y Texto Inferior - Llenando el espacio inferior */}
+              <div className="w-full px-16 mt-12 space-y-8">
+                <div className="space-y-4">
+                  <div className="w-20 h-2 bg-primary rounded-full shadow-lg shadow-primary/20" />
+                  <h2 className="text-6xl font-black italic tracking-tighter leading-none text-[#1A1A1A] drop-shadow-sm">
+                    Formalizar es <span className="text-primary">Crecer.</span>
+                  </h2>
+                  <p className="text-xl font-bold text-gray-400 max-w-[420px] leading-relaxed">
+                    Protege tu futuro y el de tu negocio con la asesoría estratégica de la DRTPELM.
+                  </p>
                 </div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Impulsando el desarrollo regional</p>
+                
+                <div className="flex items-center gap-6 pt-4 border-t border-gray-100">
+                  <div className="flex -space-x-4">
+                    {[42, 43, 44, 45].map(i => (
+                      <div key={i} className="w-12 h-12 rounded-2xl border-4 border-white bg-gray-200 overflow-hidden shadow-lg relative group">
+                        <img 
+                          src={`https://picsum.photos/seed/${i}/120/120`} 
+                          alt="Ciudadano" 
+                          className="w-full h-full object-cover transition-transform group-hover:scale-110" 
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Impulsando el desarrollo regional</p>
+                    <div className="flex items-center gap-2">
+                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                       <span className="text-[11px] font-black text-[#1A1A1A] uppercase tracking-tight">Ciudadanos en ruta técnica activa</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

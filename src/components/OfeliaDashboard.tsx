@@ -699,37 +699,46 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         </Accordion>
       </div>
 
-      {/* Nueva Sección: Próxima Acción Premium */}
+      {/* Nueva Sección: Próxima Acción Premium Refinada */}
       <section className="pt-8">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-primary p-10 rounded-[48px] shadow-[0_32px_64px_rgba(217,30,24,0.15)] relative overflow-hidden text-white"
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="bg-primary p-10 md:p-14 rounded-[48px] shadow-[0_32px_64px_rgba(217,30,24,0.15)] relative overflow-hidden text-white"
         >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/5 rounded-full -ml-10 -mb-10 blur-2xl" />
+          {/* Elementos Decorativos de Fondo */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl opacity-50" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full -ml-20 -mb-20 blur-3xl opacity-30" />
           
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
-            <div className="space-y-4 text-center md:text-left">
-               <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full border border-white/20">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                  <span className="text-[9px] font-black uppercase tracking-[0.2em]">Orientación Estratégica</span>
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12">
+            <div className="space-y-6 flex-1 text-center lg:text-left">
+               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
+                  <Sparkles className="w-4 h-4 text-amber-300" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.25em]">Orientación Estratégica</span>
                </div>
-               <h4 className="text-3xl font-black tracking-tighter leading-none uppercase italic">Próxima Acción Sugerida</h4>
-               <p className="text-sm font-medium text-white/80 max-w-[320px] leading-relaxed">
-                 Te recomendamos agendar una asesoría técnica presencial o virtual. Un especialista de la DRTPELM validará tu expediente antes de que lo presentes ante las entidades correspondientes.
-               </p>
+               <div className="space-y-4">
+                 <h4 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter leading-[0.85] uppercase italic">
+                   Próxima Acción <br className="hidden md:block" /> Sugerida
+                 </h4>
+                 <p className="text-sm md:text-lg font-medium text-white/90 max-w-xl leading-relaxed mx-auto lg:mx-0">
+                   Te recomendamos agendar una asesoría técnica presencial o virtual. Un especialista de la DRTPELM validará tu expediente antes de que lo presentes ante las entidades correspondientes.
+                 </p>
+               </div>
             </div>
             
-            <div className="flex flex-col gap-3 w-full md:w-auto">
+            <div className="flex flex-col gap-5 w-full lg:w-auto shrink-0">
               <Button 
                 onClick={() => window.open('https://extranet.trabajo.gob.pe/extranet/web/citas', '_blank')}
-                className="h-16 px-10 bg-white text-primary hover:bg-white/90 rounded-3xl font-black text-xs uppercase tracking-widest shadow-xl shadow-black/20 gap-3 group"
+                className="h-20 px-12 bg-white text-primary hover:bg-white/95 rounded-[32px] font-black text-sm uppercase tracking-widest shadow-2xl shadow-black/30 gap-4 group transition-all active:scale-95"
               >
                 AGENDAR ASESORÍA OFICIAL
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-2" />
               </Button>
-              <p className="text-[10px] text-center font-black uppercase tracking-widest text-white/60">Servicio Gratuito DRTPELM</p>
+              <div className="flex items-center justify-center gap-2.5 text-white/60">
+                <CheckCircle2 className="w-4 h-4" />
+                <p className="text-[11px] font-black uppercase tracking-[0.2em]">Servicio Gratuito DRTPELM</p>
+              </div>
             </div>
           </div>
         </motion.div>

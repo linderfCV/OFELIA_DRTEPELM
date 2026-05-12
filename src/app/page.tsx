@@ -54,41 +54,46 @@ export default function Home() {
       {/* Layout para Registro (Split Screen Moderna) */}
       {step === 'registration' ? (
         <div className="flex min-h-screen">
-          {/* Lado Izquierdo: Formulario */}
+          {/* Lado Izquierdo: Bienvenida y Formulario */}
           <div className="w-full lg:w-[55%] flex flex-col items-center justify-center p-6 lg:p-12 relative z-10 bg-white">
-            <div className="w-full max-w-[440px] space-y-8 animate-slide-up">
-              <header className="flex flex-col items-start gap-6">
-                <div className="flex items-center gap-3">
-                  <img src="/image_f1ee39.jfif" alt="MTPE" className="h-14 w-auto object-contain" />
+            <div className="w-full max-w-[460px] space-y-12 animate-slide-up">
+              <header className="flex flex-col items-center text-center gap-8">
+                {/* Logos Superiores Centrados */}
+                <div className="flex items-center justify-center gap-4">
+                  <img src="/image_f1ee39.jfif" alt="MTPE" className="h-12 w-auto object-contain" />
                   <div className="h-8 w-[1px] bg-gray-200" />
-                  <img src="/Ofelia_logo.png" alt="OFELIA" className="h-10 w-auto" />
+                  <img src="/Ofelia_logo.png" alt="OFELIA" className="h-8 w-auto" />
                 </div>
                 
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
+                {/* Título Principal */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                     <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">SISTEMA OFICIAL DRTPELM</p>
                   </div>
-                  <h1 className="text-7xl font-black text-[#1A1A1A] tracking-tighter leading-[0.85]">
+                  <h1 className="text-8xl font-black text-[#1A1A1A] tracking-tighter leading-[0.8] drop-shadow-sm">
                     OFELIA
                   </h1>
                 </div>
 
-                <div className="space-y-6 pt-2">
-                  <p className="text-[11px] font-black text-[#1A1A1A] uppercase tracking-[0.1em] leading-relaxed max-w-[380px] opacity-90">
+                {/* Texto Institucional y Bienvenida */}
+                <div className="space-y-8 w-full">
+                  <p className="text-[11px] font-black text-[#1A1A1A] uppercase tracking-[0.15em] leading-relaxed opacity-90 max-w-[420px] mx-auto">
                     MODELO DE ORIENTACIÓN EN FORMALIZACIÓN EMPRESARIAL, LABORAL ITINERANTE Y ASISTIDA
                   </p>
-                  <div className="space-y-1.5 border-l-4 border-primary pl-4 py-1">
-                    <p className="text-xl font-black text-[#1A1A1A] tracking-tight leading-none italic">
+                  
+                  <div className="space-y-2 pt-2">
+                    <p className="text-2xl font-black text-[#1A1A1A] tracking-tight leading-none italic bg-primary/5 py-3 px-6 rounded-2xl inline-block border border-primary/10">
                       Comienza tu ruta de crecimiento.
                     </p>
-                    <p className="text-sm font-medium text-gray-500">
-                      Accede a tu panel de formalización.
+                    <p className="text-sm font-medium text-gray-400 mt-2">
+                      Ingresa tus datos para acceder a tu panel técnico.
                     </p>
                   </div>
                 </div>
               </header>
 
+              {/* El formulario mantiene su alineación interna normal */}
               <OfeliaForm onComplete={handleRegistrationComplete} />
             </div>
           </div>

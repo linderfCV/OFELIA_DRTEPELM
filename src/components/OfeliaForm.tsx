@@ -228,9 +228,17 @@ export function OfeliaForm({ onComplete }: OfeliaFormProps) {
               </Button>
             </div>
             
-            <p className="text-[10px] text-center text-muted-foreground font-medium px-4 leading-normal">
-              Al continuar aceptas las políticas de tratamiento de datos del MTPE.
-            </p>
+            <div className="space-y-6">
+              <p className="text-[10px] text-center text-muted-foreground font-medium px-4 leading-normal">
+                Al continuar aceptas las políticas de tratamiento de datos del MTPE.
+              </p>
+
+              <div className="flex flex-col items-center gap-2 pt-2 border-t border-gray-100/50">
+                <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.3em]">
+                  Iniciativa de la DRTPELM <span className="mx-1.5 text-gray-200 font-normal">·</span> Innova Región 2026
+                </p>
+              </div>
+            </div>
           </form>
         </Form>
       </CardContent>

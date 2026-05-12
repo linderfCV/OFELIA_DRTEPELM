@@ -90,17 +90,6 @@ export default function Home() {
               </header>
 
               <OfeliaForm onComplete={handleRegistrationComplete} />
-
-              <footer className="pt-8">
-                <div className="flex items-center gap-6">
-                   <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest flex items-center gap-2">
-                    GOBIERNO DEL PERÚ
-                  </p>
-                  <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest flex items-center gap-2">
-                    MINISTERIO DE TRABAJO
-                  </p>
-                </div>
-              </footer>
             </div>
           </div>
 
@@ -124,7 +113,7 @@ export default function Home() {
               </motion.div>
             </AnimatePresence>
 
-            {/* Overlays Institucionales - Refinados para mayor nitidez */}
+            {/* Overlays Institucionales */}
             <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent" />
             <div className="absolute inset-0 bg-black/5" />
             

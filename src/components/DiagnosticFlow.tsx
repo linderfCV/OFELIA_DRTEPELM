@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -418,7 +419,7 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
                 className="w-full h-16 rounded-3xl font-black bg-primary hover:bg-primary/90 flex items-center justify-center gap-3 shadow-2xl shadow-primary/20 uppercase tracking-widest text-xs transition-all active:scale-95"
                 onClick={() => handleNext({ district, zone })}
               >
-                Analizar situación legal
+                CONTINUAR
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </motion.div>

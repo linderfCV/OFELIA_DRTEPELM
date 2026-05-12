@@ -116,14 +116,15 @@ export default function Home() {
                   <img src="/Fondo1.jfif" alt="Human" className="w-full h-full object-cover" style={{ imageRendering: 'auto' }} />
                 </motion.div>
 
-                {/* Elemento de Apoyo Rectangular (Fondo 4) - Detalle de profundidad sutil */}
+                {/* Imagen Terciaria Flotante (Fondo 4) - Superpuesta arriba a la derecha */}
                 <motion.div 
-                  initial={{ opacity: 0, scale: 0.8, x: 180, y: -130 }}
-                  animate={{ opacity: 1, scale: 1, x: 180, y: -130 }}
+                  initial={{ opacity: 0, scale: 0.8, x: 140, y: -100 }}
+                  animate={{ opacity: 1, scale: 1, x: 140, y: -100 }}
                   transition={{ delay: 0.5, duration: 0.8 }}
-                  className="absolute z-0 w-40 h-56 rounded-[40px] overflow-hidden border-[8px] border-white shadow-xl opacity-80"
+                  whileHover={{ scale: 1.05, y: -110 }}
+                  className="absolute z-20 w-40 h-56 rounded-[40px] overflow-hidden border-[8px] border-white shadow-2xl"
                 >
-                  <img src="/Fondo4.jpg" alt="Support" className="w-full h-full object-cover grayscale-[0.2]" style={{ imageRendering: 'auto' }} />
+                  <img src="/Fondo4.jpg" alt="Support" className="w-full h-full object-cover" style={{ imageRendering: 'auto' }} />
                 </motion.div>
 
                 {/* Decoración: Badge flotante de éxito - Reubicado para balance */}

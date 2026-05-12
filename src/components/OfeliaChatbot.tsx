@@ -216,7 +216,7 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
             className="w-[400px] h-[640px] bg-white rounded-[48px] shadow-[0_32px_80px_rgba(0,0,0,0.15)] border border-gray-100 flex flex-col overflow-hidden"
           >
             <header className="bg-primary px-8 py-6 text-white flex justify-between items-center relative rounded-t-[48px] shrink-0 overflow-hidden">
-              <img src="/Fondo5.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-20 scale-150" />
+              <img src="/Fondo5.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-20 scale-110" style={{ imageRendering: 'auto' }} />
               <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/80 to-red-600/40" />
 
               <div className="flex items-center gap-4 relative z-10">
@@ -338,6 +338,7 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
                 src="/Ofelia_logo.png" 
                 alt="OFELIA" 
                 className="w-16 h-16 object-contain drop-shadow-2xl transition-transform group-hover:scale-110" 
+                style={{ imageRendering: 'auto' }}
               />
             </motion.div>
           )}

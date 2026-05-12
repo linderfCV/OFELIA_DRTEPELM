@@ -94,27 +94,28 @@ export default function Home() {
           </div>
 
           {/* Lado Derecho: Carrusel Hero Premium */}
-          <div className="hidden lg:block lg:w-[45%] relative overflow-hidden bg-primary">
+          <div className="hidden lg:block lg:w-[45%] relative overflow-hidden bg-[#1A1A1A]">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentHeroIdx}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                initial={{ opacity: 0, scale: 1.02 }}
+                animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 1.5 }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
                 className="absolute inset-0"
               >
                 <img 
                   src={HERO_IMAGES[currentHeroIdx]} 
                   alt="Contexto MTPE" 
-                  className="w-full h-full object-cover scale-105"
+                  className="w-full h-full object-cover select-none pointer-events-none"
+                  style={{ imageRendering: 'auto' }}
                 />
               </motion.div>
             </AnimatePresence>
 
-            {/* Overlays Institucionales */}
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/40 to-transparent" />
-            <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
+            {/* Overlays Institucionales - Refinados para mayor nitidez */}
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/30 to-transparent" />
+            <div className="absolute inset-0 bg-black/5" />
             
             <div className="absolute bottom-16 left-16 right-16 text-white space-y-6">
               <div className="w-20 h-1.5 bg-white rounded-full mb-8 shadow-xl" />
@@ -165,7 +166,7 @@ export default function Home() {
             </div>
             
             <div className="flex items-center gap-3">
-               <button onClick={() => window.open('https://www.gob.pe/mtpe', '_blank')} className="hidden sm:flex text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-colors">
+               <button onClick={() => window.open('https://extranet.trabajo.gob.pe/extranet/web/citas', '_blank')} className="hidden sm:flex text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-colors">
                 Portal Oficial
               </button>
               <button onClick={() => window.location.reload()} className="p-2.5 hover:bg-gray-100 rounded-2xl transition-all active:scale-95 text-gray-400 hover:text-primary">

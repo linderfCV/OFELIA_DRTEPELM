@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -372,10 +371,11 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       {/* Banner Compacto e Institucional */}
       <div className="relative w-full rounded-[32px] overflow-hidden p-6 shadow-xl group h-28 flex items-center">
         <motion.img 
-          initial={{ scale: 1.1 }}
+          initial={{ scale: 1.05 }}
           animate={{ scale: 1 }}
           src="/Fondo1.jfif" 
-          className="absolute inset-0 w-full h-full object-cover opacity-20" 
+          className="absolute inset-0 w-full h-full object-cover opacity-20 select-none pointer-events-none" 
+          style={{ imageRendering: 'auto' }}
         />
         <div className={cn(
           "absolute inset-0 opacity-90",

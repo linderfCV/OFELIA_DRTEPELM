@@ -39,7 +39,7 @@ const SECTOR_MAPPING: Record<string, string> = {
   "Transporte, Logística y Delivery": "transporte_logistica_delivery",
   "Tecnología, Apps y E-commerce": "tecnologia_apps_ecommerce",
   "Salud y Bienestar (Boticas)": "salud_bienestar",
-  "Construcción y Ferretería": "construccion_ferreteria",
+  "Construcción y Ferretería)": "construccion_ferreteria",
   "Otros Sectores": "otros"
 };
 
@@ -204,11 +204,12 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
   const HeaderImage = ({ src, icon: Icon, title, subtitle }: { src: string, icon?: any, title: string, subtitle?: string }) => (
     <div className="relative w-full h-44 rounded-[40px] overflow-hidden mb-10 shadow-2xl group">
       <motion.img 
-        initial={{ scale: 1.1 }}
+        initial={{ scale: 1.05 }}
         animate={{ scale: 1 }}
         src={src} 
         alt="Banner Step" 
-        className="w-full h-full object-cover transition-transform duration-1000" 
+        className="w-full h-full object-cover transition-transform duration-1000 select-none" 
+        style={{ imageRendering: 'auto' }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A] via-[#1A1A1A]/40 to-transparent opacity-80" />
       <div className="absolute bottom-6 left-8 flex items-center gap-4">

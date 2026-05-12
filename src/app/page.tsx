@@ -143,7 +143,7 @@ export default function Home() {
               </div>
 
               {/* Branding y Texto Inferior - Llenando el espacio inferior */}
-              <div className="w-full px-16 mt-12 space-y-8">
+              <div className="w-full px-16 mt-12 space-y-10">
                 <div className="space-y-4">
                   <div className="w-20 h-2 bg-primary rounded-full shadow-lg shadow-primary/20" />
                   <h2 className="text-6xl font-black italic tracking-tighter leading-none text-[#1A1A1A] drop-shadow-sm">
@@ -154,24 +154,21 @@ export default function Home() {
                   </p>
                 </div>
                 
-                <div className="flex items-center gap-6 pt-4 border-t border-gray-100">
-                  <div className="flex -space-x-4">
-                    {[42, 43, 44, 45].map(i => (
-                      <div key={i} className="w-12 h-12 rounded-2xl border-4 border-white bg-gray-200 overflow-hidden shadow-lg relative group">
-                        <img 
-                          src={`https://picsum.photos/seed/${i}/120/120`} 
-                          alt="Ciudadano" 
-                          className="w-full h-full object-cover transition-transform group-hover:scale-110" 
-                        />
-                      </div>
-                    ))}
+                {/* Sección Institucional Refinada */}
+                <div className="pt-8 border-t border-gray-200/60 space-y-5">
+                  <div className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">
+                      Plataforma basada en normativa oficial
+                    </p>
                   </div>
-                  <div className="space-y-0.5">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Impulsando el desarrollo regional</p>
-                    <div className="flex items-center gap-2">
-                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                       <span className="text-[11px] font-black text-[#1A1A1A] uppercase tracking-tight">Ciudadanos en ruta técnica activa</span>
-                    </div>
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+                    {['SUNAT', 'MTPE', 'SUNARP', 'INDECOPI'].map((entity, idx) => (
+                      <React.Fragment key={entity}>
+                        <span className="text-xs font-black text-[#1A1A1A] tracking-[0.2em]">{entity}</span>
+                        {idx < 3 && <div className="w-1.5 h-1.5 rounded-full bg-primary/20" />}
+                      </React.Fragment>
+                    ))}
                   </div>
                 </div>
               </div>

@@ -73,9 +73,20 @@ export default function Home() {
                     OFELIA
                   </h1>
                 </div>
-                <p className="text-[14px] font-medium text-gray-500 max-w-[340px] leading-relaxed">
-                  Oficina de Formalización Empresarial, Laboral Itinerante y Asistida. <span className="text-[#1A1A1A] font-bold">Tu ruta inteligente al crecimiento formal en Lima.</span>
-                </p>
+
+                <div className="space-y-6 pt-2">
+                  <p className="text-[11px] font-black text-[#1A1A1A] uppercase tracking-[0.1em] leading-relaxed max-w-[380px] opacity-90">
+                    MODELO DE ORIENTACIÓN EN FORMALIZACIÓN EMPRESARIAL, LABORAL ITINERANTE Y ASISTIDA
+                  </p>
+                  <div className="space-y-1.5 border-l-4 border-primary pl-4 py-1">
+                    <p className="text-xl font-black text-[#1A1A1A] tracking-tight leading-none italic">
+                      Comienza tu ruta de crecimiento.
+                    </p>
+                    <p className="text-sm font-medium text-gray-500">
+                      Accede a tu panel de formalización.
+                    </p>
+                  </div>
+                </div>
               </header>
 
               <OfeliaForm onComplete={handleRegistrationComplete} />
@@ -98,8 +109,8 @@ export default function Home() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentHeroIdx}
-                initial={{ opacity: 0, scale: 1.02 }}
-                animate={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 1.2, ease: "easeOut" }}
                 className="absolute inset-0"
@@ -114,7 +125,7 @@ export default function Home() {
             </AnimatePresence>
 
             {/* Overlays Institucionales - Refinados para mayor nitidez */}
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/30 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent" />
             <div className="absolute inset-0 bg-black/5" />
             
             <div className="absolute bottom-16 left-16 right-16 text-white space-y-6">

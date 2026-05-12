@@ -334,7 +334,11 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
             </motion.div>
           ) : (
             <motion.div key="logo" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }} className="relative w-full h-full flex items-center justify-center">
-              <img src="/Ofelia_logo.png" alt="OFELIA" className="w-12 h-12 object-contain drop-shadow-xl" />
+              <img 
+                src="/Ofelia_logo.png" 
+                alt="OFELIA" 
+                className="w-16 h-16 object-contain drop-shadow-2xl transition-transform group-hover:scale-110" 
+              />
             </motion.div>
           )}
         </AnimatePresence>

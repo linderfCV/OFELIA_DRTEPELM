@@ -77,9 +77,9 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
       "¿Tienes licencia de funcionamiento?"
     ],
     domestic: [
-      "RUC Activo: ¿Tiene RUC para declarar la planilla de su trabajador(a)?",
-      "Alta en SUNAT: ¿Inscribió a su trabajador(a) en el Registro de Trabajadores del Hogar (T-Registro)?",
-      "Contrato Formal: ¿El contrato está firmado y subido al aplicativo del Ministerio de Trabajo?"
+      "¿Tiene RUC para declarar la planilla de su trabajador(a)?",
+      "¿Inscribió a su trabajador(a) en el Registro de Trabajadores del Hogar (T-Registro)?",
+      "¿El contrato está firmado y subido al aplicativo del Ministerio de Trabajo?"
     ]
   };
 
@@ -445,34 +445,37 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
           key={currentQuestion}
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="bg-white/50 backdrop-blur-sm p-10 rounded-[48px] border border-gray-100 shadow-2xl shadow-gray-200/50 relative overflow-hidden"
+          className="bg-white p-10 rounded-[48px] border border-gray-100 shadow-2xl shadow-gray-200/40 relative overflow-hidden text-center"
         >
-          <div className="absolute top-0 left-0 w-2 h-full bg-primary" />
-          <h2 className="text-3xl font-black text-[#1A1A1A] leading-[1.05] tracking-tighter italic">
-            "{currentQuestion}"
+          <div className="absolute top-0 left-0 w-full h-2 bg-primary" />
+          <h2 className="text-2xl font-black text-[#1A1A1A] leading-tight tracking-tight">
+            {currentQuestion}
           </h2>
+          <p className="text-sm text-gray-500 font-medium mt-4">
+            Esto nos ayudará a identificar la orientación técnica que necesitas.
+          </p>
         </motion.div>
       </div>
 
-      <div className="grid gap-4 pt-6">
+      <div className="grid gap-4 pt-2">
         <button
-          className="h-24 text-xl font-black bg-white border-2 border-gray-100 rounded-[40px] hover:border-primary hover:text-primary transition-all flex items-center justify-between px-10 group shadow-xl hover:shadow-2xl active:scale-[0.98]"
+          className="h-20 text-lg font-black bg-white border-2 border-gray-100 rounded-[32px] hover:border-primary hover:text-primary transition-all flex items-center justify-between px-10 group shadow-xl hover:shadow-2xl active:scale-[0.98]"
           onClick={() => handleNext({ [step]: true })}
         >
           Sí, lo tengo claro
-          <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center group-hover:bg-primary/10 transition-colors shadow-inner">
-            <Check className="w-6 h-6 text-gray-300 group-hover:text-primary" />
+          <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center group-hover:bg-primary/10 transition-colors shadow-inner">
+            <Check className="w-5 h-5 text-gray-300 group-hover:text-primary" />
           </div>
         </button>
         <button
-          className="h-24 text-xl font-black bg-white border-2 border-gray-100 rounded-[40px] hover:border-primary hover:text-primary transition-all flex items-center justify-start px-10 group shadow-xl hover:shadow-2xl active:scale-[0.98]"
+          className="h-20 text-lg font-black bg-white border-2 border-gray-100 rounded-[32px] hover:border-primary hover:text-primary transition-all flex items-center justify-start px-10 group shadow-xl hover:shadow-2xl active:scale-[0.98]"
           onClick={() => handleNext({ [step]: false })}
         >
           No, necesito orientación
         </button>
       </div>
 
-      <div className="pt-12 flex flex-col items-center gap-6">
+      <div className="pt-8 flex flex-col items-center gap-6">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-gray-50 rounded-xl flex items-center justify-center text-primary/30">
             <FileText className="w-4 h-4" />

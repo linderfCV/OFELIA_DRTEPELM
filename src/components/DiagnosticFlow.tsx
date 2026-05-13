@@ -556,7 +556,7 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
              <UserCheck className="w-4 h-4" />
           </div>
         </div>
-        <p className="text-[10px] text-gray-300 font-black uppercase tracking-[0.4em]">DRTPELM LIMA METROPOLITANA</p>
+        <p className="text-[10px] text-gray-300 font-black uppercase tracking-[0.4em]">Iniciativa de la DRTPELM • Innova Región 2026</p>
       </div>
     </div>
   );

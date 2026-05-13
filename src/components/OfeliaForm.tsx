@@ -284,7 +284,7 @@ export function OfeliaForm({ onComplete }: OfeliaFormProps) {
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-2.5 h-2.5 text-primary/30" />
                   <p className="text-[8px] font-black text-gray-300 uppercase tracking-[0.4em]">
-                    DRTPELM LIMA METROPOLITANA <span className="mx-2 text-gray-200">·</span> 2026
+                    Iniciativa de la DRTPELM <span className="mx-2 text-gray-200">·</span> Innova Región 2026
                   </p>
                 </div>
               </div>

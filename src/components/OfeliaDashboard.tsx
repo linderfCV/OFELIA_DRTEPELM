@@ -801,7 +801,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         </div>
         
         <div className="flex flex-col items-center gap-2">
-           <p className="text-[8px] font-black text-gray-300 uppercase tracking-[0.5em] mt-2">DRTPELM LIMA METROPOLITANA</p>
+           <p className="text-[8px] font-black text-gray-300 uppercase tracking-[0.5em] mt-2">Iniciativa de la DRTPELM • Innova Región 2026</p>
         </div>
       </footer>
     </div>

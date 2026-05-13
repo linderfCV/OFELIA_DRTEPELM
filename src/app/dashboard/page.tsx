@@ -102,7 +102,7 @@ const SidebarItem = ({ icon: Icon, label, active = false, onClick }: { icon: any
     )}
   >
     <Icon className={cn("w-5 h-5", active ? "text-white" : "group-hover:text-primary")} />
-    <span className={cn("text-sm font-bold", active ? "text-white" : "text-gray-600")}>{label}</span>
+    <span className={cn("text-sm font-bold", active ? "text-white" : "group-hover:text-primary")}>{label}</span>
   </button>
 );
 
@@ -1004,7 +1004,7 @@ export default function OfeliaDashboard() {
           <div className="inline-flex items-center gap-4 px-6 py-3 bg-white border border-gray-100 rounded-full shadow-sm">
             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sistema Oficial DRTPELM</span>
             <div className="h-4 w-[1px] bg-gray-200" />
-            <span className="text-[10px] font-black text-primary uppercase tracking-widest italic">LIMA METROPOLITANA 2026</span>
+            <span className="text-[10px] font-black text-primary uppercase tracking-widest italic">Iniciativa de la DRTPELM • Innova Región 2026</span>
           </div>
         </footer>
       </main>

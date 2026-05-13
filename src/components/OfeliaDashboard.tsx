@@ -160,7 +160,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           "Tramita la Validación Técnica Oficial del Plan HACCP para tu planta.",
           "Asegura el carnet de sanidad vigente para todo tu personal operativo."
         ],
-        link: "https://www.gob.pe/digesa"
+        link: "https://www.digesa.minsa.gob.pe/"
       };
     }
     return null;
@@ -522,10 +522,8 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700 pb-20 relative">
-      {/* Fondo decorativo local sutil */}
       <div className="absolute inset-x-0 -top-20 -bottom-20 digital-mesh opacity-50 pointer-events-none" />
 
-      {/* Banner de Estado - Estilo Ejecutivo */}
       <div className="relative w-full rounded-[40px] overflow-hidden p-8 shadow-premium group min-h-[140px] flex items-center">
         <div className={cn(
           "absolute inset-0 transition-all duration-700",
@@ -555,7 +553,6 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         </div>
       </div>
 
-      {/* Título y Subtítulo Refinado */}
       <header className="space-y-3 px-2 relative z-10">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm">
            <Zap className="w-3 h-3 text-amber-600 glow-primary" />
@@ -565,11 +562,10 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           Ruta Técnica de Formalización
         </h3>
         <p className="text-sm text-muted-foreground font-medium leading-relaxed max-w-[460px]">
-          Recomendaciones construidas según tu diagnóstico y normativa oficial vigente de la DRTPELM Lima Metropolitana.
+          Recomendaciones construidas según tu diagnóstico y normativa oficial vigente.
         </p>
       </header>
 
-      {/* Lista de Tareas en Acordeón */}
       <div className="space-y-4 relative z-10">
         <Accordion type="single" collapsible className="w-full space-y-4" defaultValue={tasks[0]?.id}>
           {tasks.map((task) => {
@@ -707,51 +703,44 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         </Accordion>
       </div>
 
-      {/* Próxima Acción Sugerida - Definitiva y Vertical */}
       <section className="pt-8 relative z-10">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-primary p-10 rounded-[48px] shadow-[0_32px_64px_rgba(217,30,24,0.2)] relative overflow-hidden text-white w-full"
+          className="bg-primary p-10 rounded-[48px] shadow-[0_32px_64px_rgba(217,30,24,0.2)] relative overflow-hidden text-white w-full flex flex-col items-center text-center space-y-6"
         >
-          {/* Elementos Decorativos de Fondo */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl opacity-50" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full -ml-10 -mb-10 blur-2xl opacity-30" />
           
-          <div className="relative z-10 flex flex-col items-center text-center space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-               <Sparkles className="w-4 h-4 text-amber-300" />
-               <span className="text-[10px] font-black uppercase tracking-[0.2em]">Orientación Estratégica</span>
-            </div>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+             <Sparkles className="w-4 h-4 text-amber-300" />
+             <span className="text-[10px] font-black uppercase tracking-[0.2em]">Orientación Estratégica</span>
+          </div>
 
-            <h4 className="text-3xl md:text-4xl font-black tracking-tighter uppercase italic leading-none">
-              Próxima Acción Sugerida
-            </h4>
+          <h4 className="text-3xl md:text-4xl font-black tracking-tighter uppercase italic leading-none">
+            Próxima Acción Sugerida
+          </h4>
 
-            <p className="text-sm md:text-base font-medium text-white/90 max-w-lg leading-relaxed">
-              Te recomendamos agendar una asesoría técnica presencial o virtual. Un especialista de la DRTPELM validará tu expediente antes de presentarlo para asegurar tu éxito.
-            </p>
+          <p className="text-sm md:text-base font-medium text-white/90 max-w-lg leading-relaxed">
+            Te recomendamos agendar una asesoría técnica presencial o virtual. Un especialista de la DRTPELM validará tu expediente antes de presentarlo.
+          </p>
 
-            <div className="w-full max-w-md pt-2">
-              <Button 
-                onClick={() => window.open('https://extranet.trabajo.gob.pe/extranet/web/citas', '_blank')}
-                className="h-16 md:h-20 w-full bg-white text-primary hover:bg-white/95 rounded-[32px] font-black text-xs md:text-sm uppercase tracking-widest shadow-2xl gap-3 group transition-all active:scale-95"
-              >
-                AGENDAR ASESORÍA OFICIAL
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-2" />
-              </Button>
-            </div>
+          <Button 
+            onClick={() => window.open('https://extranet.trabajo.gob.pe/extranet/web/citas', '_blank')}
+            className="h-16 md:h-20 w-full max-w-md bg-white text-primary hover:bg-white/95 rounded-[32px] font-black text-xs md:text-sm uppercase tracking-widest shadow-2xl gap-3 group transition-all active:scale-95"
+          >
+            AGENDAR ASESORÍA OFICIAL
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-2" />
+          </Button>
 
-            <div className="flex items-center justify-center gap-2.5 text-white/60">
-              <CheckCircle2 className="w-4 h-4" />
-              <p className="text-[11px] font-black uppercase tracking-[0.2em]">Servicio Gratuito DRTPELM</p>
-            </div>
+          <div className="flex items-center justify-center gap-2.5 text-white/60">
+            <CheckCircle2 className="w-4 h-4" />
+            <p className="text-[11px] font-black uppercase tracking-[0.2em]">Servicio Gratuito DRTPELM</p>
           </div>
         </motion.div>
       </section>
 
-      {/* Footer del Dashboard */}
       <footer className="pt-12 flex flex-col items-center gap-6 border-t border-gray-100 relative z-10">
         <div className="flex gap-4">
            <Button 

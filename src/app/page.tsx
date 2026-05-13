@@ -43,40 +43,55 @@ export default function Home() {
 
       {/* Layout para Registro (Split Screen Moderna) */}
       {step === 'registration' ? (
-        <div className="flex min-h-screen relative z-10">
+        <div className="flex min-h-screen relative z-10 flex-col lg:flex-row">
           {/* Lado Izquierdo: Bienvenida y Formulario */}
           <div className="w-full lg:w-[55%] flex flex-col items-center justify-center p-6 lg:p-12 relative z-10 bg-white/40 backdrop-blur-sm">
-            <div className="w-full max-w-[460px] space-y-12 animate-slide-up">
-              <header className="flex flex-col items-center text-center gap-8">
-                {/* Logos Superiores Centrados */}
+            <div className="w-full max-w-[460px] space-y-10 lg:space-y-12 animate-slide-up">
+              
+              {/* Logo y Branding Superior para Móvil y Desktop */}
+              <header className="flex flex-col items-center text-center gap-6 lg:gap-8">
                 <div className="flex items-center justify-center gap-4">
-                  <img src="/image_f1ee39.jfif" alt="MTPE" className="h-12 w-auto object-contain" />
-                  <div className="h-8 w-[1px] bg-gray-200" />
-                  <img src="/Ofelia_logo.png" alt="OFELIA" className="h-8 w-auto" />
+                  <img src="/image_f1ee39.jfif" alt="MTPE" className="h-10 lg:h-12 w-auto object-contain" />
+                  <div className="h-6 lg:h-8 w-[1px] bg-gray-200" />
+                  <img src="/Ofelia_logo.png" alt="OFELIA" className="h-6 lg:h-8 w-auto" />
                 </div>
                 
                 {/* Título Principal */}
-                <div className="space-y-3">
+                <div className="space-y-2 lg:space-y-3">
                   <div className="flex items-center justify-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">SISTEMA OFICIAL DRTPELM</p>
+                    <span className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-primary animate-pulse" />
+                    <p className="text-[9px] lg:text-[10px] font-black text-primary uppercase tracking-[0.3em]">SISTEMA OFICIAL DRTPELM</p>
                   </div>
-                  <h1 className="text-8xl font-black text-[#1A1A1A] tracking-tighter leading-[0.8] drop-shadow-sm">
+                  <h1 className="text-6xl lg:text-8xl font-black text-[#1A1A1A] tracking-tighter leading-[0.8] drop-shadow-sm">
                     OFELIA
                   </h1>
                 </div>
 
-                {/* Texto Institucional y Bienvenida */}
-                <div className="space-y-8 w-full">
-                  <p className="text-[11px] font-black text-[#1A1A1A] uppercase tracking-[0.15em] leading-relaxed opacity-90 max-w-[420px] mx-auto">
+                {/* Hero Visual Exclusivo para Móvil (Solo aparece en < lg) */}
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="lg:hidden w-full relative h-48 rounded-[32px] overflow-hidden shadow-2xl border-4 border-white mt-2"
+                >
+                  <img src="/Fondo2.jpg" alt="Bienvenida" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent" />
+                  <div className="absolute bottom-4 left-6 right-6">
+                    <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1 opacity-80">Ruta Técnica</p>
+                    <p className="text-lg font-black text-white uppercase italic tracking-tight">Formalizar es Crecer</p>
+                  </div>
+                </motion.div>
+
+                {/* Texto Institucional */}
+                <div className="space-y-6 lg:space-y-8 w-full">
+                  <p className="text-[10px] lg:text-[11px] font-black text-[#1A1A1A] uppercase tracking-[0.15em] leading-relaxed opacity-90 max-w-[420px] mx-auto">
                     MODELO DE ORIENTACIÓN EN FORMALIZACIÓN EMPRESARIAL, LABORAL ITINERANTE Y ASISTIDA
                   </p>
                   
-                  <div className="space-y-2 pt-2">
-                    <p className="text-2xl font-black text-[#1A1A1A] tracking-tight leading-none italic bg-primary/5 py-3 px-6 rounded-2xl inline-block border border-primary/10">
+                  <div className="space-y-1 lg:space-y-2 pt-0 lg:pt-2 hidden sm:block">
+                    <p className="text-xl lg:text-2xl font-black text-[#1A1A1A] tracking-tight leading-none italic bg-primary/5 py-2 lg:py-3 px-5 lg:px-6 rounded-2xl inline-block border border-primary/10">
                       Comienza tu ruta de crecimiento.
                     </p>
-                    <p className="text-sm font-medium text-gray-400 mt-2">
+                    <p className="text-xs lg:text-sm font-medium text-gray-400 mt-2">
                       Accede a tu panel de formalización.
                     </p>
                   </div>
@@ -87,13 +102,13 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Lado Derecho: Composición Visual Moderna (Tipo SaaS) */}
+          {/* Lado Derecho: Composición Visual Desktop (Oculto en móvil) */}
           <div className="hidden lg:flex lg:w-[45%] relative bg-[#F9FAFB] items-center justify-center overflow-hidden border-l border-gray-100">
             {/* Fondo con textura sutil */}
             <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#D91E18 1px, transparent 1px)', size: '24px 24px' }} />
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10" />
 
-            {/* Composición de imágenes con profundidad - Centrada verticalmente */}
+            {/* Composición de imágenes con profundidad */}
             <div className="relative w-full max-w-lg h-[700px] flex flex-col items-center justify-center">
               
               <div className="relative w-full h-[450px] flex items-center justify-center">

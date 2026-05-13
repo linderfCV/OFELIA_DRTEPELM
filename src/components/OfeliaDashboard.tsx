@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -422,7 +421,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         title: "Inscripción en el RUC como Empleador",
         icon: <CreditCard className="w-5 h-5" />,
         description: "REGISTRO DE EMPLEADOR",
-        details: "Todo empleador de un trabajador(a) del hogar debe tener un RUC (generalmente bajo el régimen de 'Empleador de Hogar'). Esto es indispensable para poder declarar la planilla mensual y pagar los aportes de EsSalud (9%) y Pensiones (ONP/AFP).",
+        details: "Todo empleador de un trabajador(a) del hogar debe tener un RUC (generalmente bajo el régimen de 'Empleador de Hogar'). Esto es indispensable para poder poder declarar la planilla mensual y pagar los aportes de EsSalud (9%) y Pensiones (ONP/AFP).",
         requirements: [
           "DNI o CE vigente del empleador.",
           "Dirección exacta de la residencia donde se prestará el servicio.",

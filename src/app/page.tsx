@@ -45,16 +45,20 @@ export default function Home() {
       {step === 'registration' ? (
         <div className="flex min-h-screen relative z-10 flex-col lg:flex-row">
           {/* Lado Izquierdo: Bienvenida y Formulario */}
-          <div className="w-full lg:w-[55%] flex flex-col items-center justify-center p-6 lg:p-12 relative z-10 bg-white/40 backdrop-blur-sm">
-            <div className="w-full max-w-[460px] space-y-10 lg:space-y-12 animate-slide-up">
+          <div className="w-full lg:w-[55%] flex flex-col items-center justify-center p-5 lg:p-12 relative z-10 bg-white/40 backdrop-blur-sm">
+            <div className="w-full max-w-[460px] space-y-8 lg:space-y-12 animate-slide-up">
               
-              {/* Logo y Branding Superior para Móvil y Desktop */}
+              {/* Logo y Branding Superior */}
               <header className="flex flex-col items-center text-center gap-6 lg:gap-8">
-                <div className="flex items-center justify-center gap-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center justify-center gap-4"
+                >
                   <img src="/image_f1ee39.jfif" alt="MTPE" className="h-10 lg:h-12 w-auto object-contain" />
                   <div className="h-6 lg:h-8 w-[1px] bg-gray-200" />
                   <img src="/Ofelia_logo.png" alt="OFELIA" className="h-6 lg:h-8 w-auto" />
-                </div>
+                </motion.div>
                 
                 {/* Título Principal */}
                 <div className="space-y-2 lg:space-y-3">
@@ -67,22 +71,23 @@ export default function Home() {
                   </h1>
                 </div>
 
-                {/* Hero Visual Exclusivo para Móvil (Solo aparece en < lg) */}
+                {/* Hero Visual Compacto para Móvil - Optimizado en altura */}
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="lg:hidden w-full relative h-48 rounded-[32px] overflow-hidden shadow-2xl border-4 border-white mt-2"
+                  transition={{ delay: 0.2 }}
+                  className="lg:hidden w-full relative h-36 rounded-[32px] overflow-hidden shadow-2xl border-4 border-white mt-2"
                 >
                   <img src="/Fondo2.jpg" alt="Bienvenida" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent" />
                   <div className="absolute bottom-4 left-6 right-6">
-                    <p className="text-[10px] font-black text-white uppercase tracking-widest leading-none mb-1 opacity-80">Ruta Técnica</p>
-                    <p className="text-lg font-black text-white uppercase italic tracking-tight">Formalizar es Crecer</p>
+                    <p className="text-[8px] font-black text-white uppercase tracking-widest leading-none mb-1 opacity-90">Ruta Técnica</p>
+                    <p className="text-base font-black text-white uppercase italic tracking-tight">Formalizar es Crecer</p>
                   </div>
                 </motion.div>
 
                 {/* Texto Institucional */}
-                <div className="space-y-6 lg:space-y-8 w-full">
+                <div className="space-y-4 lg:space-y-8 w-full">
                   <p className="text-[10px] lg:text-[11px] font-black text-[#1A1A1A] uppercase tracking-[0.15em] leading-relaxed opacity-90 max-w-[420px] mx-auto">
                     MODELO DE ORIENTACIÓN EN FORMALIZACIÓN EMPRESARIAL, LABORAL ITINERANTE Y ASISTIDA
                   </p>
@@ -91,39 +96,38 @@ export default function Home() {
                     <p className="text-xl lg:text-2xl font-black text-[#1A1A1A] tracking-tight leading-none italic bg-primary/5 py-2 lg:py-3 px-5 lg:px-6 rounded-2xl inline-block border border-primary/10">
                       Comienza tu ruta de crecimiento.
                     </p>
-                    <p className="text-xs lg:text-sm font-medium text-gray-400 mt-2">
-                      Accede a tu panel de formalización.
-                    </p>
                   </div>
                 </div>
               </header>
 
-              <OfeliaForm onComplete={handleRegistrationComplete} />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <OfeliaForm onComplete={handleRegistrationComplete} />
+              </motion.div>
             </div>
           </div>
 
           {/* Lado Derecho: Composición Visual Desktop (Oculto en móvil) */}
           <div className="hidden lg:flex lg:w-[45%] relative bg-[#F9FAFB] items-center justify-center overflow-hidden border-l border-gray-100">
-            {/* Fondo con textura sutil */}
-            <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#D91E18 1px, transparent 1px)', size: '24px 24px' }} />
+            <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#D91E18 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10" />
 
-            {/* Composición de imágenes con profundidad */}
             <div className="relative w-full max-w-lg h-[700px] flex flex-col items-center justify-center">
               
               <div className="relative w-full h-[450px] flex items-center justify-center">
-                {/* Imagen Principal (Fondo 2) */}
                 <motion.div 
                   initial={{ opacity: 0, y: 20, rotate: -2 }}
                   animate={{ opacity: 1, y: 0, rotate: -2 }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
                   className="absolute z-10 w-[85%] h-[380px] rounded-[48px] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.12)] border-[12px] border-white"
                 >
-                  <img src="/Fondo2.jpg" alt="Institucional" className="w-full h-full object-cover" style={{ imageRendering: 'auto' }} />
+                  <img src="/Fondo2.jpg" alt="Institucional" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent mix-blend-overlay" />
                 </motion.div>
 
-                {/* Imagen Secundaria Circular (Fondo 1) */}
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.8, x: -60, y: -40 }}
                   animate={{ opacity: 1, scale: 1, x: -60, y: -40 }}
@@ -131,10 +135,9 @@ export default function Home() {
                   whileHover={{ scale: 1.05 }}
                   className="absolute z-20 left-0 top-1/4 w-52 h-52 rounded-full overflow-hidden border-[10px] border-white shadow-2xl"
                 >
-                  <img src="/Fondo1.jfif" alt="Human" className="w-full h-full object-cover" style={{ imageRendering: 'auto' }} />
+                  <img src="/Fondo1.jfif" alt="Human" className="w-full h-full object-cover" />
                 </motion.div>
 
-                {/* Imagen Terciaria Flotante (Fondo 4) */}
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.8, x: 140, y: -100 }}
                   animate={{ opacity: 1, scale: 1, x: 140, y: -100 }}
@@ -142,10 +145,9 @@ export default function Home() {
                   whileHover={{ scale: 1.05, y: -110 }}
                   className="absolute z-20 w-40 h-56 rounded-[40px] overflow-hidden border-[8px] border-white shadow-2xl"
                 >
-                  <img src="/Fondo4.jpg" alt="Support" className="w-full h-full object-cover" style={{ imageRendering: 'auto' }} />
+                  <img src="/Fondo4.jpg" alt="Support" className="w-full h-full object-cover" />
                 </motion.div>
 
-                {/* Decoración: Badge flotante de éxito */}
                 <motion.div
                   animate={{ y: [0, -10, 0] }}
                   transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
@@ -161,7 +163,6 @@ export default function Home() {
                 </motion.div>
               </div>
 
-              {/* Branding y Texto Inferior */}
               <div className="w-full px-16 mt-12 space-y-10">
                 <div className="space-y-4">
                   <div className="w-20 h-2 bg-primary rounded-full shadow-lg shadow-primary/20" />
@@ -173,7 +174,6 @@ export default function Home() {
                   </p>
                 </div>
                 
-                {/* Sección Institucional Refinada */}
                 <div className="pt-8 border-t border-gray-200/60 space-y-5">
                   <div className="flex items-center gap-3">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -218,7 +218,6 @@ export default function Home() {
           </header>
 
           <main className="w-full max-w-[520px] px-6 py-12 animate-slide-up relative">
-            {/* Elemento decorativo lateral sutil */}
             <div className="absolute -left-32 top-1/4 w-64 h-64 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
             <div className="absolute -right-32 top-2/3 w-64 h-64 bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
             

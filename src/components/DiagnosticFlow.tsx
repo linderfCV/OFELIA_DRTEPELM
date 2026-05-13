@@ -180,7 +180,6 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
         ? `Empleador(a) del hogar en ${district}. ${detected.length > 0 ? `Brechas: ${detected.join(', ')}.` : 'Formalidad base completa.'}`
         : `Emprendedor (${routeType}) rubro ${sector} en ${district}. ${detected.length > 0 ? `Brechas: ${detected.join(', ')}.` : 'Formalidad base completa.'}`;
 
-      // Actualizar sesión con datos de diagnóstico para trazabilidad Chatbot
       const currentSessionRaw = sessionStorage.getItem('ofelia_user_session');
       if (currentSessionRaw) {
         const sessionData = JSON.parse(currentSessionRaw);
@@ -214,28 +213,31 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
   };
 
   const HeaderImage = ({ src, icon: Icon, title, subtitle }: { src: string, icon?: any, title: string, subtitle?: string }) => (
-    <div className="relative w-full h-44 rounded-[40px] overflow-hidden mb-10 shadow-2xl group">
+    <motion.div 
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="relative w-full h-36 lg:h-40 rounded-[40px] overflow-hidden mb-6 lg:mb-8 shadow-2xl group border-4 border-white"
+    >
       <motion.img 
         initial={{ scale: 1.05 }}
         animate={{ scale: 1 }}
         src={src} 
-        alt="Banner Step" 
+        alt="Banner" 
         className="w-full h-full object-cover transition-transform duration-1000 select-none" 
-        style={{ imageRendering: 'auto' }}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A] via-[#1A1A1A]/40 to-transparent opacity-80" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A] via-[#1A1A1A]/40 to-transparent opacity-85" />
       <div className="absolute bottom-6 left-8 flex items-center gap-4">
         {Icon && (
-          <div className="w-12 h-12 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/30">
-            <Icon className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/30 shadow-lg">
+            <Icon className="w-5 h-5 text-white" />
           </div>
         )}
         <div className="space-y-0.5">
-          <h3 className="text-xl font-black text-white tracking-tight leading-none uppercase italic">{title}</h3>
-          {subtitle && <p className="text-[10px] font-black text-white/70 uppercase tracking-[0.2em]">{subtitle}</p>}
+          <h3 className="text-lg font-black text-white tracking-tight leading-none uppercase italic">{title}</h3>
+          {subtitle && <p className="text-[9px] font-black text-white/70 uppercase tracking-[0.2em]">{subtitle}</p>}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 
   const getQuestionIcon = (idx: number) => {
@@ -246,46 +248,51 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
   if (step === -1) {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700 relative">
-        <HeaderImage src="/Fondo3.png" icon={User} title="Identificación de Perfil" subtitle="PASO INICIAL" />
+        <HeaderImage src="/Fondo3.png" icon={User} title="Perfil Ciudadano" subtitle="ORIENTACIÓN TÉCNICA" />
         
         <div className="space-y-3 px-2">
-          <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">BIENVENIDO(A)</p>
-          <h2 className="text-4xl font-black text-[#1A1A1A] leading-[0.9] tracking-tighter">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-primary animate-pulse" />
+            <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">IDENTIFICACIÓN</p>
+          </div>
+          <h2 className="text-3xl lg:text-4xl font-black text-[#1A1A1A] leading-[0.9] tracking-tighter">
             ¿Cómo podemos orientarte hoy?
           </h2>
-          <p className="text-sm text-gray-500 font-medium max-w-[360px]">Selecciona la opción que mejor describa tu situación actual para iniciar tu ruta técnica.</p>
+          <p className="text-sm text-gray-500 font-medium max-w-[360px]">Selecciona la ruta que mejor describa tu situación actual para iniciar el diagnóstico.</p>
         </div>
 
         <div className="grid gap-4">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.01, y: -2 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => { setProfile('entrepreneur'); setStep(0); }}
-            className="flex items-center gap-5 p-7 bg-white border border-gray-100 rounded-[40px] text-left hover:border-primary/30 shadow-sm hover:shadow-2xl hover:shadow-primary/5 transition-all group relative overflow-hidden"
+            className="flex items-center gap-5 p-6 lg:p-7 bg-white border border-gray-100 rounded-[40px] text-left hover:border-primary/30 shadow-sm hover:shadow-xl hover:shadow-gray-200/40 transition-all group relative overflow-hidden"
           >
-            <div className="absolute right-0 top-0 w-24 h-full bg-amber-500/5 -skew-x-12 translate-x-8 group-hover:translate-x-0 transition-transform duration-500" />
-            <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 shrink-0 shadow-inner group-hover:scale-110 transition-transform">
-              <Briefcase className="w-8 h-8" />
+            <div className="w-14 h-14 lg:w-16 lg:h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 shrink-0 shadow-inner group-hover:scale-110 transition-transform">
+              <Briefcase className="w-7 h-7 lg:w-8 lg:h-8" />
             </div>
             <div className="flex-1 relative z-10">
               <h3 className="font-black text-xl text-[#1A1A1A] tracking-tight">Soy Emprendedor</h3>
               <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-1">Negocios y Proyectos</p>
             </div>
             <ChevronRight className="w-6 h-6 text-gray-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.01, y: -2 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => { setProfile('domestic'); setRouteType('domestic'); setSector('Trabajadores del Hogar'); setStep(1); }}
-            className="flex items-center gap-5 p-7 bg-white border border-gray-100 rounded-[40px] text-left hover:border-primary/30 shadow-sm hover:shadow-2xl hover:shadow-primary/5 transition-all group relative overflow-hidden"
+            className="flex items-center gap-5 p-6 lg:p-7 bg-white border border-gray-100 rounded-[40px] text-left hover:border-primary/30 shadow-sm hover:shadow-xl hover:shadow-gray-200/40 transition-all group relative overflow-hidden"
           >
-            <div className="absolute right-0 top-0 w-24 h-full bg-blue-500/5 -skew-x-12 translate-x-8 group-hover:translate-x-0 transition-transform duration-500" />
-            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 shrink-0 shadow-inner group-hover:scale-110 transition-transform">
-              <Home className="w-8 h-8" />
+            <div className="w-14 h-14 lg:w-16 lg:h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 shrink-0 shadow-inner group-hover:scale-110 transition-transform">
+              <Home className="w-7 h-7 lg:w-8 lg:h-8" />
             </div>
             <div className="flex-1 relative z-10">
               <h3 className="font-black text-xl text-[#1A1A1A] tracking-tight">Empleador del Hogar</h3>
               <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-1">Régimen Especial Laboral</p>
             </div>
             <ChevronRight className="w-6 h-6 text-gray-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
-          </button>
+          </motion.button>
         </div>
       </div>
     );
@@ -298,83 +305,87 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
         
         <div className="space-y-3 px-2">
           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">PASO 1 DE {totalSteps}</p>
-          <h2 className="text-4xl font-black text-[#1A1A1A] leading-[0.9] tracking-tighter">
+          <h2 className="text-3xl lg:text-4xl font-black text-[#1A1A1A] leading-[0.9] tracking-tighter">
             ¿En qué etapa se encuentra tu proyecto?
           </h2>
-          <p className="text-sm text-gray-500 font-medium">Esto nos ayuda a priorizar los trámites iniciales o de regularización.</p>
         </div>
 
         <div className="grid gap-4">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.01, y: -2 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => { setRouteType('idea'); setStep(1); }}
-            className="flex items-center gap-5 p-7 bg-white border border-gray-100 rounded-[40px] text-left hover:border-primary/30 shadow-sm hover:shadow-2xl transition-all group"
+            className="flex items-center gap-5 p-6 lg:p-7 bg-white border border-gray-100 rounded-[40px] text-left hover:border-primary/30 shadow-sm hover:shadow-xl transition-all group"
           >
-            <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 shrink-0 shadow-inner">
-              <Lightbulb className="w-8 h-8" />
+            <div className="w-14 h-14 lg:w-16 lg:h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 shrink-0 shadow-inner">
+              <Lightbulb className="w-7 h-7 lg:w-8 lg:h-8" />
             </div>
             <div className="flex-1">
-              <h3 className="font-black text-xl text-[#1A1A1A] tracking-tight italic">RUTA DEL EMPRENDEDOR</h3>
+              <h3 className="font-black text-xl text-[#1A1A1A] tracking-tight italic uppercase">RUTA DEL EMPRENDEDOR</h3>
               <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-1">Idea de Negocio / Inicio</p>
             </div>
             <ChevronRight className="w-6 h-6 text-gray-300 group-hover:text-primary transition-all" />
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.01, y: -2 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => { setRouteType('active'); setStep(1); }}
-            className="flex items-center gap-5 p-7 bg-white border border-gray-100 rounded-[40px] text-left hover:border-primary/30 shadow-sm hover:shadow-2xl transition-all group"
+            className="flex items-center gap-5 p-6 lg:p-7 bg-white border border-gray-100 rounded-[40px] text-left hover:border-primary/30 shadow-sm hover:shadow-xl transition-all group"
           >
-            <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 shrink-0 shadow-inner">
-              <Briefcase className="w-8 h-8" />
+            <div className="w-14 h-14 lg:w-16 lg:h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 shrink-0 shadow-inner">
+              <Briefcase className="w-7 h-7 lg:w-8 lg:h-8" />
             </div>
             <div className="flex-1">
-              <h3 className="font-black text-xl text-[#1A1A1A] tracking-tight italic">RUTA DE LA REGULARIZACIÓN</h3>
+              <h3 className="font-black text-xl text-[#1A1A1A] tracking-tight italic uppercase">RUTA DE LA REGULARIZACIÓN</h3>
               <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-1">Negocio en Marcha / Activo</p>
             </div>
             <ChevronRight className="w-6 h-6 text-gray-300 group-hover:text-primary transition-all" />
-          </button>
+          </motion.button>
         </div>
       </div>
     );
   }
 
-  // PASO 1 (ENTREPRENEUR): SELECCIÓN DE RUBRO
   if (step === 1 && profile === 'entrepreneur') {
     return (
-      <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-700">
+      <div className="space-y-6 lg:space-y-8 animate-in fade-in slide-in-from-right-8 duration-700">
         <div className="space-y-4 px-2">
           <div className="flex justify-between items-end">
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">CATEGORIZACIÓN</p>
-            <p className="text-[10px] font-black text-primary uppercase">{Math.round(currentProgress)}%</p>
+            <p className="text-[10px] font-black text-primary uppercase font-mono tracking-tighter">{Math.round(currentProgress)}%</p>
           </div>
           <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: `${currentProgress}%` }}
-              className="h-full bg-gradient-to-r from-primary to-red-500"
+              className="h-full bg-gradient-to-r from-primary to-red-500 shadow-[0_0_8px_rgba(217,30,24,0.3)]"
             />
           </div>
-          <h2 className="text-4xl font-black text-[#1A1A1A] pt-4 leading-[0.9] tracking-tighter">
+          <h2 className="text-3xl lg:text-4xl font-black text-[#1A1A1A] pt-2 leading-[0.9] tracking-tighter">
             ¿Cuál es el rubro o sector de tu negocio?
           </h2>
-          <p className="text-sm text-gray-500 font-medium">Esto nos ayuda a identificar si requieres autorizaciones sectoriales específicas según la normativa del Estado.</p>
         </div>
 
-        <ScrollArea className="h-[450px] pr-4 rounded-[40px] border border-gray-100 bg-white/50 p-6 shadow-premium">
+        <ScrollArea className="h-[380px] lg:h-[420px] pr-4 rounded-[40px] border border-gray-100 bg-white/60 p-5 lg:p-6 shadow-premium">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-8">
-            {SECTORS.map((s) => (
-              <button
+            {SECTORS.map((s, idx) => (
+              <motion.button
                 key={s.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.04 }}
                 onClick={() => { setSector(s.label); handleNext({ sector: s.label }); }}
                 className={cn(
-                  "flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-[32px] text-left hover:border-primary/30 shadow-sm hover:shadow-xl transition-all group",
+                  "flex items-center gap-4 p-4 lg:p-5 bg-white border border-gray-100 rounded-[32px] text-left hover:border-primary/30 shadow-sm hover:shadow-xl transition-all group active:scale-95",
                   sector === s.label && "border-primary bg-primary/5 shadow-primary/10"
                 )}
               >
-                <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-inner">
+                <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-xl lg:text-2xl group-hover:scale-110 transition-transform shadow-inner">
                   {s.icon}
                 </div>
-                <span className="text-xs font-black uppercase tracking-tight text-gray-600 group-hover:text-[#1A1A1A] leading-tight">{s.label}</span>
-              </button>
+                <span className="text-[11px] lg:text-xs font-black uppercase tracking-tight text-gray-600 group-hover:text-[#1A1A1A] leading-tight">{s.label}</span>
+              </motion.button>
             ))}
           </div>
         </ScrollArea>
@@ -389,16 +400,16 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
         <div className="space-y-4 px-2">
           <div className="flex justify-between items-end">
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">LOCALIZACIÓN</p>
-            <p className="text-[10px] font-black text-primary uppercase">{Math.round(currentProgress)}%</p>
+            <p className="text-[10px] font-black text-primary uppercase font-mono tracking-tighter">{Math.round(currentProgress)}%</p>
           </div>
           <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: `${currentProgress}%` }}
-              className="h-full bg-gradient-to-r from-primary to-red-500"
+              className="h-full bg-gradient-to-r from-primary to-red-500 shadow-[0_0_8px_rgba(217,30,24,0.3)]"
             />
           </div>
-          <h2 className="text-4xl font-black text-[#1A1A1A] pt-4 leading-[0.9] tracking-tighter">
+          <h2 className="text-3xl lg:text-4xl font-black text-[#1A1A1A] pt-2 leading-[0.9] tracking-tighter">
             ¿En qué distrito se ubica el negocio o servicio?
           </h2>
         </div>
@@ -408,22 +419,22 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary transition-colors" />
             <Input 
               placeholder="Buscar distrito..." 
-              className="pl-12 h-16 rounded-3xl border-gray-100 bg-white shadow-xl shadow-gray-200/40 font-bold text-lg focus:ring-4 focus:ring-primary/5 transition-all"
+              className="pl-12 h-14 lg:h-16 rounded-3xl border-gray-100 bg-white shadow-xl shadow-gray-200/40 font-bold text-base lg:text-lg focus:ring-4 focus:ring-primary/5 transition-all"
               value={districtSearch}
               onChange={(e) => setDistrictSearch(e.target.value)}
             />
           </div>
 
-          <ScrollArea className="h-[300px] border border-gray-100 rounded-[40px] bg-white p-3 shadow-premium">
+          <ScrollArea className="h-[250px] lg:h-[280px] border border-gray-100 rounded-[40px] bg-white p-3 shadow-premium">
             <div className="grid gap-1.5">
               {DISTRICTS.filter(d => d.toLowerCase().includes(districtSearch.toLowerCase())).map((d) => (
                 <button
                   key={d}
                   onClick={() => setDistrict(d)}
                   className={cn(
-                    "w-full text-left px-6 py-5 text-sm font-bold rounded-2xl transition-all flex items-center justify-between",
+                    "w-full text-left px-5 py-4 lg:px-6 lg:py-5 text-sm font-bold rounded-2xl transition-all flex items-center justify-between",
                     district === d 
-                      ? "bg-primary text-white shadow-2xl shadow-primary/20 scale-[1.02]" 
+                      ? "bg-primary text-white shadow-2xl shadow-primary/20 scale-[1.01]" 
                       : "hover:bg-gray-50 text-gray-600"
                   )}
                 >
@@ -434,41 +445,41 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
             </div>
           </ScrollArea>
 
-          {district && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 pt-2">
-              <div className="space-y-2">
-                <label className="text-[11px] font-black uppercase text-gray-400 tracking-widest px-3">
-                  Punto de referencia
-                </label>
-                <Input 
-                  placeholder="Ej: Frente al Mercado Central, Óvalo Santa Anita..." 
-                  className="h-16 rounded-3xl bg-gray-100/50 border-none focus:ring-4 focus:ring-primary/5 font-medium px-6"
-                  value={zone}
-                  onChange={(e) => setZone(e.target.value)}
-                />
-              </div>
-              <Button 
-                className="w-full h-16 rounded-3xl font-black bg-primary hover:bg-primary/90 flex items-center justify-center gap-3 shadow-2xl shadow-primary/20 uppercase tracking-widest text-xs transition-all active:scale-95"
-                onClick={() => handleNext({ district, zone })}
-              >
-                CONTINUAR
-                <ArrowRight className="w-5 h-5" />
-              </Button>
-            </motion.div>
-          )}
+          <AnimatePresence>
+            {district && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-5 pt-2">
+                <div className="space-y-2">
+                  <label className="text-[10px] lg:text-[11px] font-black uppercase text-gray-400 tracking-widest px-3">
+                    Punto de referencia
+                  </label>
+                  <Input 
+                    placeholder="Ej: Frente al Mercado Central..." 
+                    className="h-14 lg:h-16 rounded-3xl bg-gray-100/50 border-none focus:ring-4 focus:ring-primary/5 font-medium px-6 text-sm"
+                    value={zone}
+                    onChange={(e) => setZone(e.target.value)}
+                  />
+                </div>
+                <Button 
+                  className="w-full h-16 rounded-3xl font-black bg-primary hover:bg-primary/90 flex items-center justify-center gap-3 shadow-2xl shadow-primary/20 uppercase tracking-widest text-xs transition-all active:scale-95"
+                  onClick={() => handleNext({ district, zone })}
+                >
+                  CONTINUAR
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     );
   }
 
   const routeStepIdx = isDomestic ? step - 2 : step - 3;
-  const currentQuestion = routeType ? routeQuestions[routeType as keyof typeof routeQuestions][routeStepIdx] : "";
+  const currentQuestions = routeType ? routeQuestions[routeType as keyof typeof routeQuestions] : [];
+  const currentQuestion = currentQuestions[routeStepIdx] || "";
 
   return (
-    <div className="space-y-12 animate-in fade-in slide-in-from-right-8 duration-700 relative">
-      <div className="absolute -left-20 top-1/2 w-10 h-10 bg-primary/5 rounded-2xl rotate-45 blur-sm opacity-50" />
-      <div className="absolute -right-20 top-1/3 w-14 h-14 bg-blue-500/5 rounded-full blur-sm opacity-50" />
-
+    <div className="space-y-10 lg:space-y-12 animate-in fade-in slide-in-from-right-8 duration-700 relative">
       <div className="space-y-6 px-2">
         <div className="flex justify-between items-end">
           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">AUDITORÍA TÉCNICA {step + 1} DE {totalSteps}</p>
@@ -484,46 +495,53 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
         
         <motion.div 
           key={currentQuestion}
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white p-10 rounded-[48px] border border-gray-100 shadow-premium relative overflow-hidden text-center"
+          className="bg-white p-8 lg:p-10 rounded-[48px] border border-gray-100 shadow-premium relative overflow-hidden text-center"
         >
-          <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
-          <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl" />
-          
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-red-500" />
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary to-red-500" />
           
           <div className="flex justify-center mb-6">
-            <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-primary/30 shadow-inner">
+            <motion.div 
+              initial={{ rotate: -10 }}
+              animate={{ rotate: 0 }}
+              className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-primary/40 shadow-inner border border-gray-100"
+            >
                {getQuestionIcon(routeStepIdx)}
-            </div>
+            </motion.div>
           </div>
 
-          <h2 className="text-2xl font-black text-[#1A1A1A] leading-tight tracking-tight px-4">
+          <h2 className="text-2xl lg:text-3xl font-black text-[#1A1A1A] leading-tight tracking-tight px-2 lg:px-4">
             {currentQuestion}
           </h2>
-          <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mt-6 bg-gray-50 py-2 px-4 rounded-full inline-block">
-            Orientación Técnica Requerida
-          </p>
+          <div className="mt-8">
+            <span className="text-[9px] lg:text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-50/80 py-2 px-5 rounded-full inline-block border border-gray-100">
+              Orientación Técnica Requerida
+            </span>
+          </div>
         </motion.div>
       </div>
 
-      <div className="grid gap-4 pt-2">
-        <button
-          className="h-20 text-lg font-black bg-white border-2 border-gray-100 rounded-[32px] hover:border-primary hover:text-primary transition-all flex items-center justify-between px-10 group shadow-lg hover:shadow-2xl active:scale-[0.98]"
+      <div className="grid gap-4 pt-2 px-2">
+        <motion.button
+          whileHover={{ scale: 1.01, y: -2 }}
+          whileTap={{ scale: 0.98 }}
+          className="h-16 lg:h-20 text-base lg:text-lg font-black bg-white border-2 border-gray-100 rounded-[32px] hover:border-primary hover:text-primary transition-all flex items-center justify-between px-8 lg:px-10 group shadow-lg"
           onClick={() => handleNext({ [step]: true })}
         >
           Sí, lo tengo claro
           <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center group-hover:bg-primary/10 transition-colors shadow-inner">
             <Check className="w-5 h-5 text-gray-300 group-hover:text-primary" />
           </div>
-        </button>
-        <button
-          className="h-20 text-lg font-black bg-white border-2 border-gray-100 rounded-[32px] hover:border-primary hover:text-primary transition-all flex items-center justify-start px-10 group shadow-lg hover:shadow-2xl active:scale-[0.98]"
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.01, y: -2 }}
+          whileTap={{ scale: 0.98 }}
+          className="h-16 lg:h-20 text-base lg:text-lg font-black bg-white border-2 border-gray-100 rounded-[32px] hover:border-primary hover:text-primary transition-all flex items-center justify-start px-8 lg:px-10 group shadow-lg"
           onClick={() => handleNext({ [step]: false })}
         >
           No, necesito orientación
-        </button>
+        </motion.button>
       </div>
 
       <div className="pt-8 flex flex-col items-center gap-6">
@@ -538,7 +556,7 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
              <UserCheck className="w-4 h-4" />
           </div>
         </div>
-        <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.4em] opacity-60">DRTPELM LIMA METROPOLITANA</p>
+        <p className="text-[10px] text-gray-300 font-black uppercase tracking-[0.4em]">DRTPELM LIMA METROPOLITANA</p>
       </div>
     </div>
   );

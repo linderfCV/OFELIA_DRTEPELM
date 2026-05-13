@@ -53,19 +53,17 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
   };
 
   const getGreeting = React.useCallback(() => {
-    if (context === 'idea') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Veo que tienes una idea de negocio. ¿Cómo puedo orientarte hoy con temas de <strong>SUNARP</strong>, <strong>INDECOPI</strong> o tu constitución legal?</div>";
-    if (context === 'active') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Ya tienes un negocio en marcha. ¿Hablamos sobre cómo registrarte en el <strong>REMYPE</strong> o regularizar tu situación laboral?</div>";
-    if (context === 'domestic') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Te ayudaré con la formalidad del hogar. ¿Tienes dudas sobre el <strong>T-Registro</strong> de SUNAT o el contrato del MTPE?</div>";
+    if (context === 'idea') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Veo que tienes una idea de negocio. ¿Cómo puedo orientarte hoy con temas de <strong>SUNARP</strong> o <strong>INDECOPI</strong>?</div>";
+    if (context === 'active') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Ya tienes un negocio en marcha. ¿Hablamos sobre el <strong>REMYPE</strong> o regularización laboral?</div>";
+    if (context === 'domestic') return "<div>¡Hola! Soy <strong>OFELIA</strong>. Te ayudaré con la formalidad del hogar. ¿Dudas sobre el <strong>T-Registro</strong> o el contrato?</div>";
     return "<div>¡Hola! Soy <strong>OFELIA</strong>, tu asistente de la DRTPE Lima. ¿En qué tema técnico deseas enfocarte hoy?</div>";
   }, [context]);
 
-  // Sincronizar datos de sesión (si existen) al abrir el chat o cambiar de paso
   React.useEffect(() => {
     if (isOpen) {
       const savedSession = sessionStorage.getItem('ofelia_user_session');
       if (savedSession) {
         const data = JSON.parse(savedSession);
-        // Priorizar datos de sesión para trazabilidad
         setUserData({
           idNumber: data.docNumber,
           name: data.fullName,
@@ -74,13 +72,12 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
           profile: data.tipoUsuario || (context === 'domestic' ? 'domestic' : 'entrepreneur'),
           docType: data.docType
         });
-        setOnboardingStep('ready'); // Saltar onboarding si ya hay sesión
+        setOnboardingStep('ready');
         
         if (messages.length === 0) {
           setMessages([{ role: 'model', content: getGreeting() }]);
         }
       } else if (onboardingStep === null && messages.length === 0) {
-        // Iniciar onboarding si no hay sesión
         setOnboardingStep('id');
         setMessages([
           { role: 'model', content: "<div>¡Hola! Soy <strong>OFELIA</strong>. Para ayudarte con tu formalización, primero necesito conocerte un poco. ¿Cuál es tu número de <strong>DNI</strong> o <strong>CE</strong>?</div>" }
@@ -116,14 +113,14 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
     else if (onboardingStep === 'district') {
       setUserData({ ...userData, district: val });
       setOnboardingStep('ref');
-      setMessages([...currentMessages, { role: 'model', content: "<div>¿Alguna <strong>referencia</strong> de tu ubicación? (Si no tienes escribe 'No')</div>" }]);
+      setMessages([...currentMessages, { role: 'model', content: "<div>¿Alguna <strong>referencia</strong> de tu ubicación? (Escribe 'No' si no tienes)</div>" }]);
     }
     else if (onboardingStep === 'ref') {
       setUserData({ ...userData, reference: val.toLowerCase() === 'no' ? undefined : val });
       setOnboardingStep('profile');
       setMessages([...currentMessages, { 
         role: 'model', 
-        content: "<div>¡Gracias! Por último, selecciona tu perfil para darte respuestas exactas:</div>",
+        content: "<div>¡Gracias! Por último, selecciona tu perfil:</div>",
         isAction: true
       }]);
     }
@@ -141,11 +138,10 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
     await logOfeliaEvent({
       tipoEvento: "registro_chatbot",
       sessionId,
-      tipoDocumento: finalUserData.docType || (finalUserData.idNumber?.length === 8 ? "DNI" : "CE"),
+      tipoDocumento: finalUserData.docType,
       numeroDocumento: finalUserData.idNumber,
       nombresApellidos: finalUserData.name,
       distrito: finalUserData.district,
-      lugarReferencia: finalUserData.reference || "N/A",
       tipoUsuario: profile,
       usuarioRegistrado: true,
       canal: "chatbot"
@@ -153,7 +149,7 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
 
     setMessages([...currentMessages, { 
       role: 'model', 
-      content: `<div>¡Registro completo! Bienvenido, <strong>${userData.name || 'Ciudadano'}</strong>. Ya puedes hacerme consultas técnicas. ¿En qué te ayudo hoy?</div>` 
+      content: `<div>¡Bienvenido, <strong>${userData.name || 'Ciudadano'}</strong>! Ya puedes hacerme consultas técnicas. ¿En qué te ayudo?</div>` 
     }]);
   };
 
@@ -190,16 +186,15 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
         tipoUsuario: context || userData.profile || "general",
         textoConsulta: val,
         respuestaGenerada: response.text,
-        fuenteUsada: response.sources?.[0] || "AI",
         canal: "chatbot",
-        usuarioRegistrado: !!userData.idNumber && userData.idNumber !== "Anónimo"
+        usuarioRegistrado: !!userData.idNumber
       });
 
       setMessages([...currentMessages, { role: 'model', content: response.text }]);
     } catch (error) {
       setMessages([...currentMessages, { 
         role: 'model', 
-        content: "<div>Tuve un problema al consultar mis manuales. Intenta de nuevo en unos momentos.</div>" 
+        content: "<div>Tuve un problema al consultar mis manuales. Reintenta.</div>" 
       } as Message]);
     } finally {
       setIsLoading(false);
@@ -214,117 +209,90 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-5">
+    <div className="fixed bottom-5 right-5 z-[100] flex flex-col items-end gap-4">
       <AnimatePresence>
         {isOpen && (
           <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="w-[400px] h-[640px] bg-white rounded-[48px] shadow-[0_32px_80px_rgba(0,0,0,0.15)] border border-gray-100 flex flex-col overflow-hidden"
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            className="w-[92vw] sm:w-[400px] h-[580px] bg-white rounded-[40px] shadow-[0_24px_64px_rgba(0,0,0,0.12)] border border-gray-100 flex flex-col overflow-hidden"
           >
-            <header className="bg-primary px-8 py-6 text-white flex justify-between items-center relative rounded-t-[48px] shrink-0 overflow-hidden">
-              <img src="/Fondo5.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-20 scale-110" style={{ imageRendering: 'auto' }} />
-              <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/80 to-red-600/40" />
+            <header className="bg-primary px-8 py-5 text-white flex justify-between items-center relative shrink-0 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-red-600/40" />
 
               <div className="flex items-center gap-4 relative z-10">
-                <div className="w-14 h-14 bg-white/20 backdrop-blur-2xl rounded-2xl flex items-center justify-center shrink-0 border border-white/30 shadow-xl">
-                  <img src="/Ofelia_logo.png" alt="O" className="w-10 h-10 object-contain drop-shadow-md" />
+                <div className="w-11 h-11 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/30 shadow-inner">
+                  <img src="/Ofelia_logo.png" alt="O" className="w-7 h-7 object-contain" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="font-black text-xl tracking-tighter uppercase italic leading-none">OFELIA</h3>
-                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <h3 className="font-black text-base tracking-tighter uppercase italic leading-none">OFELIA</h3>
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   </div>
-                  <p className="text-[9px] font-black opacity-80 uppercase mt-1.5 tracking-[0.2em]">Asistente Técnico IA</p>
+                  <p className="text-[8px] font-black opacity-80 uppercase mt-1 tracking-widest leading-none">Asistente Oficial DRTPELM</p>
                 </div>
               </div>
               
-              <button 
-                onClick={() => setIsOpen(false)} 
-                className="p-2.5 hover:bg-white/20 rounded-2xl transition-all active:scale-90 z-10 border border-white/20"
-              >
+              <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/20 rounded-xl transition-all z-10 border border-white/10 active:scale-90">
                 <X className="w-5 h-5" />
               </button>
             </header>
             
-            <div ref={scrollRef} className="flex-1 p-8 bg-[#FDFDFD] overflow-y-auto space-y-8 shadow-inner">
+            <div ref={scrollRef} className="flex-1 p-6 bg-[#FDFDFD] overflow-y-auto space-y-6 scroll-smooth">
               {messages.map((msg, idx) => (
-                <div 
+                <motion.div 
                   key={idx} 
-                  className={cn(
-                    "flex flex-col gap-2 max-w-[90%]",
-                    msg.role === 'user' ? "ml-auto items-end" : "items-start"
-                  )}
+                  initial={{ opacity: 0, x: msg.role === 'user' ? 8 : -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className={cn("flex flex-col gap-2 max-w-[88%]", msg.role === 'user' ? "ml-auto items-end" : "items-start")}
                 >
                   <div className={cn(
-                    "p-5 rounded-[32px] text-[13px] font-medium leading-relaxed shadow-sm",
-                    msg.role === 'user' 
-                      ? "bg-primary text-white rounded-tr-none shadow-primary/20" 
-                      : "bg-white text-[#1A1A1A] rounded-tl-none border border-gray-100 border-b-4 border-b-gray-200/40"
+                    "p-4 rounded-[24px] text-[13px] font-medium leading-relaxed shadow-sm",
+                    msg.role === 'user' ? "bg-primary text-white rounded-tr-none" : "bg-white text-[#1A1A1A] rounded-tl-none border border-gray-100"
                   )}>
                     {formatContent(msg.content)}
                   </div>
                   
                   {msg.isAction && onboardingStep === 'profile' && (
-                    <div className="flex flex-col gap-3 w-full mt-4 animate-in fade-in zoom-in-95">
-                      <Button 
-                        variant="outline" 
-                        className="justify-start gap-4 h-16 rounded-2xl border-gray-100 hover:bg-blue-50 text-[#1A1A1A] hover:text-blue-700 font-black text-[12px] uppercase tracking-widest shadow-md transition-all active:scale-95"
-                        onClick={() => selectProfile('entrepreneur')}
-                      >
-                        <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500">
-                          <Briefcase className="w-5 h-5" />
-                        </div>
-                        Soy emprendedor
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex flex-col gap-2 w-full mt-2"
+                    >
+                      <Button variant="outline" className="justify-start h-12 rounded-2xl border-gray-100 text-[10px] font-black uppercase tracking-widest shadow-sm hover:border-primary/40 active:scale-[0.98] transition-all" onClick={() => selectProfile('entrepreneur')}>
+                        <Briefcase className="w-3.5 h-3.5 mr-3 text-primary" /> Soy emprendedor
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        className="justify-start gap-4 h-16 rounded-2xl border-gray-100 hover:bg-emerald-50 text-[#1A1A1A] hover:text-emerald-700 font-black text-[12px] uppercase tracking-widest shadow-md transition-all active:scale-95"
-                        onClick={() => selectProfile('domestic')}
-                      >
-                        <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500">
-                          <Home className="w-5 h-5" />
-                        </div>
-                        Soy empleador del hogar
+                      <Button variant="outline" className="justify-start h-12 rounded-2xl border-gray-100 text-[10px] font-black uppercase tracking-widest shadow-sm hover:border-primary/40 active:scale-[0.98] transition-all" onClick={() => selectProfile('domestic')}>
+                        <Home className="w-3.5 h-3.5 mr-3 text-primary" /> Soy empleador hogar
                       </Button>
-                    </div>
+                    </motion.div>
                   )}
-                </div>
+                </motion.div>
               ))}
               
               {isLoading && (
-                <div className="flex items-center gap-4 text-[10px] font-black text-primary px-4 bg-primary/5 py-3 rounded-full border border-primary/10 w-fit">
-                  <div className="flex gap-1">
-                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
-                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
-                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" />
-                  </div>
-                  CONSULTANDO MANUALES TÉCNICOS...
+                <div className="flex items-center gap-3 text-[8px] font-black text-primary px-4 bg-primary/5 py-2.5 rounded-full border border-primary/10 w-fit animate-pulse">
+                  <span className="w-1 h-1 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
+                  <span className="w-1 h-1 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
+                  <span className="w-1 h-1 bg-primary rounded-full animate-bounce" />
+                  CONSULTANDO MANUALES...
                 </div>
               )}
             </div>
 
-            <div className="p-6 bg-white border-t border-gray-50 flex gap-3">
+            <div className="p-4 bg-white border-t border-gray-50 flex gap-2">
               <input 
                 type="text"
-                placeholder={
-                  onboardingStep === 'profile' ? "Selecciona una opción" :
-                  "Escribe tu duda legal aquí..."
-                }
+                placeholder="Escribe tu consulta..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                 disabled={isLoading || onboardingStep === 'profile'}
-                className="flex-1 bg-gray-100 border-none rounded-2xl px-6 py-4 text-[14px] font-bold focus:ring-4 focus:ring-primary/10 outline-none disabled:opacity-50 transition-all shadow-inner"
+                className="flex-1 bg-gray-100 border-none rounded-2xl px-5 py-3 text-sm font-bold focus:ring-4 focus:ring-primary/5 outline-none disabled:opacity-50 transition-all"
               />
-              <Button 
-                size="icon" 
-                onClick={handleSend}
-                disabled={isLoading || !input.trim() || onboardingStep === 'profile'}
-                className="h-16 w-16 rounded-[28px] bg-primary shrink-0 transition-all active:scale-90 shadow-2xl shadow-primary/30"
-              >
-                <Send className="w-6 h-6" />
+              <Button size="icon" onClick={handleSend} disabled={isLoading || !input.trim() || onboardingStep === 'profile'} className="h-12 w-12 rounded-2xl bg-primary shrink-0 transition-all active:scale-90 shadow-lg shadow-primary/20">
+                <Send className="w-4 h-4" />
               </Button>
             </div>
           </motion.div>
@@ -333,27 +301,20 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
 
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-20 h-20 bg-white rounded-[28px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all group relative border-4 border-white p-0 overflow-visible"
+        className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-[28px] shadow-[0_16px_48px_rgba(0,0,0,0.12)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all group border-4 border-white relative"
       >
         <AnimatePresence mode="wait">
           {isOpen ? (
             <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
-              <X className="w-10 h-10 text-primary" />
+              <X className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
             </motion.div>
           ) : (
-            <motion.div key="logo" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }} className="relative w-full h-full flex items-center justify-center">
-              <img 
-                src="/Ofelia_logo.png" 
-                alt="OFELIA" 
-                className="w-16 h-16 object-contain drop-shadow-2xl transition-transform group-hover:scale-110" 
-                style={{ imageRendering: 'auto' }}
-              />
+            <motion.div key="logo" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }}>
+              <img src="/Ofelia_logo.png" alt="OFELIA" className="w-12 h-12 sm:w-16 sm:h-16 object-contain drop-shadow-xl" />
             </motion.div>
           )}
         </AnimatePresence>
-        {!isOpen && (
-          <div className="absolute -top-1 -right-1 w-6 h-6 bg-emerald-500 rounded-full border-4 border-white shadow-lg animate-bounce z-10" />
-        )}
+        {!isOpen && <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-4 border-white shadow-lg animate-bounce" />}
       </button>
     </div>
   );

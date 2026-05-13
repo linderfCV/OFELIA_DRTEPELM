@@ -557,7 +557,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           Ruta Técnica de Formalización
         </h3>
         <p className="text-sm text-muted-foreground font-medium leading-relaxed max-w-[460px]">
-          Recomendaciones estratégicas construidas según tu diagnóstico y normativa oficial vigente de la DRTPELM Lima Metropolitana.
+          Recomendaciones construidas según tu diagnóstico y normativa oficial vigente de la DRTPELM Lima Metropolitana.
         </p>
       </header>
 
@@ -699,38 +699,38 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         </Accordion>
       </div>
 
-      {/* Nueva Sección: Próxima Acción Premium Refinada */}
+      {/* Nueva Sección: Próxima Acción Premium Refinada y Corregida */}
       <section className="pt-8">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-primary p-10 md:p-14 rounded-[48px] shadow-[0_32px_64px_rgba(217,30,24,0.15)] relative overflow-hidden text-white"
+          className="bg-primary p-8 md:p-14 rounded-[48px] shadow-[0_32px_64px_rgba(217,30,24,0.15)] relative overflow-hidden text-white"
         >
           {/* Elementos Decorativos de Fondo */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl opacity-50" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full -ml-20 -mb-20 blur-3xl opacity-30" />
           
-          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12">
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-10 lg:gap-16">
             <div className="space-y-6 flex-1 text-center lg:text-left">
                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
                   <Sparkles className="w-4 h-4 text-amber-300" />
                   <span className="text-[10px] font-black uppercase tracking-[0.25em]">Orientación Estratégica</span>
                </div>
                <div className="space-y-4">
-                 <h4 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter leading-[0.85] uppercase italic">
-                   Próxima Acción <br className="hidden md:block" /> Sugerida
+                 <h4 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter leading-[0.9] uppercase italic">
+                   Próxima Acción Sugerida
                  </h4>
-                 <p className="text-sm md:text-lg font-medium text-white/90 max-w-xl leading-relaxed mx-auto lg:mx-0">
-                   Te recomendamos agendar una asesoría técnica presencial o virtual. Un especialista de la DRTPELM validará tu expediente antes de que lo presentes ante las entidades correspondientes.
+                 <p className="text-sm md:text-lg font-medium text-white/90 max-w-2xl leading-relaxed mx-auto lg:mx-0">
+                   Te recomendamos agendar una asesoría técnica presencial o virtual. Un especialista de la DRTPELM validará tu expediente antes de que lo presentes ante las entidades correspondientes para asegurar tu éxito.
                  </p>
                </div>
             </div>
             
-            <div className="flex flex-col gap-5 w-full lg:w-auto shrink-0">
+            <div className="flex flex-col gap-5 w-full lg:w-auto shrink-0 min-w-[300px]">
               <Button 
                 onClick={() => window.open('https://extranet.trabajo.gob.pe/extranet/web/citas', '_blank')}
-                className="h-20 px-12 bg-white text-primary hover:bg-white/95 rounded-[32px] font-black text-sm uppercase tracking-widest shadow-2xl shadow-black/30 gap-4 group transition-all active:scale-95"
+                className="h-20 px-10 bg-white text-primary hover:bg-white/95 rounded-[32px] font-black text-sm uppercase tracking-widest shadow-[0_20px_40px_rgba(0,0,0,0.3)] gap-4 group transition-all active:scale-95 w-full"
               >
                 AGENDAR ASESORÍA OFICIAL
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-2" />

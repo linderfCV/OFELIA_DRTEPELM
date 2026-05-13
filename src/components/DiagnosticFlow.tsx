@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Lightbulb, Briefcase, ChevronRight, Check, MapPin, Search, ArrowRight, Home, UserCheck, Sparkles, User, FileText, Landmark, ShieldCheck, Target, TrendingUp } from "lucide-react"
+import { Lightbulb, Briefcase, ChevronRight, Check, MapPin, Search, ArrowRight, Home, UserCheck, Sparkles, User, FileText, Landmark, ShieldCheck, Target, TrendingUp, GraduationCap, HeartPulse, Truck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -39,7 +39,7 @@ const SECTOR_MAPPING: Record<string, string> = {
   "Transporte, Logística y Delivery": "transporte_logistica_delivery",
   "Tecnología, Apps y E-commerce": "tecnologia_apps_ecommerce",
   "Salud y Bienestar (Boticas)": "salud_bienestar",
-  "Construcción y Ferretería)": "construccion_ferreteria",
+  "Construcción y Ferretería": "construccion_ferreteria",
   "Otros Sectores": "otros"
 };
 
@@ -301,8 +301,8 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
               <Lightbulb className="w-8 h-8" />
             </div>
             <div className="flex-1">
-              <h3 className="font-black text-xl text-[#1A1A1A] tracking-tight italic">Tengo una Idea</h3>
-              <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-1">RUTA DEL EMPRENDEDOR</p>
+              <h3 className="font-black text-xl text-[#1A1A1A] tracking-tight italic">RUTA DEL EMPRENDEDOR</h3>
+              <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-1">Idea de Negocio / Inicio</p>
             </div>
             <ChevronRight className="w-6 h-6 text-gray-300 group-hover:text-primary transition-all" />
           </button>
@@ -315,12 +315,57 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
               <Briefcase className="w-8 h-8" />
             </div>
             <div className="flex-1">
-              <h3 className="font-black text-xl text-[#1A1A1A] tracking-tight italic">Negocio en Marcha</h3>
-              <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-1">RUTA DE LA REGULARIZACION</p>
+              <h3 className="font-black text-xl text-[#1A1A1A] tracking-tight italic">RUTA DE LA REGULARIZACIÓN</h3>
+              <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-1">Negocio en Marcha / Activo</p>
             </div>
             <ChevronRight className="w-6 h-6 text-gray-300 group-hover:text-primary transition-all" />
           </button>
         </div>
+      </div>
+    );
+  }
+
+  // PASO 1 (ENTREPRENEUR): SELECCIÓN DE RUBRO
+  if (step === 1 && profile === 'entrepreneur') {
+    return (
+      <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-700">
+        <div className="space-y-4 px-2">
+          <div className="flex justify-between items-end">
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">CATEGORIZACIÓN</p>
+            <p className="text-[10px] font-black text-primary uppercase">{Math.round(currentProgress)}%</p>
+          </div>
+          <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: `${currentProgress}%` }}
+              className="h-full bg-gradient-to-r from-primary to-red-500"
+            />
+          </div>
+          <h2 className="text-4xl font-black text-[#1A1A1A] pt-4 leading-[0.9] tracking-tighter">
+            ¿Cuál es el rubro o sector de tu negocio?
+          </h2>
+          <p className="text-sm text-gray-500 font-medium">Esto nos ayuda a identificar si requieres autorizaciones sectoriales específicas según la normativa del Estado.</p>
+        </div>
+
+        <ScrollArea className="h-[450px] pr-4 rounded-[40px] border border-gray-100 bg-white/50 p-6 shadow-premium">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-8">
+            {SECTORS.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => { setSector(s.label); handleNext({ sector: s.label }); }}
+                className={cn(
+                  "flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-[32px] text-left hover:border-primary/30 shadow-sm hover:shadow-xl transition-all group",
+                  sector === s.label && "border-primary bg-primary/5 shadow-primary/10"
+                )}
+              >
+                <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-inner">
+                  {s.icon}
+                </div>
+                <span className="text-xs font-black uppercase tracking-tight text-gray-600 group-hover:text-[#1A1A1A] leading-tight">{s.label}</span>
+              </button>
+            ))}
+          </div>
+        </ScrollArea>
       </div>
     );
   }
@@ -409,7 +454,6 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
 
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-right-8 duration-700 relative">
-      {/* Micro-elementos decorativos GovTech laterales */}
       <div className="absolute -left-20 top-1/2 w-10 h-10 bg-primary/5 rounded-2xl rotate-45 blur-sm opacity-50" />
       <div className="absolute -right-20 top-1/3 w-14 h-14 bg-blue-500/5 rounded-full blur-sm opacity-50" />
 
@@ -432,7 +476,6 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
           animate={{ opacity: 1, scale: 1 }}
           className="bg-white p-10 rounded-[48px] border border-gray-100 shadow-premium relative overflow-hidden text-center"
         >
-          {/* Acento visual sutil en el fondo del card */}
           <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
           <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl" />
           

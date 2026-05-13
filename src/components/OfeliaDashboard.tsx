@@ -392,8 +392,12 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
 
     const pendingTasks: Task[] = [];
     if (results[3] === false) pendingTasks.push(allTasks[0]);
-    if (results[4] === false) pendingTasks.push(allTasks[1]);
-    if (results[5] === false) pendingTasks.push(allTasks[2]);
+    if (results[4] === false) {
+      pendingTasks.push(allTasks[1]);
+      if (results[5] === false) pendingTasks.push(allTasks[2]);
+    } else if (results[5] === false) {
+      pendingTasks.push(allTasks[2]);
+    }
     
     if (results.sector) {
       const sectoralTask = getSectoralTask(results.sector);
@@ -699,45 +703,45 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         </Accordion>
       </div>
 
-      {/* Nueva Sección: Próxima Acción Premium Refinada y Corregida */}
+      {/* Nueva Sección: Próxima Acción Premium Refinada y Compacta */}
       <section className="pt-8">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-primary p-8 md:p-14 rounded-[48px] shadow-[0_32px_64px_rgba(217,30,24,0.15)] relative overflow-hidden text-white"
+          className="bg-primary p-6 md:p-10 lg:p-12 rounded-[48px] shadow-[0_32px_64px_rgba(217,30,24,0.15)] relative overflow-hidden text-white w-full"
         >
           {/* Elementos Decorativos de Fondo */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl opacity-50" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full -ml-20 -mb-20 blur-3xl opacity-30" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl opacity-50" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full -ml-16 -mb-16 blur-3xl opacity-30" />
           
-          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-10 lg:gap-16">
-            <div className="space-y-6 flex-1 text-center lg:text-left">
-               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
-                  <Sparkles className="w-4 h-4 text-amber-300" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.25em]">Orientación Estratégica</span>
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8 lg:gap-12">
+            <div className="space-y-4 flex-1 text-center lg:text-left">
+               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em]">Orientación Estratégica</span>
                </div>
-               <div className="space-y-4">
-                 <h4 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter leading-[0.9] uppercase italic">
+               <div className="space-y-3">
+                 <h4 className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tighter leading-none uppercase italic">
                    Próxima Acción Sugerida
                  </h4>
-                 <p className="text-sm md:text-lg font-medium text-white/90 max-w-2xl leading-relaxed mx-auto lg:mx-0">
-                   Te recomendamos agendar una asesoría técnica presencial o virtual. Un especialista de la DRTPELM validará tu expediente antes de que lo presentes ante las entidades correspondientes para asegurar tu éxito.
+                 <p className="text-xs md:text-sm lg:text-base font-medium text-white/90 max-w-xl leading-relaxed mx-auto lg:mx-0">
+                   Te recomendamos agendar una asesoría técnica presencial o virtual. Un especialista de la DRTPELM validará tu expediente antes de presentarlo para asegurar tu éxito.
                  </p>
                </div>
             </div>
             
-            <div className="flex flex-col gap-5 w-full lg:w-auto shrink-0 min-w-[300px]">
+            <div className="flex flex-col gap-4 w-full lg:w-auto shrink-0 min-w-[280px]">
               <Button 
                 onClick={() => window.open('https://extranet.trabajo.gob.pe/extranet/web/citas', '_blank')}
-                className="h-20 px-10 bg-white text-primary hover:bg-white/95 rounded-[32px] font-black text-sm uppercase tracking-widest shadow-[0_20px_40px_rgba(0,0,0,0.3)] gap-4 group transition-all active:scale-95 w-full"
+                className="h-16 lg:h-20 px-8 bg-white text-primary hover:bg-white/95 rounded-[28px] lg:rounded-[32px] font-black text-xs lg:text-sm uppercase tracking-widest shadow-2xl gap-3 group transition-all active:scale-95 w-full"
               >
                 AGENDAR ASESORÍA OFICIAL
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-2" />
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-2" />
               </Button>
               <div className="flex items-center justify-center gap-2.5 text-white/60">
-                <CheckCircle2 className="w-4 h-4" />
-                <p className="text-[11px] font-black uppercase tracking-[0.2em]">Servicio Gratuito DRTPELM</p>
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <p className="text-[10px] font-black uppercase tracking-[0.2em]">Servicio Gratuito DRTPELM</p>
               </div>
             </div>
           </div>

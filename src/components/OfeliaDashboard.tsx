@@ -347,7 +347,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           "Modifica los campos necesarios (Dirección, Teléfono, Correo, Actividad).",
           "Verifica la actualización en tu Ficha RUC virtual."
         ],
-        link: "https://www.sunat.gob.pe/sol.html"
+        link: "https://www.gob.pe/284-inscripcion-en-el-ruc"
       },
       {
         id: "remype",
@@ -368,7 +368,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           "Acepta la Declaración Jurada de cumplimiento de requisitos.",
           "Descarga tu Constancia de Acreditación MYPE e imprímela."
         ],
-        link: "https://www.gob.pe/285-registro-de-la-micro-y-pequena-empresa-remype"
+        link: "https://www.gob.pe/279-registro-de-la-micro-y-pequena-empresa-remype"
       },
       {
         id: "municipal-active",

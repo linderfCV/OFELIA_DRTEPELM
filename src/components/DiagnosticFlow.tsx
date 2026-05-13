@@ -1,8 +1,7 @@
-
 "use client"
 
 import * as React from "react"
-import { Lightbulb, Briefcase, ChevronRight, Check, MapPin, Search, ArrowRight, Home, UserCheck, Sparkles, User, FileText, Landmark } from "lucide-react"
+import { Lightbulb, Briefcase, ChevronRight, Check, MapPin, Search, ArrowRight, Home, UserCheck, Sparkles, User, FileText, Landmark, ShieldCheck, Target, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -227,9 +226,14 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
     </div>
   );
 
+  const getQuestionIcon = (idx: number) => {
+    const icons = [<ShieldCheck />, <Target />, <TrendingUp />, <Landmark />];
+    return icons[idx % icons.length];
+  };
+
   if (step === -1) {
     return (
-      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700 relative">
         <HeaderImage src="/Fondo3.png" icon={User} title="Identificación de Perfil" subtitle="PASO INICIAL" />
         
         <div className="space-y-3 px-2">
@@ -243,7 +247,7 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
         <div className="grid gap-4">
           <button
             onClick={() => { setProfile('entrepreneur'); setStep(0); }}
-            className="flex items-center gap-5 p-7 bg-white border border-gray-100 rounded-[40px] text-left hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/5 transition-all group relative overflow-hidden"
+            className="flex items-center gap-5 p-7 bg-white border border-gray-100 rounded-[40px] text-left hover:border-primary/30 shadow-sm hover:shadow-2xl hover:shadow-primary/5 transition-all group relative overflow-hidden"
           >
             <div className="absolute right-0 top-0 w-24 h-full bg-amber-500/5 -skew-x-12 translate-x-8 group-hover:translate-x-0 transition-transform duration-500" />
             <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 shrink-0 shadow-inner group-hover:scale-110 transition-transform">
@@ -258,7 +262,7 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
 
           <button
             onClick={() => { setProfile('domestic'); setRouteType('domestic'); setSector('Trabajadores del Hogar'); setStep(1); }}
-            className="flex items-center gap-5 p-7 bg-white border border-gray-100 rounded-[40px] text-left hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/5 transition-all group relative overflow-hidden"
+            className="flex items-center gap-5 p-7 bg-white border border-gray-100 rounded-[40px] text-left hover:border-primary/30 shadow-sm hover:shadow-2xl hover:shadow-primary/5 transition-all group relative overflow-hidden"
           >
             <div className="absolute right-0 top-0 w-24 h-full bg-blue-500/5 -skew-x-12 translate-x-8 group-hover:translate-x-0 transition-transform duration-500" />
             <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 shrink-0 shadow-inner group-hover:scale-110 transition-transform">
@@ -291,7 +295,7 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
         <div className="grid gap-4">
           <button
             onClick={() => { setRouteType('idea'); setStep(1); }}
-            className="flex items-center gap-5 p-7 bg-white border border-gray-100 rounded-[40px] text-left hover:border-primary/30 hover:shadow-2xl transition-all group"
+            className="flex items-center gap-5 p-7 bg-white border border-gray-100 rounded-[40px] text-left hover:border-primary/30 shadow-sm hover:shadow-2xl transition-all group"
           >
             <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 shrink-0 shadow-inner">
               <Lightbulb className="w-8 h-8" />
@@ -305,7 +309,7 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
 
           <button
             onClick={() => { setRouteType('active'); setStep(1); }}
-            className="flex items-center gap-5 p-7 bg-white border border-gray-100 rounded-[40px] text-left hover:border-primary/30 hover:shadow-2xl transition-all group"
+            className="flex items-center gap-5 p-7 bg-white border border-gray-100 rounded-[40px] text-left hover:border-primary/30 shadow-sm hover:shadow-2xl transition-all group"
           >
             <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 shrink-0 shadow-inner">
               <Briefcase className="w-8 h-8" />
@@ -329,13 +333,19 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">PASO 2 DE {totalSteps}</p>
             <p className="text-[10px] font-black text-primary uppercase">{Math.round(currentProgress)}%</p>
           </div>
-          <Progress value={currentProgress} className="h-2 bg-gray-100" />
+          <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: `${currentProgress}%` }}
+              className="h-full bg-gradient-to-r from-primary to-red-500 shadow-[0_0_8px_rgba(217,30,24,0.3)]"
+            />
+          </div>
           <h2 className="text-4xl font-black text-[#1A1A1A] pt-4 leading-[0.9] tracking-tighter">
             ¿A qué rubro pertenece tu negocio?
           </h2>
         </div>
 
-        <ScrollArea className="h-[460px] pr-4 border border-gray-100 rounded-[40px] bg-white p-4 shadow-inner">
+        <ScrollArea className="h-[460px] pr-4 border border-gray-100 rounded-[40px] bg-white p-4 shadow-premium">
           <div className="grid gap-2.5">
             {SECTORS.map((s) => (
               <button
@@ -365,7 +375,13 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">LOCALIZACIÓN</p>
             <p className="text-[10px] font-black text-primary uppercase">{Math.round(currentProgress)}%</p>
           </div>
-          <Progress value={currentProgress} className="h-2 bg-gray-100" />
+          <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: `${currentProgress}%` }}
+              className="h-full bg-gradient-to-r from-primary to-red-500"
+            />
+          </div>
           <h2 className="text-4xl font-black text-[#1A1A1A] pt-4 leading-[0.9] tracking-tighter">
             ¿En qué distrito se ubica el negocio o servicio?
           </h2>
@@ -382,7 +398,7 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
             />
           </div>
 
-          <ScrollArea className="h-[300px] border border-gray-100 rounded-[40px] bg-white p-3 shadow-inner">
+          <ScrollArea className="h-[300px] border border-gray-100 rounded-[40px] bg-white p-3 shadow-premium">
             <div className="grid gap-1.5">
               {DISTRICTS.filter(d => d.toLowerCase().includes(districtSearch.toLowerCase())).map((d) => (
                 <button
@@ -433,33 +449,54 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
   const currentQuestion = routeType ? routeQuestions[routeType as keyof typeof routeQuestions][routeStepIdx] : "";
 
   return (
-    <div className="space-y-12 animate-in fade-in slide-in-from-right-8 duration-700">
+    <div className="space-y-12 animate-in fade-in slide-in-from-right-8 duration-700 relative">
+      {/* Micro-elementos decorativos GovTech laterales */}
+      <div className="absolute -left-20 top-1/2 w-10 h-10 bg-primary/5 rounded-2xl rotate-45 blur-sm opacity-50" />
+      <div className="absolute -right-20 top-1/3 w-14 h-14 bg-blue-500/5 rounded-full blur-sm opacity-50" />
+
       <div className="space-y-6 px-2">
         <div className="flex justify-between items-end">
           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">AUDITORÍA TÉCNICA {step + 1} DE {totalSteps}</p>
-          <p className="text-[10px] font-black text-primary uppercase">{Math.round(currentProgress)}%</p>
+          <p className="text-[10px] font-black text-primary uppercase font-mono tracking-tighter">{Math.round(currentProgress)}%</p>
         </div>
-        <Progress value={currentProgress} className="h-2 bg-gray-100" />
+        <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: `${currentProgress}%` }}
+            className="h-full bg-gradient-to-r from-primary to-red-500 shadow-[0_0_12px_rgba(217,30,24,0.4)]"
+          />
+        </div>
         
         <motion.div 
           key={currentQuestion}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-white p-10 rounded-[48px] border border-gray-100 shadow-2xl shadow-gray-200/40 relative overflow-hidden text-center"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white p-10 rounded-[48px] border border-gray-100 shadow-premium relative overflow-hidden text-center"
         >
-          <div className="absolute top-0 left-0 w-full h-2 bg-primary" />
-          <h2 className="text-2xl font-black text-[#1A1A1A] leading-tight tracking-tight">
+          {/* Acento visual sutil en el fondo del card */}
+          <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl" />
+          
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-red-500" />
+          
+          <div className="flex justify-center mb-6">
+            <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-primary/30 shadow-inner">
+               {getQuestionIcon(routeStepIdx)}
+            </div>
+          </div>
+
+          <h2 className="text-2xl font-black text-[#1A1A1A] leading-tight tracking-tight px-4">
             {currentQuestion}
           </h2>
-          <p className="text-sm text-gray-500 font-medium mt-4">
-            Esto nos ayudará a identificar la orientación técnica que necesitas.
+          <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mt-6 bg-gray-50 py-2 px-4 rounded-full inline-block">
+            Orientación Técnica Requerida
           </p>
         </motion.div>
       </div>
 
       <div className="grid gap-4 pt-2">
         <button
-          className="h-20 text-lg font-black bg-white border-2 border-gray-100 rounded-[32px] hover:border-primary hover:text-primary transition-all flex items-center justify-between px-10 group shadow-xl hover:shadow-2xl active:scale-[0.98]"
+          className="h-20 text-lg font-black bg-white border-2 border-gray-100 rounded-[32px] hover:border-primary hover:text-primary transition-all flex items-center justify-between px-10 group shadow-lg hover:shadow-2xl active:scale-[0.98]"
           onClick={() => handleNext({ [step]: true })}
         >
           Sí, lo tengo claro
@@ -468,7 +505,7 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
           </div>
         </button>
         <button
-          className="h-20 text-lg font-black bg-white border-2 border-gray-100 rounded-[32px] hover:border-primary hover:text-primary transition-all flex items-center justify-start px-10 group shadow-xl hover:shadow-2xl active:scale-[0.98]"
+          className="h-20 text-lg font-black bg-white border-2 border-gray-100 rounded-[32px] hover:border-primary hover:text-primary transition-all flex items-center justify-start px-10 group shadow-lg hover:shadow-2xl active:scale-[0.98]"
           onClick={() => handleNext({ [step]: false })}
         >
           No, necesito orientación
@@ -477,17 +514,17 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
 
       <div className="pt-8 flex flex-col items-center gap-6">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gray-50 rounded-xl flex items-center justify-center text-primary/30">
+          <div className="w-8 h-8 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-primary/30 shadow-sm">
             <FileText className="w-4 h-4" />
           </div>
-          <div className="w-8 h-8 bg-gray-50 rounded-xl flex items-center justify-center text-primary/30">
+          <div className="w-8 h-8 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-primary/30 shadow-sm">
             <Landmark className="w-4 h-4" />
           </div>
-          <div className="w-8 h-8 bg-gray-50 rounded-xl flex items-center justify-center text-primary/30">
+          <div className="w-8 h-8 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-primary/30 shadow-sm">
              <UserCheck className="w-4 h-4" />
           </div>
         </div>
-        <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.4em]">DRTPELM LIMA METROPOLITANA</p>
+        <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.4em] opacity-60">DRTPELM LIMA METROPOLITANA</p>
       </div>
     </div>
   );

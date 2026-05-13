@@ -37,12 +37,15 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-white font-body selection:bg-primary/20 overflow-x-hidden">
+    <div className="min-h-screen bg-premium-glow font-body selection:bg-primary/20 overflow-x-hidden relative">
+      {/* Elemento decorativo de profundidad universal */}
+      <div className="fixed inset-0 digital-mesh opacity-40 pointer-events-none" />
+
       {/* Layout para Registro (Split Screen Moderna) */}
       {step === 'registration' ? (
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen relative z-10">
           {/* Lado Izquierdo: Bienvenida y Formulario */}
-          <div className="w-full lg:w-[55%] flex flex-col items-center justify-center p-6 lg:p-12 relative z-10 bg-white">
+          <div className="w-full lg:w-[55%] flex flex-col items-center justify-center p-6 lg:p-12 relative z-10 bg-white/40 backdrop-blur-sm">
             <div className="w-full max-w-[460px] space-y-12 animate-slide-up">
               <header className="flex flex-col items-center text-center gap-8">
                 {/* Logos Superiores Centrados */}
@@ -105,7 +108,7 @@ export default function Home() {
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent mix-blend-overlay" />
                 </motion.div>
 
-                {/* Imagen Secundaria Circular (Fondo 1) - Posición equilibrada */}
+                {/* Imagen Secundaria Circular (Fondo 1) */}
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.8, x: -60, y: -40 }}
                   animate={{ opacity: 1, scale: 1, x: -60, y: -40 }}
@@ -116,7 +119,7 @@ export default function Home() {
                   <img src="/Fondo1.jfif" alt="Human" className="w-full h-full object-cover" style={{ imageRendering: 'auto' }} />
                 </motion.div>
 
-                {/* Imagen Terciaria Flotante (Fondo 4) - Superpuesta arriba a la derecha */}
+                {/* Imagen Terciaria Flotante (Fondo 4) */}
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.8, x: 140, y: -100 }}
                   animate={{ opacity: 1, scale: 1, x: 140, y: -100 }}
@@ -127,7 +130,7 @@ export default function Home() {
                   <img src="/Fondo4.jpg" alt="Support" className="w-full h-full object-cover" style={{ imageRendering: 'auto' }} />
                 </motion.div>
 
-                {/* Decoración: Badge flotante de éxito - Reubicado para balance */}
+                {/* Decoración: Badge flotante de éxito */}
                 <motion.div
                   animate={{ y: [0, -10, 0] }}
                   transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
@@ -143,7 +146,7 @@ export default function Home() {
                 </motion.div>
               </div>
 
-              {/* Branding y Texto Inferior - Llenando el espacio inferior */}
+              {/* Branding y Texto Inferior */}
               <div className="w-full px-16 mt-12 space-y-10">
                 <div className="space-y-4">
                   <div className="w-20 h-2 bg-primary rounded-full shadow-lg shadow-primary/20" />
@@ -178,7 +181,7 @@ export default function Home() {
         </div>
       ) : (
         /* Layout para Diagnóstico y Dashboard */
-        <div className="flex flex-col items-center w-full min-h-screen bg-[#F9FAFB]">
+        <div className="flex flex-col items-center w-full min-h-screen relative z-10">
           <header className="w-full bg-white/80 backdrop-blur-xl border-b border-gray-100 py-4 px-8 flex justify-between items-center sticky top-0 z-50 shadow-sm">
             <div className="flex items-center gap-4">
               <img src="/image_f1ee39.jfif" alt="MTPE" className="h-8 w-auto" />
@@ -199,7 +202,11 @@ export default function Home() {
             </div>
           </header>
 
-          <main className="w-full max-w-[520px] px-6 py-12 animate-slide-up">
+          <main className="w-full max-w-[520px] px-6 py-12 animate-slide-up relative">
+            {/* Elemento decorativo lateral sutil */}
+            <div className="absolute -left-32 top-1/4 w-64 h-64 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute -right-32 top-2/3 w-64 h-64 bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
+            
             {step === 'diagnostic' && (
               <DiagnosticFlow onComplete={handleDiagnosticComplete} userData={userData} />
             )}

@@ -26,7 +26,8 @@ import {
   CheckCircle2,
   ChevronRight,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  BookOpen
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -520,9 +521,12 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                        ((routeType === 'idea' || routeType === 'active') && tasks.length === 1 && tasks[0].id === 'mype-benefits');
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700 pb-20">
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700 pb-20 relative">
+      {/* Fondo decorativo local sutil */}
+      <div className="absolute inset-x-0 -top-20 -bottom-20 digital-mesh opacity-50 pointer-events-none" />
+
       {/* Banner de Estado - Estilo Ejecutivo */}
-      <div className="relative w-full rounded-[40px] overflow-hidden p-8 shadow-2xl group min-h-[140px] flex items-center">
+      <div className="relative w-full rounded-[40px] overflow-hidden p-8 shadow-premium group min-h-[140px] flex items-center">
         <div className={cn(
           "absolute inset-0 transition-all duration-700",
           isFormalUser ? "bg-[#1e40af]" : "bg-[#1A1A1A]"
@@ -552,9 +556,9 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       </div>
 
       {/* Título y Subtítulo Refinado */}
-      <header className="space-y-3 px-2">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gray-100 rounded-full border border-gray-200">
-           <Zap className="w-3 h-3 text-amber-600" />
+      <header className="space-y-3 px-2 relative z-10">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm">
+           <Zap className="w-3 h-3 text-amber-600 glow-primary" />
            <span className="text-[9px] font-black uppercase text-gray-500 tracking-widest">Diagnóstico Personalizado</span>
         </div>
         <h3 className="text-3xl font-black text-[#1A1A1A] tracking-tight leading-none">
@@ -566,7 +570,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       </header>
 
       {/* Lista de Tareas en Acordeón */}
-      <div className="space-y-4">
+      <div className="space-y-4 relative z-10">
         <Accordion type="single" collapsible className="w-full space-y-4" defaultValue={tasks[0]?.id}>
           {tasks.map((task) => {
             const isInfoClave = task.step === "INFO CLAVE" || task.step === "VALOR AGREGADO";
@@ -577,7 +581,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                 key={task.id} 
                 value={task.id}
                 className={cn(
-                  "border rounded-[32px] bg-white shadow-sm overflow-hidden px-6 transition-all hover:shadow-xl hover:shadow-gray-200/40",
+                  "border rounded-[32px] bg-white/80 backdrop-blur-sm shadow-premium overflow-hidden px-6 transition-all hover:shadow-2xl hover:shadow-gray-200/50",
                   isInfoClave ? "border-blue-100 bg-blue-50/5" : isSectoral ? "border-emerald-100 bg-emerald-50/5" : "border-gray-100"
                 )}
               >
@@ -703,8 +707,8 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         </Accordion>
       </div>
 
-      {/* Próxima Acción Sugerida - Definitiva */}
-      <section className="pt-8">
+      {/* Próxima Acción Sugerida - Definitiva y Vertical */}
+      <section className="pt-8 relative z-10">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -713,25 +717,22 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         >
           {/* Elementos Decorativos de Fondo */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl opacity-50" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full -ml-10 -mb-10 blur-2xl opacity-30" />
           
           <div className="relative z-10 flex flex-col items-center text-center space-y-6">
-            {/* 1. Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
                <Sparkles className="w-4 h-4 text-amber-300" />
                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Orientación Estratégica</span>
             </div>
 
-            {/* 2. Título */}
             <h4 className="text-3xl md:text-4xl font-black tracking-tighter uppercase italic leading-none">
               Próxima Acción Sugerida
             </h4>
 
-            {/* 3. Descripción */}
             <p className="text-sm md:text-base font-medium text-white/90 max-w-lg leading-relaxed">
               Te recomendamos agendar una asesoría técnica presencial o virtual. Un especialista de la DRTPELM validará tu expediente antes de presentarlo para asegurar tu éxito.
             </p>
 
-            {/* 4. Botón */}
             <div className="w-full max-w-md pt-2">
               <Button 
                 onClick={() => window.open('https://extranet.trabajo.gob.pe/extranet/web/citas', '_blank')}
@@ -742,7 +743,6 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
               </Button>
             </div>
 
-            {/* 5. Footer Text */}
             <div className="flex items-center justify-center gap-2.5 text-white/60">
               <CheckCircle2 className="w-4 h-4" />
               <p className="text-[11px] font-black uppercase tracking-[0.2em]">Servicio Gratuito DRTPELM</p>
@@ -752,7 +752,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       </section>
 
       {/* Footer del Dashboard */}
-      <footer className="pt-12 flex flex-col items-center gap-6 border-t border-gray-100">
+      <footer className="pt-12 flex flex-col items-center gap-6 border-t border-gray-100 relative z-10">
         <div className="flex gap-4">
            <Button 
             variant="outline" 

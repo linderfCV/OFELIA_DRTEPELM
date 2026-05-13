@@ -703,46 +703,49 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         </Accordion>
       </div>
 
-      {/* Nueva Sección: Próxima Acción Premium Refinada y Compacta */}
+      {/* Próxima Acción Sugerida - Definitiva */}
       <section className="pt-8">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-primary p-6 md:p-10 lg:p-12 rounded-[48px] shadow-[0_32px_64px_rgba(217,30,24,0.15)] relative overflow-hidden text-white w-full"
+          className="bg-primary p-10 rounded-[48px] shadow-[0_32px_64px_rgba(217,30,24,0.2)] relative overflow-hidden text-white w-full"
         >
           {/* Elementos Decorativos de Fondo */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl opacity-50" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full -ml-16 -mb-16 blur-3xl opacity-30" />
           
-          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8 lg:gap-12">
-            <div className="space-y-4 flex-1 text-center lg:text-left">
-               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                  <span className="text-[9px] font-black uppercase tracking-[0.2em]">Orientación Estratégica</span>
-               </div>
-               <div className="space-y-3">
-                 <h4 className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tighter leading-none uppercase italic">
-                   Próxima Acción Sugerida
-                 </h4>
-                 <p className="text-xs md:text-sm lg:text-base font-medium text-white/90 max-w-xl leading-relaxed mx-auto lg:mx-0">
-                   Te recomendamos agendar una asesoría técnica presencial o virtual. Un especialista de la DRTPELM validará tu expediente antes de presentarlo para asegurar tu éxito.
-                 </p>
-               </div>
+          <div className="relative z-10 flex flex-col items-center text-center space-y-6">
+            {/* 1. Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+               <Sparkles className="w-4 h-4 text-amber-300" />
+               <span className="text-[10px] font-black uppercase tracking-[0.2em]">Orientación Estratégica</span>
             </div>
-            
-            <div className="flex flex-col gap-4 w-full lg:w-auto shrink-0 min-w-[280px]">
+
+            {/* 2. Título */}
+            <h4 className="text-3xl md:text-4xl font-black tracking-tighter uppercase italic leading-none">
+              Próxima Acción Sugerida
+            </h4>
+
+            {/* 3. Descripción */}
+            <p className="text-sm md:text-base font-medium text-white/90 max-w-lg leading-relaxed">
+              Te recomendamos agendar una asesoría técnica presencial o virtual. Un especialista de la DRTPELM validará tu expediente antes de presentarlo para asegurar tu éxito.
+            </p>
+
+            {/* 4. Botón */}
+            <div className="w-full max-w-md pt-2">
               <Button 
                 onClick={() => window.open('https://extranet.trabajo.gob.pe/extranet/web/citas', '_blank')}
-                className="h-16 lg:h-20 px-8 bg-white text-primary hover:bg-white/95 rounded-[28px] lg:rounded-[32px] font-black text-xs lg:text-sm uppercase tracking-widest shadow-2xl gap-3 group transition-all active:scale-95 w-full"
+                className="h-16 md:h-20 w-full bg-white text-primary hover:bg-white/95 rounded-[32px] font-black text-xs md:text-sm uppercase tracking-widest shadow-2xl gap-3 group transition-all active:scale-95"
               >
                 AGENDAR ASESORÍA OFICIAL
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-2" />
               </Button>
-              <div className="flex items-center justify-center gap-2.5 text-white/60">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <p className="text-[10px] font-black uppercase tracking-[0.2em]">Servicio Gratuito DRTPELM</p>
-              </div>
+            </div>
+
+            {/* 5. Footer Text */}
+            <div className="flex items-center justify-center gap-2.5 text-white/60">
+              <CheckCircle2 className="w-4 h-4" />
+              <p className="text-[11px] font-black uppercase tracking-[0.2em]">Servicio Gratuito DRTPELM</p>
             </div>
           </div>
         </motion.div>

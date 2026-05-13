@@ -269,10 +269,19 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         description: "IDENTIFICACIÓN TRIBUTARIA",
         details: "El Registro Único de Contribuyentes (RUC) es tu identidad frente a la administración tributaria. Al obtenerlo, debes elegir un régimen tributario. Para emprendedores, el Régimen MYPE Tributario es ideal pues tiene tasas progresivas según tus ganancias.",
         requirements: [
-          "Escritura Pública de Constitución inscrita en Registros Públicos.",
-          "Recibo de servicios (agua/luz) del domicilio fiscal (no mayor a 2 meses).",
-          "DNI del representante legal.",
-          "Clave SOL (se genera al momento del trámite)."
+          "🟢 PERSONA NATURAL",
+          "• DNI o CE vigente.",
+          "• Número de celular activo.",
+          "• Correo electrónico válido.",
+          "• Dirección fiscal.",
+          "• Actividad económica principal.",
+          "🔵 PERSONA JURÍDICA",
+          "• Minuta o Escritura Pública inscrita.",
+          "• Partida Registral SUNARP.",
+          "• DNI del representante legal.",
+          "• Dirección fiscal.",
+          "• Información de actividad económica.",
+          "• Vigencia de poder (si aplica)."
         ],
         steps: [
           "Realiza la inscripción virtual vía 'APP Personas' o en la web de SUNAT.",
@@ -280,7 +289,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           "Genera tu Clave SOL y activa tu Buzón Electrónico.",
           "Habilita la emisión de comprobantes electrónicos (boletas y facturas)."
         ],
-        link: "https://emprender.sunat.gob.pe/ruc/regimenes-tributarios-mype/regimenes-tributarios"
+        link: "https://www.gob.pe/284-inscripcion-en-el-ruc"
       },
       {
         id: "municipal",
@@ -656,12 +665,18 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                            {task.requirementsLabel || "Requisitos Técnicos"}
                          </h4>
                          <div className="space-y-3">
-                           {task.requirements.map((req, idx) => (
-                             <div key={idx} className="flex items-start gap-3">
-                               <div className="w-1.5 h-1.5 rounded-full bg-primary/20 mt-1.5 shrink-0" />
-                               <p className="text-[12px] font-medium text-gray-700 leading-snug">{req}</p>
-                             </div>
-                           ))}
+                           {task.requirements.map((req, idx) => {
+                             const isHeader = req.startsWith('🟢') || req.startsWith('🔵');
+                             return (
+                               <div key={idx} className={cn("flex items-start gap-3", isHeader && "mt-4 first:mt-0")}>
+                                 {!isHeader && <div className="w-1.5 h-1.5 rounded-full bg-primary/20 mt-1.5 shrink-0" />}
+                                 <p className={cn(
+                                   "text-[12px] font-medium text-gray-700 leading-snug",
+                                   isHeader && "font-black text-[#1A1A1A] uppercase tracking-tight"
+                                 )}>{req}</p>
+                               </div>
+                             );
+                           })}
                          </div>
                        </section>
 
@@ -708,7 +723,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         </Accordion>
       </div>
 
-      <section className="pt-8 relative z-10 flex flex-col items-center">
+      <section className="pt-8 relative z-10">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

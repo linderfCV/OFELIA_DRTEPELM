@@ -133,7 +133,7 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
            const activeMaps = [
              {t: "ruc_regimen_tributario", s: "Actualización de RUC"},
              {t: "remype", s: "Registro en REMYPE"},
-             {t: "licencia_funcionamiento", s: "Regularización Municipal"}
+             {t: "licencia_funcionamiento", s: "Licencia de Funcionamiento Municipal"}
            ];
            theme = activeMaps[index]?.t || "otros";
            stage = activeMaps[index]?.s || "General";
@@ -166,7 +166,7 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
       } else if (routeType === 'active') {
         if (nextAnswers[3] === false) roadmap.push("Actualización de RUC (SUNAT)");
         if (nextAnswers[4] === false) roadmap.push("Registro en REMYPE (MTPE)");
-        if (nextAnswers[5] === false) roadmap.push("Regularización Municipal");
+        if (nextAnswers[5] === false) roadmap.push("Licencia de Funcionamiento Municipal");
         roadmap.push("Beneficios de tu Formalización MYPE");
       } else if (routeType === 'domestic') {
         if (nextAnswers[2] === false) roadmap.push("Inscripción en el RUC (SUNAT)");

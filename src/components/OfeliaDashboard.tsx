@@ -380,24 +380,25 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         link: "https://www.gob.pe/279-registro-de-la-micro-y-pequena-empresa-remype"
       },
       {
-        id: "municipal-active",
+        id: "municipal",
         step: "PASO 3",
-        title: "Regularización y Control Municipal",
+        title: "Licencia de Funcionamiento Municipal",
         icon: <MapPin className="w-5 h-5" />,
-        description: "CONTROL LOCAL",
-        details: "Asegura que tu negocio no tenga impedimentos de operación local. Muchas empresas activas olvidan renovar su certificado de seguridad ITSE o no informan sobre ampliaciones de local, lo que genera clausuras temporales.",
+        description: "AUTORIZACIÓN LOCAL",
+        details: "Es la autorización que otorga tu Municipalidad para que tu negocio opere legalmente en un local físico. Evalúa la zonificación (si el lugar permite tu tipo de negocio) y las condiciones de seguridad (Defensa Civil).",
         requirements: [
-          "Copia de la Licencia de Funcionamiento vigente.",
-          "Certificado de ITSE (Inspección Técnica de Seguridad) no vencido.",
-          "Plan de Seguridad para establecimientos (si el aforo lo requiere).",
-          "Carnet de sanidad actualizado (obligatorio para rubros de atención directa)."
+          "RUC activo y Habido.",
+          "Vigencia de poderes actualizada del representante legal.",
+          "Certificado de ITSE (Inspección Técnica de Seguridad en Edificaciones).",
+          "Declaración Jurada de cumplimiento de condiciones de seguridad."
         ],
         steps: [
-          "Verifica la fecha de vencimiento de tu certificado de Defensa Civil.",
-          "Solicita la renovación de ITSE ante la Municipalidad si está próxima a vencer.",
-          "Informa a la municipalidad si has realizado cambios en el metraje o giro.",
-          "Asegura que los avisos publicitarios tengan la autorización respectiva."
-        ]
+          "Verifica el Índice de Usos y Zonificación en el portal de tu Municipalidad.",
+          "Presenta la solicitud de Licencia de Funcionamiento de forma presencial o virtual.",
+          "Atiende la inspección técnica de seguridad de Defensa Civil.",
+          "Recibe tu licencia y colócala en un lugar visible del establecimiento."
+        ],
+        link: "https://www.gob.pe/20844-obtener-licencia-de-funcionamiento"
       }
     ];
 
@@ -532,7 +533,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
 
   const tasks = routeType === 'idea' ? getIdeaTasks() : routeType === 'active' ? getActiveTasks() : getDomesticTasks();
   const isFormalUser = (routeType === 'domestic' && tasks.length === 1 && tasks[0].id === 'obligations-domestic') ||
-                       ((routeType === 'idea' || routeType === 'active') && tasks.length === 1 && tasks[0].id === 'mype-benefits');
+                       ((routeType === 'idea' || routeType === 'active') && tasks.length === 1 && (tasks[0].id === 'mype-benefits' || tasks[0].id === 'mype-benefits'));
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700 pb-20 relative">

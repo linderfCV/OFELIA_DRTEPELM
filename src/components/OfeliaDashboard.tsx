@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -55,6 +56,8 @@ interface Task {
   steps: string[];
   link?: string;
   options?: TaskOption[];
+  requirementsLabel?: string;
+  stepsLabel?: string;
 }
 
 interface OfeliaDashboardProps {
@@ -173,6 +176,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     icon: <Award className="w-5 h-5" />,
     description: "¿POR QUÉ SER FORMAL ES TU MEJOR NEGOCIO?",
     details: "La formalización te permite acceder a beneficios que reducen tus costos operativos y protegen tu crecimiento. Estar en el REMYPE no solo es un cumplimiento, es una ventaja competitiva frente a empresas informales.",
+    requirementsLabel: "Ventajas Competitivas",
     requirements: [
       "Microempresa: Ventas brutas anuales hasta 150 UIT (aprox. S/ 772,500).",
       "Pequeña Empresa: Ventas hasta 1700 UIT (aprox. S/ 8,755,000).",
@@ -180,6 +184,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       "Seguro Social: Acceso al SIS Emprendedor o aportes reducidos a EsSalud.",
       "Puntaje Adicional: 10% extra en licitaciones y compras estatales."
     ],
+    stepsLabel: "Recomendación",
     steps: [
       "Inscríbete en el REMYPE a través del portal del Ministerio de Trabajo.",
       "Asegura a tus trabajadores en el régimen especial para evitar sobrecostos.",
@@ -188,7 +193,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
     ],
     options: [
       { label: "Conoce los 6 beneficios de la formalización empresarial", url: "https://www.gob.pe/institucion/tuempresa/noticias/914295-conozca-los-6-beneficios-de-la-formalizacion-empresarial" },
-      { label: "Beneficios de ser formal", url: "https://emprender.sunat.gob.pe/acciones-contribuyente/formalizacion/benefits-ser-formal" }
+      { label: "Beneficios de ser formal", url: "https://emprender.sunat.gob.pe/acciones-contribuyente/formalizacion/beneficios-ser-formal" }
     ]
   });
 
@@ -648,7 +653,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                        <section className="space-y-4">
                          <h4 className="text-[10px] font-black text-[#1A1A1A] uppercase tracking-widest flex items-center gap-2">
                            <AlertCircle className="w-3.5 h-3.5 text-primary" />
-                           Requisitos Técnicos
+                           {task.requirementsLabel || "Requisitos Técnicos"}
                          </h4>
                          <div className="space-y-3">
                            {task.requirements.map((req, idx) => (
@@ -663,7 +668,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                        <section className="space-y-4">
                          <h4 className="text-[10px] font-black text-[#1A1A1A] uppercase tracking-widest flex items-center gap-2">
                            <TrendingUp className="w-3.5 h-3.5 text-primary" />
-                           Guía de Ejecución
+                           {task.stepsLabel || "Guía de Ejecución"}
                          </h4>
                          <div className="space-y-5">
                            {task.steps.map((step, idx) => (

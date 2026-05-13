@@ -187,8 +187,8 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       "Participa en las ferias y capacitaciones gratuitas de la DRTPELM."
     ],
     options: [
-      { label: "Guía completa de beneficios MYPE", url: "https://www.gob.pe/institucion/mtpe/campa%C3%B1as/547-acogimiento-al-remype" },
-      { label: "Portal Emprender SUNAT", url: "https://emprender.sunat.gob.pe/" }
+      { label: "Conoce los 6 beneficios de la formalización empresarial", url: "https://www.gob.pe/institucion/tuempresa/noticias/914295-conozca-los-6-beneficios-de-la-formalizacion-empresarial" },
+      { label: "Beneficios de ser formal", url: "https://emprender.sunat.gob.pe/acciones-contribuyente/formalizacion/benefits-ser-formal" }
     ]
   });
 
@@ -703,7 +703,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         </Accordion>
       </div>
 
-      <section className="pt-8 relative z-10">
+      <section className="pt-8 relative z-10 flex flex-col items-center">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -718,17 +718,17 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
              <span className="text-[10px] font-black uppercase tracking-[0.2em]">Orientación Estratégica</span>
           </div>
 
-          <h4 className="text-3xl md:text-4xl font-black tracking-tighter uppercase italic leading-none">
+          <h4 className="text-3xl font-black tracking-tighter uppercase italic leading-none">
             Próxima Acción Sugerida
           </h4>
 
-          <p className="text-sm md:text-base font-medium text-white/90 max-w-lg leading-relaxed">
+          <p className="text-sm font-medium text-white/90 max-w-lg leading-relaxed">
             Te recomendamos agendar una asesoría técnica presencial o virtual. Un especialista de la DRTPELM validará tu expediente antes de presentarlo.
           </p>
 
           <Button 
             onClick={() => window.open('https://extranet.trabajo.gob.pe/extranet/web/citas', '_blank')}
-            className="h-16 md:h-20 w-full max-w-md bg-white text-primary hover:bg-white/95 rounded-[32px] font-black text-xs md:text-sm uppercase tracking-widest shadow-2xl gap-3 group transition-all active:scale-95"
+            className="h-16 w-full max-w-sm bg-white text-primary hover:bg-white/95 rounded-[32px] font-black text-xs uppercase tracking-widest shadow-2xl gap-3 group transition-all active:scale-95"
           >
             AGENDAR ASESORÍA OFICIAL
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-2" />

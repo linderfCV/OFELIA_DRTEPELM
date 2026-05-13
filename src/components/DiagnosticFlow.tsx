@@ -180,6 +180,18 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
         ? `Empleador(a) del hogar en ${district}. ${detected.length > 0 ? `Brechas: ${detected.join(', ')}.` : 'Formalidad base completa.'}`
         : `Emprendedor (${routeType}) rubro ${sector} en ${district}. ${detected.length > 0 ? `Brechas: ${detected.join(', ')}.` : 'Formalidad base completa.'}`;
 
+      // Actualizar sesión con datos de diagnóstico para trazabilidad Chatbot
+      const currentSessionRaw = sessionStorage.getItem('ofelia_user_session');
+      if (currentSessionRaw) {
+        const sessionData = JSON.parse(currentSessionRaw);
+        sessionStorage.setItem('ofelia_user_session', JSON.stringify({
+          ...sessionData,
+          distrito: district,
+          referencia: zone,
+          tipoUsuario: isDomestic ? 'empleador_hogar' : 'emprendedor'
+        }));
+      }
+
       await logOfeliaEvent({
         tipoEvento: "diagnostico_usuario",
         numeroDocumento: userData?.docNumber || "N/A",

@@ -20,6 +20,7 @@ interface UserChatData {
   district: string;
   reference?: string;
   profile?: 'entrepreneur' | 'domestic';
+  docType?: string;
 }
 
 interface OfeliaChatbotProps {
@@ -58,29 +59,35 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
     return "<div>¡Hola! Soy <strong>OFELIA</strong>, tu asistente de la DRTPE Lima. ¿En qué tema técnico deseas enfocarte hoy?</div>";
   }, [context]);
 
-  React.useEffect(() => {
-    if (currentStep !== 'registration' && onboardingStep !== 'ready' && onboardingStep !== null) {
-      setMessages([]);
-      setUserData({});
-      setOnboardingStep('ready');
-    }
-  }, [currentStep, onboardingStep]);
-
+  // Sincronizar datos de sesión (si existen) al abrir el chat o cambiar de paso
   React.useEffect(() => {
     if (isOpen) {
-      if (currentStep === 'registration' && onboardingStep === null && messages.length === 0) {
+      const savedSession = sessionStorage.getItem('ofelia_user_session');
+      if (savedSession) {
+        const data = JSON.parse(savedSession);
+        // Priorizar datos de sesión para trazabilidad
+        setUserData({
+          idNumber: data.docNumber,
+          name: data.fullName,
+          district: data.distrito || "Desconocido",
+          reference: data.referencia,
+          profile: data.tipoUsuario || (context === 'domestic' ? 'domestic' : 'entrepreneur'),
+          docType: data.docType
+        });
+        setOnboardingStep('ready'); // Saltar onboarding si ya hay sesión
+        
+        if (messages.length === 0) {
+          setMessages([{ role: 'model', content: getGreeting() }]);
+        }
+      } else if (onboardingStep === null && messages.length === 0) {
+        // Iniciar onboarding si no hay sesión
         setOnboardingStep('id');
         setMessages([
           { role: 'model', content: "<div>¡Hola! Soy <strong>OFELIA</strong>. Para ayudarte con tu formalización, primero necesito conocerte un poco. ¿Cuál es tu número de <strong>DNI</strong> o <strong>CE</strong>?</div>" }
         ]);
-      } else if (currentStep !== 'registration' && messages.length === 0) {
-        setOnboardingStep('ready');
-        setMessages([
-          { role: 'model', content: getGreeting() }
-        ]);
       }
     }
-  }, [isOpen, currentStep, onboardingStep, messages.length, getGreeting]);
+  }, [isOpen, onboardingStep, messages.length, getGreeting, context]);
 
   React.useEffect(() => {
     if (scrollRef.current) {
@@ -93,11 +100,11 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
     setMessages(currentMessages);
 
     if (onboardingStep === 'id') {
-      if (!/^\d+$/.test(val) || (val.length !== 8 && val.length !== 9)) {
-        setMessages([...currentMessages, { role: 'model', content: "<div>Por favor, ingresa un número de <strong>DNI</strong> (8 dígitos) o <strong>CE</strong> (9 dígitos) válido.</div>" }]);
+      if (!/^\d+$/.test(val) || (val.length < 8 || val.length > 11)) {
+        setMessages([...currentMessages, { role: 'model', content: "<div>Por favor, ingresa un número de documento válido (DNI/CE/RUC).</div>" }]);
         return;
       }
-      setUserData({ ...userData, idNumber: val });
+      setUserData({ ...userData, idNumber: val, docType: val.length === 11 ? "RUC" : (val.length === 8 ? "DNI" : "CE") });
       setOnboardingStep('name');
       setMessages([...currentMessages, { role: 'model', content: "<div>Perfecto. Ahora, ¿cuál es tu <strong>nombre completo</strong> o razón social?</div>" }]);
     } 
@@ -134,7 +141,7 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
     await logOfeliaEvent({
       tipoEvento: "registro_chatbot",
       sessionId,
-      tipoDocumento: finalUserData.idNumber?.length === 8 ? "DNI" : "CE",
+      tipoDocumento: finalUserData.docType || (finalUserData.idNumber?.length === 8 ? "DNI" : "CE"),
       numeroDocumento: finalUserData.idNumber,
       nombresApellidos: finalUserData.name,
       distrito: finalUserData.district,
@@ -184,7 +191,8 @@ export function OfeliaChatbot({ context, currentStep, isOpen: externalIsOpen, on
         textoConsulta: val,
         respuestaGenerada: response.text,
         fuenteUsada: response.sources?.[0] || "AI",
-        canal: "chatbot"
+        canal: "chatbot",
+        usuarioRegistrado: !!userData.idNumber && userData.idNumber !== "Anónimo"
       });
 
       setMessages([...currentMessages, { role: 'model', content: response.text }]);

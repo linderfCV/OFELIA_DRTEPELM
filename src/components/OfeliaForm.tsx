@@ -70,7 +70,7 @@ export function OfeliaForm({ onComplete }: OfeliaFormProps) {
     // Detectar tipo específico para logs
     let specificType = values.docType === "RUC" ? "RUC" : (values.docNumber.length === 8 ? "DNI" : "CE");
 
-    await logOfeliaEvent({
+    const eventPayload = {
       tipoEvento: "registro_usuario",
       tipoDocumento: specificType,
       numeroDocumento: values.docNumber,
@@ -78,7 +78,15 @@ export function OfeliaForm({ onComplete }: OfeliaFormProps) {
       correoElectronico: values.email,
       telefonoCelular: values.phone,
       canal: "pantalla_principal"
-    });
+    };
+
+    // Guardar en sesión para trazabilidad en chatbot
+    sessionStorage.setItem('ofelia_user_session', JSON.stringify({
+      ...values,
+      docType: specificType
+    }));
+
+    await logOfeliaEvent(eventPayload);
     
     onComplete(values);
   }

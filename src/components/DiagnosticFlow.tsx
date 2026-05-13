@@ -302,7 +302,7 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
             </div>
             <div className="flex-1">
               <h3 className="font-black text-xl text-[#1A1A1A] tracking-tight italic">Tengo una Idea</h3>
-              <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-1">Incubación y Constitución</p>
+              <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-1">RUTA DEL EMPRENDEDOR</p>
             </div>
             <ChevronRight className="w-6 h-6 text-gray-300 group-hover:text-primary transition-all" />
           </button>
@@ -316,52 +316,11 @@ export function DiagnosticFlow({ onComplete, userData }: DiagnosticFlowProps) {
             </div>
             <div className="flex-1">
               <h3 className="font-black text-xl text-[#1A1A1A] tracking-tight italic">Negocio en Marcha</h3>
-              <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-1">Formalización y REMYPE</p>
+              <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-1">RUTA DE LA REGULARIZACION</p>
             </div>
             <ChevronRight className="w-6 h-6 text-gray-300 group-hover:text-primary transition-all" />
           </button>
         </div>
-      </div>
-    );
-  }
-
-  if (step === 1 && profile === 'entrepreneur') {
-    return (
-      <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-700">
-        <div className="space-y-4 px-2">
-          <div className="flex justify-between items-end">
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">PASO 2 DE {totalSteps}</p>
-            <p className="text-[10px] font-black text-primary uppercase">{Math.round(currentProgress)}%</p>
-          </div>
-          <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
-            <motion.div 
-              initial={{ width: 0 }}
-              animate={{ width: `${currentProgress}%` }}
-              className="h-full bg-gradient-to-r from-primary to-red-500 shadow-[0_0_8px_rgba(217,30,24,0.3)]"
-            />
-          </div>
-          <h2 className="text-4xl font-black text-[#1A1A1A] pt-4 leading-[0.9] tracking-tighter">
-            ¿A qué rubro pertenece tu negocio?
-          </h2>
-        </div>
-
-        <ScrollArea className="h-[460px] pr-4 border border-gray-100 rounded-[40px] bg-white p-4 shadow-premium">
-          <div className="grid gap-2.5">
-            {SECTORS.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => { setSector(s.label); handleNext({ sector: s.label }); }}
-                className="flex items-center gap-4 p-5 bg-white border border-gray-50 rounded-2xl text-left hover:border-primary/30 transition-all hover:bg-gray-50 group shadow-sm"
-              >
-                <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all group-hover:scale-110">
-                  {s.icon}
-                </div>
-                <span className="text-sm font-bold text-gray-700 flex-1">{s.label}</span>
-                <ChevronRight className="w-4 h-4 text-gray-200 group-hover:text-primary" />
-              </button>
-            ))}
-          </div>
-        </ScrollArea>
       </div>
     );
   }

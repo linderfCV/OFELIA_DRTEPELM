@@ -81,7 +81,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           "Proyecto Educativo Institucional (PEI) y Plan Curricular.",
           "Plano de arquitectura y distribución visado por un arquitecto.",
           "Certificado de ITSE (Inspección de Seguridad) vigente.",
-          "DNI del promotor y declaración jurada de antecedentes penales.",
+          "DNI del promotor y declaración jurada de anticancerígenos penales.",
           "Vigencia de poderes (si es persona jurídica)."
         ],
         steps: [
@@ -480,7 +480,8 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         link: "https://apps.trabajo.gob.pe/rcth/app/#/inicio",
         options: [
           { label: "Modelo de Contrato Cama Adentro", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" },
-          { label: "Modelo de Contrato Cama Afuera", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" }
+          { label: "Modelo de Contrato Cama Afuera", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" },
+          { label: "Modelo de Contrato a tiempo parcial", url: "https://www.gob.pe/institucion/mtpe/informes-publicaciones/6570925-contrato-para-los-trabajadores-as-del-hogar" }
         ]
       },
       {

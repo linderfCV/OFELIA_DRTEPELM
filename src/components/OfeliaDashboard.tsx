@@ -541,6 +541,23 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
   const isFormalUser = (routeType === 'domestic' && tasks.length === 1 && tasks[0].id === 'obligations-domestic') ||
                        ((routeType === 'idea' || routeType === 'active') && tasks.length === 1 && tasks[0].id === 'mype-benefits');
 
+  const loadImageAsBase64 = (url: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.setAttribute('crossOrigin', 'anonymous');
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.onerror = () => resolve("");
+      img.src = url;
+    });
+  };
+
   const handleDownloadPDF = async () => {
     setIsGenerating(true);
     try {
@@ -558,18 +575,16 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       const phone = userData.phone || "No registrado";
       const district = results.district || userData.distrito || "Lima";
 
+      // Load Ofelia Logo
+      const logoData = await loadImageAsBase64("/Ofelia_logo.png");
+
       // --- HEADER ---
       doc.setFillColor(217, 30, 24); // MTPE Red
       doc.rect(0, 0, pageWidth, 4, 'F');
       
-      // Ofelia Character Logo Placeholder (simulated with a circle for branding)
-      doc.setFillColor(255, 255, 255);
-      doc.setDrawColor(217, 30, 24);
-      doc.circle(margin + 10, currentY + 5, 12, 'FD');
-      doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(217, 30, 24);
-      doc.text("O", margin + 7.5, currentY + 8);
+      if (logoData) {
+        doc.addImage(logoData, 'PNG', margin, currentY - 5, 20, 20);
+      }
       
       doc.setFontSize(22);
       doc.setFont("helvetica", "bold");

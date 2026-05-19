@@ -667,12 +667,24 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           currentY = 25;
         }
 
-        doc.setDrawColor(217, 30, 24);
+        const isSectoral = task.step.includes("AUTORIZACIÓN SECTORIAL");
+        const isInfoClave = task.step === "VALOR AGREGADO" || task.step === "INFO CLAVE";
+
+        if (isSectoral) {
+          doc.setDrawColor(5, 150, 105);
+          doc.setTextColor(5, 150, 105);
+        } else if (isInfoClave) {
+          doc.setDrawColor(26, 115, 232);
+          doc.setTextColor(26, 115, 232);
+        } else {
+          doc.setDrawColor(217, 30, 24);
+          doc.setTextColor(217, 30, 24);
+        }
+
         doc.line(margin, currentY, margin, currentY + 10);
         
         doc.setFontSize(11);
         doc.setFont("helvetica", "bold");
-        doc.setTextColor(217, 30, 24);
         doc.text(`${task.step}: ${task.title}`, margin + 5, currentY + 5);
         
         currentY += 12;

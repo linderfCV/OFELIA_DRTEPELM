@@ -458,7 +458,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         title: "Alta en el T-Registro (SUNAT)",
         icon: <UserCheck className="w-5 h-5" />,
         description: "FORMALIDAD CIUDADANA",
-        details: "El T-Registro vincula legalmente al trabajador(a) con su empleador, permitiendo el acceso a la seguridad social.",
+        details: "El T-Registro vinculas legalmente al trabajador(a) con su empleador, permitiendo el acceso a la seguridad social.",
         requirements: [
           "DNI del trabajador(a) del hogar.",
           "Fecha de nacimiento y nacionalidad del trabajador(a).",
@@ -575,14 +575,22 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       const phone = userData.phone || "No registrado";
       const district = results.district || userData.distrito || "Lima";
 
-      // Load Ofelia Logo
+      // PRE-CARGA DEL LOGO OFELIA
       const logoData = await loadImageAsBase64("/Ofelia_logo.png");
 
-      // --- HEADER ---
-      doc.setFillColor(217, 30, 24); // MTPE Red
+      // --- ENCABEZADO INSTITUCIONAL ---
+      doc.setFillColor(217, 30, 24); // Rojo MTPE
       doc.rect(0, 0, pageWidth, 4, 'F');
       
+      // Dibujar círculo de marca
+      doc.setFillColor(248, 250, 252);
+      doc.circle(margin + 10, currentY + 5, 10, 'F');
+      doc.setDrawColor(217, 30, 24);
+      doc.setLineWidth(0.5);
+      doc.circle(margin + 10, currentY + 5, 10, 'S');
+
       if (logoData) {
+        // Insertar imagen del asistente sobre el círculo
         doc.addImage(logoData, 'PNG', margin, currentY - 5, 20, 20);
       }
       
@@ -608,7 +616,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       
       currentY += 35;
 
-      // --- USER DATA BOX ---
+      // --- BLOQUE: DATOS DEL CIUDADANO ---
       doc.setFillColor(248, 250, 252);
       doc.rect(margin, currentY, contentWidth, 55, 'F');
       doc.setDrawColor(226, 232, 240);
@@ -631,7 +639,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       
       currentY += 70;
 
-      // --- DIAGNOSTIC SUMMARY ---
+      // --- RESUMEN DEL DIAGNÓSTICO ---
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(26, 26, 26);
@@ -646,15 +654,14 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       
       currentY += 30;
 
-      // --- ROADMAP TASKS ---
+      // --- HITOS DE LA HOJA DE RUTA ---
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(26, 26, 26);
       doc.text("HITOS DE FORMALIZACIÓN (HOJA DE RUTA)", margin, currentY);
       currentY += 10;
 
-      tasks.forEach((task, index) => {
-        // Check for new page
+      tasks.forEach((task) => {
         if (currentY > 230) {
           doc.addPage();
           currentY = 25;
@@ -677,7 +684,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         doc.text(detailsLines, margin + 5, currentY);
         currentY += (detailsLines.length * 5) + 5;
 
-        // Requirements
+        // Requisitos
         doc.setFontSize(9);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(26, 26, 26);
@@ -693,7 +700,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         });
         currentY += 5;
 
-        // Steps
+        // Guía de Ejecución
         doc.setFontSize(9);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(26, 26, 26);
@@ -724,7 +731,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
         currentY += 15;
       });
 
-      // --- FINAL CTA ---
+      // --- PRÓXIMA ACCIÓN ---
       if (currentY > 220) { doc.addPage(); currentY = 25; }
       doc.setFillColor(217, 30, 24);
       doc.rect(margin, currentY, contentWidth, 35, 'F');
@@ -742,7 +749,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       doc.text(`Enlace: ${appointmentUrl}`, margin + 10, currentY + 28);
       doc.link(margin + 10, currentY + 24, 150, 6, { url: appointmentUrl });
 
-      // --- FOOTER ---
+      // --- PIE DE PÁGINA ---
       doc.setFontSize(7);
       doc.setFont("helvetica", "italic");
       doc.setTextColor(150, 150, 150);

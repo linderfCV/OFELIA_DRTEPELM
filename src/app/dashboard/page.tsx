@@ -181,7 +181,9 @@ export default function OfeliaDashboard() {
     const rubroCounts: Record<string, number> = {};
     entrepreneurDiags.forEach(e => {
       const label = e.rubroNegocioLabel || "Otros";
-      rubroCounts[label] = (rubroCounts[label] || 0) + 1;
+      if (label.trim()) {
+        rubroCounts[label] = (rubroCounts[label] || 0) + 1;
+      }
     });
     const rubroData = Object.entries(rubroCounts)
       .map(([name, value]) => ({ name, value }))
@@ -466,7 +468,7 @@ export default function OfeliaDashboard() {
                 <YAxis 
                   dataKey="name" 
                   type="category" 
-                  width={110} 
+                  width={135} 
                   axisLine={false} 
                   tickLine={false} 
                   tick={(props: any) => {
@@ -477,7 +479,7 @@ export default function OfeliaDashboard() {
                     const lines = [];
                     let current = "";
                     words.forEach((w: string) => {
-                      if ((current + w).length > 14) {
+                      if ((current + w).length > 18) {
                         lines.push(current.trim());
                         current = w + " ";
                       } else {
@@ -495,7 +497,7 @@ export default function OfeliaDashboard() {
                             y={i * 8 - (lines.length - 1) * 4} 
                             textAnchor="end" 
                             fill="#6B7280" 
-                            fontSize={7} 
+                            fontSize={7.5} 
                             fontWeight={900} 
                             className="uppercase tracking-tighter"
                           >
@@ -506,7 +508,7 @@ export default function OfeliaDashboard() {
                     );
                   }} 
                 />
-                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={10} fill="#1a73e8" />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={12} fill="#1a73e8" />
               </BarChart>
             </ResponsiveContainer>
           </div>

@@ -36,7 +36,9 @@ import {
   ListFilter,
   CheckCircle2,
   Filter,
-  Database
+  Database,
+  Mail,
+  Phone
 } from "lucide-react";
 import { 
   BarChart, 
@@ -235,6 +237,16 @@ export default function OfeliaDashboard() {
 
   // --- AGRUPACIÓN DE FILAS PARA LA TABLA ---
   const tableRows = React.useMemo(() => {
+    // Primero recolectamos info de contacto de todos los eventos de registro
+    const contactInfoMap: Record<string, { email?: string, phone?: string }> = {};
+    events.forEach(e => {
+      if (e.numeroDocumento && e.numeroDocumento !== 'N/A') {
+        if (!contactInfoMap[e.numeroDocumento]) contactInfoMap[e.numeroDocumento] = {};
+        if (e.correoElectronico) contactInfoMap[e.numeroDocumento].email = e.correoElectronico;
+        if (e.telefonoCelular) contactInfoMap[e.numeroDocumento].phone = e.telefonoCelular;
+      }
+    });
+
     const diagnosticEvents = events.filter(e => e.tipoEvento === 'diagnostico_usuario');
     const chatbotEvents = events.filter(e => e.tipoEvento === 'consulta_chatbot');
     
@@ -289,12 +301,15 @@ export default function OfeliaDashboard() {
         : (e.sessionId || `anon-${e.id}`);
       
       if (!chatbotGroups[key]) {
+        const contact = e.numeroDocumento ? contactInfoMap[e.numeroDocumento] : {};
         chatbotGroups[key] = {
           id: `group-${key}`,
           tipoEvento: 'chatbot_session',
           fechaHora: e.fechaHora,
           nombresApellidos: e.nombresApellidos,
           numeroDocumento: e.numeroDocumento,
+          correoElectronico: e.correoElectronico || contact?.email,
+          telefonoCelular: e.telefonoCelular || contact?.phone,
           tipoUsuario: e.tipoUsuario,
           distrito: e.distrito,
           canal: 'Chatbot',
@@ -320,9 +335,12 @@ export default function OfeliaDashboard() {
 
     const processedDiagnostics = diagnosticEvents.map(e => {
       const diagThemes = new Set((e.temasDetectados || []).map((t: string) => formatThemeLabel(t)));
+      const contact = e.numeroDocumento ? contactInfoMap[e.numeroDocumento] : {};
       return {
         ...e,
         canal: 'Diagnóstico',
+        correoElectronico: e.correoElectronico || contact?.email,
+        telefonoCelular: e.telefonoCelular || contact?.phone,
         temasDetectados: Array.from(diagThemes),
         resultadoDiagnosticoResumen: generateSummary(diagThemes, "Sin brechas críticas detectadas")
       };
@@ -759,6 +777,7 @@ export default function OfeliaDashboard() {
               <TableRow className="border-none">
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6 pl-8">Último Evento</TableHead>
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Ciudadano</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Contacto</TableHead>
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Canal</TableHead>
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Distrito</TableHead>
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-gray-400 py-6">Resultado del Diagnóstico</TableHead>
@@ -787,7 +806,25 @@ export default function OfeliaDashboard() {
                             {row.tipoUsuario?.replace(/_/g, ' ')}
                           </div>
                         </div>
+                        {row.telefonoCelular && (
+                          <div className="flex items-center gap-1 mt-1 text-[9px] font-black text-emerald-600">
+                             <Phone className="w-2.5 h-2.5" />
+                             {row.telefonoCelular}
+                          </div>
+                        )}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                       <div className="flex flex-col gap-0.5">
+                          {row.correoElectronico ? (
+                            <div className="flex items-center gap-1.5 text-xs font-medium text-gray-600">
+                              <Mail className="w-3 h-3 text-primary/40" />
+                              <span className="truncate max-w-[150px]">{row.correoElectronico}</span>
+                            </div>
+                          ) : (
+                            <span className="text-[10px] font-bold text-gray-300 italic uppercase">No registrado</span>
+                          )}
+                       </div>
                     </TableCell>
                     <TableCell>
                       <span className={cn(
@@ -824,7 +861,7 @@ export default function OfeliaDashboard() {
                   <AnimatePresence>
                     {expandedRow === row.id && (
                       <TableRow className="bg-gray-50/50 border-none">
-                        <TableCell colSpan={6} className="p-0">
+                        <TableCell colSpan={7} className="p-0">
                           <motion.div 
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: 'auto', opacity: 1 }}
@@ -842,9 +879,29 @@ export default function OfeliaDashboard() {
                                 <span className="text-[9px] font-bold text-gray-400 uppercase italic">Registro ID: {row.id}</span>
                               </div>
 
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                                 <div className="space-y-4">
-                                  <p className="text-[9px] font-black text-primary uppercase tracking-widest">Brechas Identificadas</p>
+                                  <p className="text-[9px] font-black text-primary uppercase tracking-widest">Información de Contacto</p>
+                                  <div className="bg-white p-5 rounded-[28px] border border-gray-100 shadow-sm space-y-4">
+                                     <div className="flex items-center gap-3">
+                                        <Mail className="w-4 h-4 text-primary/40" />
+                                        <div className="flex flex-col">
+                                           <span className="text-[8px] font-black text-gray-400 uppercase">Email</span>
+                                           <span className="text-xs font-bold text-[#1A1A1A]">{row.correoElectronico || "No registrado"}</span>
+                                        </div>
+                                     </div>
+                                     <div className="flex items-center gap-3">
+                                        <Phone className="w-4 h-4 text-emerald-500/40" />
+                                        <div className="flex flex-col">
+                                           <span className="text-[8px] font-black text-gray-400 uppercase">Celular</span>
+                                           <span className="text-xs font-bold text-[#1A1A1A]">{row.telefonoCelular || "No registrado"}</span>
+                                        </div>
+                                     </div>
+                                  </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                  <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest">Brechas Identificadas</p>
                                   <div className="space-y-3">
                                     {(row.canal === 'Diagnóstico' || row.tipoEvento === 'diagnostico_usuario') && (row.respuestasDiagnosticoDetalle || []).filter((d: any) => d.necesitaOrientacion).map((d: any, idx: number) => (
                                       <div key={idx} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-start gap-3">

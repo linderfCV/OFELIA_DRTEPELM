@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -27,7 +28,8 @@ import {
   ChevronRight,
   ArrowRight,
   Sparkles,
-  BookOpen
+  BookOpen,
+  Loader2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -38,6 +40,9 @@ import {
 } from "@/components/ui/accordion"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
+import { jsPDF } from "jspdf"
+import { format } from "date-fns"
+import { es } from "date-fns/locale"
 
 interface TaskOption {
   label: string;
@@ -67,7 +72,8 @@ interface OfeliaDashboardProps {
 }
 
 export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnostic }: OfeliaDashboardProps) {
-  
+  const [isGenerating, setIsGenerating] = React.useState(false);
+
   const getSectoralTask = (sectorLabel: string): Task | null => {
     if (sectorLabel.includes("Educación")) {
       return {
@@ -535,6 +541,195 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
   const isFormalUser = (routeType === 'domestic' && tasks.length === 1 && tasks[0].id === 'obligations-domestic') ||
                        ((routeType === 'idea' || routeType === 'active') && tasks.length === 1 && tasks[0].id === 'mype-benefits');
 
+  const handleDownloadPDF = async () => {
+    setIsGenerating(true);
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const margin = 20;
+      const contentWidth = pageWidth - (margin * 2);
+      let currentY = 25;
+
+      const savedSession = sessionStorage.getItem('ofelia_user_session');
+      const userData = savedSession ? JSON.parse(savedSession) : {};
+      const fullName = userData.fullName || "Ciudadano";
+      const docNumber = userData.docNumber || "N/A";
+      const email = userData.email || "No registrado";
+      const phone = userData.phone || "No registrado";
+      const district = results.district || userData.distrito || "Lima";
+
+      // --- HEADER ---
+      doc.setFillColor(217, 30, 24); // MTPE Red
+      doc.rect(0, 0, pageWidth, 4, 'F');
+      
+      doc.setFontSize(22);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(26, 26, 26);
+      doc.text("OFELIA", margin, currentY);
+      
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(100, 100, 100);
+      doc.text("DRTPELM LIMA METROPOLITANA", margin, currentY + 6);
+      doc.text("Innova Región 2026", margin, currentY + 11);
+      
+      doc.setFontSize(8);
+      doc.text(`Fecha: ${format(new Date(), "dd/MM/yyyy HH:mm")}`, pageWidth - margin - 40, currentY, { align: 'right' });
+      
+      currentY += 25;
+
+      // --- USER DATA BOX ---
+      doc.setFillColor(248, 250, 252);
+      doc.rect(margin, currentY, contentWidth, 55, 'F');
+      doc.setDrawColor(226, 232, 240);
+      doc.rect(margin, currentY, contentWidth, 55);
+      
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(217, 30, 24);
+      doc.text("DATOS DEL CIUDADANO", margin + 8, currentY + 10);
+      
+      doc.setFontSize(9);
+      doc.setTextColor(26, 26, 26);
+      doc.text(`Nombres: ${fullName}`, margin + 8, currentY + 20);
+      doc.text(`Documento: ${docNumber}`, margin + 8, currentY + 27);
+      doc.text(`Perfil: ${routeType === 'domestic' ? 'Empleador del Hogar' : 'Emprendedor'}`, margin + 8, currentY + 34);
+      
+      doc.text(`Distrito: ${district}`, margin + (contentWidth / 2) + 5, currentY + 20);
+      doc.text(`Email: ${email}`, margin + (contentWidth / 2) + 5, currentY + 27);
+      doc.text(`Teléfono: ${phone}`, margin + (contentWidth / 2) + 5, currentY + 34);
+      
+      currentY += 70;
+
+      // --- DIAGNOSTIC SUMMARY ---
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(26, 26, 26);
+      doc.text("RESULTADO DEL DIAGNÓSTICO", margin, currentY);
+      
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(80, 80, 80);
+      const rutaText = routeType === 'idea' ? "RUTA DEL EMPRENDEDOR (Idea de Negocio)" : routeType === 'active' ? "RUTA DE LA REGULARIZACIÓN (Negocio en Marcha)" : "Régimen Especial de Trabajadores del Hogar";
+      doc.text(`Ruta seleccionada: ${rutaText}`, margin, currentY + 8);
+      if (results.sector) doc.text(`Sector: ${results.sector}`, margin, currentY + 15);
+      
+      currentY += 30;
+
+      // --- ROADMAP TASKS ---
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(26, 26, 26);
+      doc.text("HITOS DE FORMALIZACIÓN (HOJA DE RUTA)", margin, currentY);
+      currentY += 10;
+
+      tasks.forEach((task, index) => {
+        // Check for new page
+        if (currentY > 230) {
+          doc.addPage();
+          currentY = 25;
+        }
+
+        doc.setDrawColor(217, 30, 24);
+        doc.line(margin, currentY, margin, currentY + 10);
+        
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(217, 30, 24);
+        doc.text(`${task.step}: ${task.title}`, margin + 5, currentY + 5);
+        
+        currentY += 12;
+        
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(60, 60, 60);
+        const detailsLines = doc.splitTextToSize(task.details, contentWidth - 10);
+        doc.text(detailsLines, margin + 5, currentY);
+        currentY += (detailsLines.length * 5) + 5;
+
+        // Requirements
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(26, 26, 26);
+        doc.text(task.requirementsLabel || "Requisitos Técnicos:", margin + 5, currentY);
+        currentY += 6;
+        
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(80, 80, 80);
+        task.requirements.forEach(req => {
+          if (currentY > 270) { doc.addPage(); currentY = 25; }
+          doc.text(`• ${req}`, margin + 10, currentY);
+          currentY += 5;
+        });
+        currentY += 5;
+
+        // Steps
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(26, 26, 26);
+        doc.text(task.stepsLabel || "Pasos a seguir:", margin + 5, currentY);
+        currentY += 6;
+
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(80, 80, 80);
+        task.steps.forEach((step, sIdx) => {
+          if (currentY > 270) { doc.addPage(); currentY = 25; }
+          const stepLine = doc.splitTextToSize(`${sIdx + 1}. ${step}`, contentWidth - 15);
+          doc.text(stepLine, margin + 10, currentY);
+          currentY += (stepLine.length * 5);
+        });
+
+        if (task.link) {
+          currentY += 5;
+          doc.setFontSize(8);
+          doc.setTextColor(217, 30, 24);
+          doc.setFont("helvetica", "bold");
+          doc.text("Enlace oficial de gestión:", margin + 10, currentY);
+          doc.setTextColor(30, 64, 175);
+          doc.text(task.link, margin + 45, currentY);
+          doc.link(margin + 45, currentY - 3, 100, 5, { url: task.link });
+          currentY += 5;
+        }
+
+        currentY += 15;
+      });
+
+      // --- FINAL CTA ---
+      if (currentY > 220) { doc.addPage(); currentY = 25; }
+      doc.setFillColor(217, 30, 24);
+      doc.rect(margin, currentY, contentWidth, 35, 'F');
+      
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(255, 255, 255);
+      doc.text("PRÓXIMA ACCIÓN SUGERIDA", margin + 10, currentY + 12);
+      
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text("Agenda una asesoría técnica gratuita con un especialista de la DRTPELM.", margin + 10, currentY + 22);
+      
+      const appointmentUrl = "https://extranet.trabajo.gob.pe/extranet/web/citas";
+      doc.text(`Enlace: ${appointmentUrl}`, margin + 10, currentY + 28);
+      doc.link(margin + 10, currentY + 24, 150, 6, { url: appointmentUrl });
+
+      // --- FOOTER ---
+      doc.setFontSize(7);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(150, 150, 150);
+      const disclaimer = "La información brindada es orientativa y debe validarse en los portales oficiales correspondientes. El servicio brindado por la DRTPELM es totalmente gratuito.";
+      doc.text(disclaimer, pageWidth / 2, 285, { align: 'center' });
+      
+      doc.setFont("helvetica", "bold");
+      doc.text("Iniciativa de la DRTPELM · Innova Región 2026", pageWidth / 2, 290, { align: 'center' });
+
+      doc.save(`Hoja_Ruta_OFELIA_${docNumber}.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="space-y-8 lg:space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700 pb-20 relative">
       <div className="absolute inset-x-0 -top-20 -bottom-20 digital-mesh opacity-50 pointer-events-none" />
@@ -793,10 +988,12 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
           </Button>
            <Button 
             variant="outline"
+            disabled={isGenerating}
+            onClick={handleDownloadPDF}
             className="h-10 px-5 border-gray-200 text-[9px] font-black uppercase tracking-widest gap-2 rounded-2xl hover:bg-gray-50 shadow-sm"
           >
-            <Download className="w-3 h-3 text-gray-400" />
-            Descargar PDF
+            {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3 text-gray-400" />}
+            {isGenerating ? "Generando..." : "Descargar PDF"}
           </Button>
         </div>
         

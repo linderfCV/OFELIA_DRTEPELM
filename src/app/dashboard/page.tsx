@@ -461,9 +461,51 @@ export default function OfeliaDashboard() {
           </div>
           <div className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats.rubroData} layout="vertical">
+              <BarChart data={stats.rubroData} layout="vertical" margin={{ left: 10, right: 30 }}>
                 <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" width={80} axisLine={false} tickLine={false} tick={{fontSize: 8, fontWeight: 900}} />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  width={110} 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={(props: any) => {
+                    const { x, y, payload } = props;
+                    const val = payload.value;
+                    // Dividir el texto en líneas si es muy largo
+                    const words = val.split(' ');
+                    const lines = [];
+                    let current = "";
+                    words.forEach((w: string) => {
+                      if ((current + w).length > 14) {
+                        lines.push(current.trim());
+                        current = w + " ";
+                      } else {
+                        current += w + " ";
+                      }
+                    });
+                    lines.push(current.trim());
+
+                    return (
+                      <g transform={`translate(${x},${y})`}>
+                        {lines.map((line, i) => (
+                          <text 
+                            key={i} 
+                            x={-10} 
+                            y={i * 8 - (lines.length - 1) * 4} 
+                            textAnchor="end" 
+                            fill="#6B7280" 
+                            fontSize={7} 
+                            fontWeight={900} 
+                            className="uppercase tracking-tighter"
+                          >
+                            {line}
+                          </text>
+                        ))}
+                      </g>
+                    );
+                  }} 
+                />
                 <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={10} fill="#1a73e8" />
               </BarChart>
             </ResponsiveContainer>

@@ -185,8 +185,24 @@ export default function OfeliaDashboard() {
         rubroCounts[label] = (rubroCounts[label] || 0) + 1;
       }
     });
+
     const rubroData = Object.entries(rubroCounts)
-      .map(([name, value]) => ({ name, value }))
+      .map(([name, value]) => {
+        // Abreviar nombres para el gráfico para asegurar visibilidad
+        let shortName = name;
+        if (name.includes("Gastronomía")) shortName = "Gastronomía";
+        else if (name.includes("Educación")) shortName = "Educación";
+        else if (name.includes("Comercio")) shortName = "Comercio";
+        else if (name.includes("Manufactura")) shortName = "Manuf. y Textil";
+        else if (name.includes("Servicios")) shortName = "Servicios Prof.";
+        else if (name.includes("Belleza")) shortName = "Belleza y Cuidado";
+        else if (name.includes("Transporte")) shortName = "Transporte / Deliv.";
+        else if (name.includes("Tecnología")) shortName = "Tecnología y Apps";
+        else if (name.includes("Salud")) shortName = "Salud y Bienestar";
+        else if (name.includes("Construcción")) shortName = "Construcción";
+        
+        return { name: shortName, fullName: name, value };
+      })
       .sort((a, b) => b.value - a.value)
       .slice(0, 8);
 
@@ -463,21 +479,22 @@ export default function OfeliaDashboard() {
           </div>
           <div className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats.rubroData} layout="vertical" margin={{ left: 10, right: 30 }}>
+              <BarChart data={stats.rubroData} layout="vertical" margin={{ left: 5, right: 30 }}>
                 <XAxis type="number" hide />
                 <YAxis 
                   dataKey="name" 
                   type="category" 
-                  width={135} 
+                  width={140} 
                   axisLine={false} 
                   tickLine={false} 
+                  interval={0}
                   tick={(props: any) => {
                     const { x, y, payload } = props;
                     const val = payload.value;
-                    // Dividir el texto en líneas si es muy largo
                     const words = val.split(' ');
                     const lines = [];
                     let current = "";
+                    
                     words.forEach((w: string) => {
                       if ((current + w).length > 18) {
                         lines.push(current.trim());
@@ -490,11 +507,11 @@ export default function OfeliaDashboard() {
 
                     return (
                       <g transform={`translate(${x},${y})`}>
-                        {lines.map((line, i) => (
+                        {lines.slice(0, 2).map((line, i) => (
                           <text 
                             key={i} 
                             x={-10} 
-                            y={i * 8 - (lines.length - 1) * 4} 
+                            y={i * 9 - (lines.slice(0, 2).length - 1) * 4.5} 
                             textAnchor="end" 
                             fill="#6B7280" 
                             fontSize={7.5} 
@@ -508,7 +525,21 @@ export default function OfeliaDashboard() {
                     );
                   }} 
                 />
-                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={12} fill="#1a73e8" />
+                <Tooltip 
+                  cursor={{fill: 'transparent'}}
+                  content={({active, payload}) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-white p-3 border border-gray-100 rounded-xl shadow-xl">
+                          <p className="text-[10px] font-black text-primary uppercase mb-1">{payload[0].payload.fullName}</p>
+                          <p className="text-xs font-bold text-[#1A1A1A]">{payload[0].value} Ciudadanos</p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={14} fill="#1a73e8" />
               </BarChart>
             </ResponsiveContainer>
           </div>

@@ -562,21 +562,36 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
       doc.setFillColor(217, 30, 24); // MTPE Red
       doc.rect(0, 0, pageWidth, 4, 'F');
       
+      // Ofelia Character Logo Placeholder (simulated with a circle for branding)
+      doc.setFillColor(255, 255, 255);
+      doc.setDrawColor(217, 30, 24);
+      doc.circle(margin + 10, currentY + 5, 12, 'FD');
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(217, 30, 24);
+      doc.text("O", margin + 7.5, currentY + 8);
+      
       doc.setFontSize(22);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(26, 26, 26);
-      doc.text("OFELIA", margin, currentY);
-      
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(100, 100, 100);
-      doc.text("DRTPELM LIMA METROPOLITANA", margin, currentY + 6);
-      doc.text("Innova Región 2026", margin, currentY + 11);
+      doc.text("OFELIA", margin + 28, currentY + 5);
       
       doc.setFontSize(8);
-      doc.text(`Fecha: ${format(new Date(), "dd/MM/yyyy HH:mm")}`, pageWidth - margin - 40, currentY, { align: 'right' });
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(80, 80, 80);
+      doc.text("MODELO DE ORIENTACIÓN EN FORMALIZACIÓN", margin + 28, currentY + 11);
+      doc.text("EMPRESARIAL, LABORAL ITINERANTE Y ASISTIDA", margin + 28, currentY + 15);
       
-      currentY += 25;
+      doc.setFontSize(7);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(120, 120, 120);
+      doc.text("DRTPELM LIMA METROPOLITANA", margin + 28, currentY + 20);
+      doc.text("Innova Región 2026", margin + 28, currentY + 24);
+      
+      doc.setFontSize(8);
+      doc.text(`Generado: ${format(new Date(), "dd/MM/yyyy HH:mm")}`, pageWidth - margin, currentY + 5, { align: 'right' });
+      
+      currentY += 35;
 
       // --- USER DATA BOX ---
       doc.setFillColor(248, 250, 252);
@@ -858,7 +873,7 @@ export function OfeliaDashboard({ routeType, results, onOpenChat, onRedoDiagnost
                                 onClick={() => window.open(opt.url, '_blank')}
                                 className="w-full flex items-center justify-between gap-4 p-4 bg-white border border-blue-100 rounded-2xl hover:border-blue-400 hover:shadow-md transition-all text-left group"
                               >
-                                <span className="text-[11px] lg:text-[12px] font-bold text-blue-700 leading-tight group-hover:text-blue-900">
+                                <span className="text-11px] lg:text-[12px] font-bold text-blue-700 leading-tight group-hover:text-blue-900">
                                   {opt.label}
                                 </span>
                                 <ChevronRight className="w-4 h-4 text-blue-300 group-hover:translate-x-1 transition-transform" />
